@@ -123,8 +123,10 @@
   isolation: isolate;
 }
 
-/* <picture> must not introduce a box of its own inside the grid/flex slot */
-.slot picture { display: contents; }
+/* <picture> is a wrapper, never a box. Scoping this to .slot once let a
+   poster inside a player frame lay itself out as a block, cover the play
+   button and make the reels unclickable. */
+picture { display: contents; }
 
 .slot img {
   width: 100%;
@@ -778,23 +780,31 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   .lightbox__nav:hover { background: rgba(255, 255, 255, .18); transform: scale(1.06); }
 }
 
-/* Below the arrows' comfortable size, they move off the sides and under the
-   image rather than sitting on top of it. */
+/* On a phone the arrows overlay the edges of the frame instead of taking a
+   row of their own. Moving them below once put them in the wrong order —
+   previous ended up to the right of next — and mixed with the RTL glyph flip
+   the direction stopped making sense. Sitting on the edges they can only mean
+   one thing, and the logical properties keep "previous" at the reading start
+   in both languages. */
 @media (max-width: 34rem) {
-  .lightbox[open] {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "figure" "controls";
-    align-content: center;
-  }
-  .lightbox__figure { grid-area: figure; }
+  .lightbox[open] { grid-template-columns: minmax(0, 1fr); }
+
   .lightbox__nav {
-    grid-area: controls;
-    justify-self: center;
-    position: relative;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(4px);
   }
-  .lightbox__nav--prev { justify-self: end; margin-inline-end: 3.5rem; }
-  .lightbox__nav--next { justify-self: start; margin-inline-start: 3.5rem; }
-  .lightbox__img { max-height: calc(100dvh - 14rem); }
+  .lightbox__nav--prev { inset-inline-start: .6rem; }
+  .lightbox__nav--next { inset-inline-end: .6rem; }
+
+  @media (hover: hover) {
+    .lightbox__nav:hover { transform: translateY(-50%) scale(1.06); }
+  }
+
+  .lightbox__img { max-height: calc(100dvh - 10rem); }
 }
 
 /* A photograph that opens is worth a beat; anything more gets in the way. */

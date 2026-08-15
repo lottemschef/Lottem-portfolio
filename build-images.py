@@ -78,6 +78,10 @@ def rewrite_markup(manifest):
         sizes = sizes.group(1) if sizes else '100vw'
         alt = re.search(r'alt="([^"]*)"', body)
         alt = alt.group(1) if alt else ''
+        # a class on the image carries its positioning — losing it once put a
+        # full-height poster over the play button and made the reels unclickable
+        klass = re.search(r'<img[^>]*\bclass="([^"]*)"', body)
+        klass = f'class="{klass.group(1)}" ' if klass else ''
         extra = ' '.join(a for a in ('fetchpriority="high"',) if a in body)
         loading = 'loading="lazy" ' if 'loading="lazy"' in body else ''
 
@@ -88,7 +92,7 @@ def rewrite_markup(manifest):
         changed += 1
         return (f'{indent}<picture>\n{art}'
                 f'{indent}  <source type="image/webp" srcset="{ss("webp")}" sizes="{sizes}">\n'
-                f'{indent}  <img src="assets/img/{name}-{widths[-1]}.jpg" srcset="{ss("jpg")}" '
+                f'{indent}  <img {klass}src="assets/img/{name}-{widths[-1]}.jpg" srcset="{ss("jpg")}" '
                 f'sizes="{sizes}" alt="{alt}" width="{w}" height="{h}" '
                 f'{loading}{extra} decoding="async">\n'
                 f'{indent}</picture>')
