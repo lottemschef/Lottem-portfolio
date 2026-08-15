@@ -135,15 +135,20 @@
 
     <main id="main">
 
-      <!-- ============ 02 · opening image ============ -->
-      <section class="section section--flush on-dark" aria-label="Opening image">
-        <div class="slot slot--hero bleed" style="--ar: 39 / 10;">
-          <picture>
-            <source media="(max-width: 40rem)" type="image/webp" srcset="../assets/img/hero-wide-tall-320.webp 320w, ../assets/img/hero-wide-tall-640.webp 640w, ../assets/img/hero-wide-tall-960.webp 960w, ../assets/img/hero-wide-tall-1280.webp 1280w" sizes="100vw">
-            <source media="(max-width: 40rem)" srcset="../assets/img/hero-wide-tall-320.jpg 320w, ../assets/img/hero-wide-tall-640.jpg 640w, ../assets/img/hero-wide-tall-960.jpg 960w, ../assets/img/hero-wide-tall-1280.jpg 1280w" sizes="100vw">
-            <source type="image/webp" srcset="../assets/img/hero-wide-tall-320.webp 320w, ../assets/img/hero-wide-tall-640.webp 640w, ../assets/img/hero-wide-tall-960.webp 960w, ../assets/img/hero-wide-tall-1280.webp 1280w, ../assets/img/hero-wide-tall-1600.webp 1600w" sizes="100vw">
-            <img src="../assets/img/hero-wide-tall-1600.jpg" srcset="../assets/img/hero-wide-tall-320.jpg 320w, ../assets/img/hero-wide-tall-640.jpg 640w, ../assets/img/hero-wide-tall-960.jpg 960w, ../assets/img/hero-wide-tall-1280.jpg 1280w, ../assets/img/hero-wide-tall-1600.jpg 1600w" sizes="100vw" alt="Aerial view at sunset" width="1600" height="900" fetchpriority="high" decoding="async">
-          </picture>
+      <!-- ============ 01 · hero ============
+           A full-viewport silent loop. There is no still image element behind
+           it any more: the clip itself is the hero, and its poster frame
+           covers the moment between first paint and the first decoded frame.
+           Do not write a literal picture tag into this comment — build-images
+           matches picture blocks with a dotall regex and would rewrite from
+           here down to the profile portrait. -->
+      <section class="section section--flush on-dark hero-section" aria-label="Opening film">
+        <div class="slot slot--hero bleed">
+          <video class="hero-video" autoplay loop muted playsinline preload="auto"
+                 poster="../assets/img/poster-hero-loop-1600.jpg"
+                 aria-hidden="true" tabindex="-1" disablepictureinpicture>
+            <source src="../assets/video/hero-loop.mp4" type="video/mp4">
+          </video>
         </div>
       </section>
 
@@ -261,31 +266,31 @@
           </div>
         </div>
         <div class="mosaic bleed mt-sub" aria-label="Marriage proposals">
-          <div class="slot reveal 4" style="--i: 0">
+          <div class="slot reveal sp-4" style="--i: 0">
             <picture>
               <source type="image/webp" srcset="../assets/img/proposals-tile-01-320.webp 320w, ../assets/img/proposals-tile-01-640.webp 640w, ../assets/img/proposals-tile-01-960.webp 960w, ../assets/img/proposals-tile-01-1280.webp 1280w, ../assets/img/proposals-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/proposals-tile-01-1800.jpg" srcset="../assets/img/proposals-tile-01-320.jpg 320w, ../assets/img/proposals-tile-01-640.jpg 640w, ../assets/img/proposals-tile-01-960.jpg 960w, ../assets/img/proposals-tile-01-1280.jpg 1280w, ../assets/img/proposals-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 1">
+          <div class="slot reveal sp-3" style="--i: 1">
             <picture>
               <source type="image/webp" srcset="../assets/img/proposals-tile-02-320.webp 320w, ../assets/img/proposals-tile-02-640.webp 640w, ../assets/img/proposals-tile-02-960.webp 960w, ../assets/img/proposals-tile-02-1280.webp 1280w, ../assets/img/proposals-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/proposals-tile-02-1800.jpg" srcset="../assets/img/proposals-tile-02-320.jpg 320w, ../assets/img/proposals-tile-02-640.jpg 640w, ../assets/img/proposals-tile-02-960.jpg 960w, ../assets/img/proposals-tile-02-1280.jpg 1280w, ../assets/img/proposals-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 2">
+          <div class="slot reveal sp-2" style="--i: 2">
             <picture>
               <source type="image/webp" srcset="../assets/img/proposals-tile-03-320.webp 320w, ../assets/img/proposals-tile-03-640.webp 640w, ../assets/img/proposals-tile-03-960.webp 960w, ../assets/img/proposals-tile-03-1280.webp 1280w, ../assets/img/proposals-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/proposals-tile-03-1800.jpg" srcset="../assets/img/proposals-tile-03-320.jpg 320w, ../assets/img/proposals-tile-03-640.jpg 640w, ../assets/img/proposals-tile-03-960.jpg 960w, ../assets/img/proposals-tile-03-1280.jpg 1280w, ../assets/img/proposals-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 3">
+          <div class="slot reveal sp-3" style="--i: 3">
             <picture>
               <source type="image/webp" srcset="../assets/img/proposals-tile-04-320.webp 320w, ../assets/img/proposals-tile-04-640.webp 640w, ../assets/img/proposals-tile-04-960.webp 960w, ../assets/img/proposals-tile-04-1280.webp 1280w, ../assets/img/proposals-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/proposals-tile-04-1800.jpg" srcset="../assets/img/proposals-tile-04-320.jpg 320w, ../assets/img/proposals-tile-04-640.jpg 640w, ../assets/img/proposals-tile-04-960.jpg 960w, ../assets/img/proposals-tile-04-1280.jpg 1280w, ../assets/img/proposals-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 4">
+          <div class="slot reveal sp-3" style="--i: 4">
             <picture>
               <source type="image/webp" srcset="../assets/img/proposals-tile-05-320.webp 320w, ../assets/img/proposals-tile-05-640.webp 640w, ../assets/img/proposals-tile-05-960.webp 960w, ../assets/img/proposals-tile-05-1280.webp 1280w, ../assets/img/proposals-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/proposals-tile-05-1800.jpg" srcset="../assets/img/proposals-tile-05-320.jpg 320w, ../assets/img/proposals-tile-05-640.jpg 640w, ../assets/img/proposals-tile-05-960.jpg 960w, ../assets/img/proposals-tile-05-1280.jpg 1280w, ../assets/img/proposals-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
@@ -331,54 +336,71 @@
           </div>
         </div>
         <div class="mosaic bleed mt-sub" aria-label="Productions and events">
-          <div class="slot reveal 3" style="--i: 0">
+          <div class="slot reveal sp-3" style="--i: 0">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-01-320.webp 320w, ../assets/img/productions-tile-01-640.webp 640w, ../assets/img/productions-tile-01-960.webp 960w, ../assets/img/productions-tile-01-1280.webp 1280w, ../assets/img/productions-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-01-1800.jpg" srcset="../assets/img/productions-tile-01-320.jpg 320w, ../assets/img/productions-tile-01-640.jpg 640w, ../assets/img/productions-tile-01-960.jpg 960w, ../assets/img/productions-tile-01-1280.jpg 1280w, ../assets/img/productions-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 4" style="--i: 1">
+          <div class="slot reveal sp-4" style="--i: 1">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-02-320.webp 320w, ../assets/img/productions-tile-02-640.webp 640w, ../assets/img/productions-tile-02-960.webp 960w, ../assets/img/productions-tile-02-1280.webp 1280w, ../assets/img/productions-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-02-1800.jpg" srcset="../assets/img/productions-tile-02-320.jpg 320w, ../assets/img/productions-tile-02-640.jpg 640w, ../assets/img/productions-tile-02-960.jpg 960w, ../assets/img/productions-tile-02-1280.jpg 1280w, ../assets/img/productions-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 2">
+          <div class="slot reveal sp-2" style="--i: 2">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-03-320.webp 320w, ../assets/img/productions-tile-03-640.webp 640w, ../assets/img/productions-tile-03-960.webp 960w, ../assets/img/productions-tile-03-1280.webp 1280w, ../assets/img/productions-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-03-1800.jpg" srcset="../assets/img/productions-tile-03-320.jpg 320w, ../assets/img/productions-tile-03-640.jpg 640w, ../assets/img/productions-tile-03-960.jpg 960w, ../assets/img/productions-tile-03-1280.jpg 1280w, ../assets/img/productions-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 3">
+          <div class="slot reveal sp-3" style="--i: 3">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-04-320.webp 320w, ../assets/img/productions-tile-04-640.webp 640w, ../assets/img/productions-tile-04-960.webp 960w, ../assets/img/productions-tile-04-1280.webp 1280w, ../assets/img/productions-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-04-1800.jpg" srcset="../assets/img/productions-tile-04-320.jpg 320w, ../assets/img/productions-tile-04-640.jpg 640w, ../assets/img/productions-tile-04-960.jpg 960w, ../assets/img/productions-tile-04-1280.jpg 1280w, ../assets/img/productions-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 4" style="--i: 4">
+          <div class="slot reveal sp-4" style="--i: 4">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-05-320.webp 320w, ../assets/img/productions-tile-05-640.webp 640w, ../assets/img/productions-tile-05-960.webp 960w, ../assets/img/productions-tile-05-1280.webp 1280w, ../assets/img/productions-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-05-1800.jpg" srcset="../assets/img/productions-tile-05-320.jpg 320w, ../assets/img/productions-tile-05-640.jpg 640w, ../assets/img/productions-tile-05-960.jpg 960w, ../assets/img/productions-tile-05-1280.jpg 1280w, ../assets/img/productions-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 5">
+          <div class="slot reveal sp-3" style="--i: 5">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-06-320.webp 320w, ../assets/img/productions-tile-06-640.webp 640w, ../assets/img/productions-tile-06-960.webp 960w, ../assets/img/productions-tile-06-1280.webp 1280w, ../assets/img/productions-tile-06-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-06-1800.jpg" srcset="../assets/img/productions-tile-06-320.jpg 320w, ../assets/img/productions-tile-06-640.jpg 640w, ../assets/img/productions-tile-06-960.jpg 960w, ../assets/img/productions-tile-06-1280.jpg 1280w, ../assets/img/productions-tile-06-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 6">
+          <div class="slot reveal sp-2" style="--i: 6">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-07-320.webp 320w, ../assets/img/productions-tile-07-640.webp 640w, ../assets/img/productions-tile-07-960.webp 960w, ../assets/img/productions-tile-07-1280.webp 1280w, ../assets/img/productions-tile-07-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-07-1800.jpg" srcset="../assets/img/productions-tile-07-320.jpg 320w, ../assets/img/productions-tile-07-640.jpg 640w, ../assets/img/productions-tile-07-960.jpg 960w, ../assets/img/productions-tile-07-1280.jpg 1280w, ../assets/img/productions-tile-07-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 7">
+          <div class="slot reveal sp-3" style="--i: 7">
             <picture>
               <source type="image/webp" srcset="../assets/img/productions-tile-08-320.webp 320w, ../assets/img/productions-tile-08-640.webp 640w, ../assets/img/productions-tile-08-960.webp 960w, ../assets/img/productions-tile-08-1280.webp 1280w, ../assets/img/productions-tile-08-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/productions-tile-08-1800.jpg" srcset="../assets/img/productions-tile-08-320.jpg 320w, ../assets/img/productions-tile-08-640.jpg 640w, ../assets/img/productions-tile-08-960.jpg 960w, ../assets/img/productions-tile-08-1280.jpg 1280w, ../assets/img/productions-tile-08-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
+        </div>
+      
+        <!-- ============ full-length proposal film ============
+             A complete project rather than a reel: native controls, nothing
+             preloaded until it is asked for, and a portrait frame because the
+             film itself is 1080x1920. Putting a 9:16 film in a 16:9 box is
+             what produces the bars this is deliberately avoiding. -->
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.proposalfilm">סרט מלא · הצעת נישואין</h3>
+          <figure class="filmshow reveal">
+            <video class="filmshow__video" controls playsinline preload="none"
+                   poster="../assets/img/poster-proposal-save-the-date-1600.jpg"
+                   width="1080" height="1920">
+              <source src="../assets/video/proposal-save-the-date.mp4" type="video/mp4">
+            </video>
+            <figcaption class="filmshow__cap" data-i18n="video.proposalfilm">Save the date · הסרט המלא</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -394,16 +416,16 @@
 
         <div class="wrap">
           <h3 class="subhead mb-sub reveal" data-i18n="cat.concerts">הופעות</h3>
-          <div class="pair reveal">
+          <div class="pair pair--single reveal">
             <div class="slot" style="--ar: 16 / 9;">
-              <span class="slot__tag"><b>concerts-featured-01</b>16:9</span>
-            </div>
-            <div class="slot" style="--ar: 16 / 9;">
-              <span class="slot__tag"><b>concerts-featured-02</b>16:9</span>
+              <picture>
+                <source type="image/webp" srcset="../assets/img/concerts-featured-01-320.webp 320w, ../assets/img/concerts-featured-01-640.webp 640w, ../assets/img/concerts-featured-01-960.webp 960w, ../assets/img/concerts-featured-01-1280.webp 1280w, ../assets/img/concerts-featured-01-1920.webp 1920w, ../assets/img/concerts-featured-01-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/concerts-featured-01-2400.jpg" srcset="../assets/img/concerts-featured-01-320.jpg 320w, ../assets/img/concerts-featured-01-640.jpg 640w, ../assets/img/concerts-featured-01-960.jpg 960w, ../assets/img/concerts-featured-01-1280.jpg 1280w, ../assets/img/concerts-featured-01-1920.jpg 1920w, ../assets/img/concerts-featured-01-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Concerts featured" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
             </div>
           </div>
 
-          <div class="pair-meta reveal">
+          <div class="pair-meta pair-meta--single reveal">
             <div>
               <dl class="meta">
                 <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
@@ -413,45 +435,36 @@
               </dl>
               <p class="story" data-i18n="story.concerts">תאורת במה משתנה כל שנייה ואי אפשר לבקש ממנה לחכות. הצילום כאן הוא לקרוא את האור לפני שהוא מגיע.</p>
             </div>
-            <div>
-              <dl class="meta">
-                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
-                <dd class="meta__v">&mdash;</dd>
-                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
-                <dd class="meta__v num lat">&mdash;</dd>
-              </dl>
-            </div>
           </div>
-        </div>
-        <div class="mosaic bleed mt-sub" aria-label="Live concerts">
-          <div class="slot reveal 4" style="--i: 0"><span class="slot__tag"><b>concerts-tile-01</b></span></div>
-          <div class="slot reveal 2" style="--i: 1"><span class="slot__tag"><b>concerts-tile-02</b></span></div>
-          <div class="slot reveal 3" style="--i: 2"><span class="slot__tag"><b>concerts-tile-03</b></span></div>
-          <div class="slot reveal 3" style="--i: 3"><span class="slot__tag"><b>concerts-tile-04</b></span></div>
-          <div class="slot reveal 2" style="--i: 4"><span class="slot__tag"><b>concerts-tile-05</b></span></div>
-          <div class="slot reveal 4" style="--i: 5"><span class="slot__tag"><b>concerts-tile-06</b></span></div>
-          <div class="slot reveal 3" style="--i: 6"><span class="slot__tag"><b>concerts-tile-07</b></span></div>
-          <div class="slot reveal 3" style="--i: 7"><span class="slot__tag"><b>concerts-tile-08</b></span></div>
         </div>
 
         <div class="wrap">
-          <h3 class="subhead mb-sub reveal" data-i18n="cat.dj">סטים ודי-ג'יי</h3>
-        </div>
-        <div class="mosaic bleed mt-sub" aria-label="DJ sets">
-          <div class="slot reveal 4" style="--i: 0"><span class="slot__tag"><b>dj-tile-01</b></span></div>
-          <div class="slot reveal 3" style="--i: 1"><span class="slot__tag"><b>dj-tile-02</b></span></div>
-          <div class="slot reveal 2" style="--i: 2"><span class="slot__tag"><b>dj-tile-03</b></span></div>
-          <div class="slot reveal 3" style="--i: 3"><span class="slot__tag"><b>dj-tile-04</b></span></div>
-          <div class="slot reveal 5" style="--i: 4"><span class="slot__tag"><b>dj-tile-05</b></span></div>
-          <div class="slot reveal 3" style="--i: 5"><span class="slot__tag"><b>dj-tile-06</b></span></div>
-        </div>
-        <div class="wrap">
           <h3 class="subhead mb-sub reveal" data-i18n="cat.artists">פורטרטים של אמנים</h3>
           <div class="grid-3 mt-sub" aria-label="Artist portraits">
-            <div class="slot reveal" style="--i: 0; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-01</b></span></div>
-            <div class="slot reveal" style="--i: 1; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-02</b></span></div>
-            <div class="slot reveal" style="--i: 2; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-03</b></span></div>
-            <div class="slot reveal" style="--i: 3; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-04</b></span></div>
+            <div class="slot reveal" style="--i: 0; --ar: 3 / 4;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/artists-tile-01-320.webp 320w, ../assets/img/artists-tile-01-640.webp 640w, ../assets/img/artists-tile-01-960.webp 960w, ../assets/img/artists-tile-01-1280.webp 1280w, ../assets/img/artists-tile-01-1400.webp 1400w" sizes="(min-width: 40rem) 30vw, 47vw">
+                <img src="../assets/img/artists-tile-01-1400.jpg" srcset="../assets/img/artists-tile-01-320.jpg 320w, ../assets/img/artists-tile-01-640.jpg 640w, ../assets/img/artists-tile-01-960.jpg 960w, ../assets/img/artists-tile-01-1280.jpg 1280w, ../assets/img/artists-tile-01-1400.jpg 1400w" sizes="(min-width: 40rem) 30vw, 47vw" alt="Artists tile" width="1400" height="1867" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 1; --ar: 3 / 4;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/artists-tile-02-320.webp 320w, ../assets/img/artists-tile-02-640.webp 640w, ../assets/img/artists-tile-02-960.webp 960w, ../assets/img/artists-tile-02-1280.webp 1280w, ../assets/img/artists-tile-02-1400.webp 1400w" sizes="(min-width: 40rem) 30vw, 47vw">
+                <img src="../assets/img/artists-tile-02-1400.jpg" srcset="../assets/img/artists-tile-02-320.jpg 320w, ../assets/img/artists-tile-02-640.jpg 640w, ../assets/img/artists-tile-02-960.jpg 960w, ../assets/img/artists-tile-02-1280.jpg 1280w, ../assets/img/artists-tile-02-1400.jpg 1400w" sizes="(min-width: 40rem) 30vw, 47vw" alt="Artists tile" width="1400" height="1867" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 2; --ar: 3 / 4;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/artists-tile-03-320.webp 320w, ../assets/img/artists-tile-03-640.webp 640w, ../assets/img/artists-tile-03-960.webp 960w, ../assets/img/artists-tile-03-1280.webp 1280w, ../assets/img/artists-tile-03-1400.webp 1400w" sizes="(min-width: 40rem) 30vw, 47vw">
+                <img src="../assets/img/artists-tile-03-1400.jpg" srcset="../assets/img/artists-tile-03-320.jpg 320w, ../assets/img/artists-tile-03-640.jpg 640w, ../assets/img/artists-tile-03-960.jpg 960w, ../assets/img/artists-tile-03-1280.jpg 1280w, ../assets/img/artists-tile-03-1400.jpg 1400w" sizes="(min-width: 40rem) 30vw, 47vw" alt="Artists tile" width="1400" height="1867" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 3; --ar: 3 / 4;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/artists-tile-04-320.webp 320w, ../assets/img/artists-tile-04-640.webp 640w, ../assets/img/artists-tile-04-960.webp 960w, ../assets/img/artists-tile-04-1280.webp 1280w, ../assets/img/artists-tile-04-1400.webp 1400w" sizes="(min-width: 40rem) 30vw, 47vw">
+                <img src="../assets/img/artists-tile-04-1400.jpg" srcset="../assets/img/artists-tile-04-320.jpg 320w, ../assets/img/artists-tile-04-640.jpg 640w, ../assets/img/artists-tile-04-960.jpg 960w, ../assets/img/artists-tile-04-1280.jpg 1280w, ../assets/img/artists-tile-04-1400.jpg 1400w" sizes="(min-width: 40rem) 30vw, 47vw" alt="Artists tile" width="1400" height="1867" loading="lazy"  decoding="async">
+              </picture>
+            </div>
           </div>
         </div>
       </section>
@@ -504,37 +517,37 @@
           </div>
         </div>
         <div class="mosaic bleed mt-sub" aria-label="Venue launches">
-          <div class="slot reveal 4" style="--i: 0">
+          <div class="slot reveal sp-4" style="--i: 0">
             <picture>
               <source type="image/webp" srcset="../assets/img/launches-tile-01-320.webp 320w, ../assets/img/launches-tile-01-640.webp 640w, ../assets/img/launches-tile-01-960.webp 960w, ../assets/img/launches-tile-01-1280.webp 1280w, ../assets/img/launches-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/launches-tile-01-1800.jpg" srcset="../assets/img/launches-tile-01-320.jpg 320w, ../assets/img/launches-tile-01-640.jpg 640w, ../assets/img/launches-tile-01-960.jpg 960w, ../assets/img/launches-tile-01-1280.jpg 1280w, ../assets/img/launches-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 1">
+          <div class="slot reveal sp-3" style="--i: 1">
             <picture>
               <source type="image/webp" srcset="../assets/img/launches-tile-02-320.webp 320w, ../assets/img/launches-tile-02-640.webp 640w, ../assets/img/launches-tile-02-960.webp 960w, ../assets/img/launches-tile-02-1280.webp 1280w, ../assets/img/launches-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/launches-tile-02-1800.jpg" srcset="../assets/img/launches-tile-02-320.jpg 320w, ../assets/img/launches-tile-02-640.jpg 640w, ../assets/img/launches-tile-02-960.jpg 960w, ../assets/img/launches-tile-02-1280.jpg 1280w, ../assets/img/launches-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 2">
+          <div class="slot reveal sp-2" style="--i: 2">
             <picture>
               <source type="image/webp" srcset="../assets/img/launches-tile-03-320.webp 320w, ../assets/img/launches-tile-03-640.webp 640w, ../assets/img/launches-tile-03-960.webp 960w, ../assets/img/launches-tile-03-1280.webp 1280w, ../assets/img/launches-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/launches-tile-03-1800.jpg" srcset="../assets/img/launches-tile-03-320.jpg 320w, ../assets/img/launches-tile-03-640.jpg 640w, ../assets/img/launches-tile-03-960.jpg 960w, ../assets/img/launches-tile-03-1280.jpg 1280w, ../assets/img/launches-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 3">
+          <div class="slot reveal sp-3" style="--i: 3">
             <picture>
               <source type="image/webp" srcset="../assets/img/launches-tile-04-320.webp 320w, ../assets/img/launches-tile-04-640.webp 640w, ../assets/img/launches-tile-04-960.webp 960w, ../assets/img/launches-tile-04-1280.webp 1280w, ../assets/img/launches-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/launches-tile-04-1800.jpg" srcset="../assets/img/launches-tile-04-320.jpg 320w, ../assets/img/launches-tile-04-640.jpg 640w, ../assets/img/launches-tile-04-960.jpg 960w, ../assets/img/launches-tile-04-1280.jpg 1280w, ../assets/img/launches-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 4" style="--i: 4">
+          <div class="slot reveal sp-4" style="--i: 4">
             <picture>
               <source type="image/webp" srcset="../assets/img/launches-tile-05-320.webp 320w, ../assets/img/launches-tile-05-640.webp 640w, ../assets/img/launches-tile-05-960.webp 960w, ../assets/img/launches-tile-05-1280.webp 1280w, ../assets/img/launches-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/launches-tile-05-1800.jpg" srcset="../assets/img/launches-tile-05-320.jpg 320w, ../assets/img/launches-tile-05-640.jpg 640w, ../assets/img/launches-tile-05-960.jpg 960w, ../assets/img/launches-tile-05-1280.jpg 1280w, ../assets/img/launches-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 5">
+          <div class="slot reveal sp-2" style="--i: 5">
             <picture>
               <source type="image/webp" srcset="../assets/img/launches-tile-06-320.webp 320w, ../assets/img/launches-tile-06-640.webp 640w, ../assets/img/launches-tile-06-960.webp 960w, ../assets/img/launches-tile-06-1280.webp 1280w, ../assets/img/launches-tile-06-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/launches-tile-06-1800.jpg" srcset="../assets/img/launches-tile-06-320.jpg 320w, ../assets/img/launches-tile-06-640.jpg 640w, ../assets/img/launches-tile-06-960.jpg 960w, ../assets/img/launches-tile-06-1280.jpg 1280w, ../assets/img/launches-tile-06-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
@@ -580,54 +593,68 @@
           </div>
         </div>
         <div class="mosaic bleed mt-sub" aria-label="Aerial photography">
-          <div class="slot reveal 3" style="--i: 0">
+          <div class="slot reveal sp-3" style="--i: 0">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-01-320.webp 320w, ../assets/img/aerial-tile-01-640.webp 640w, ../assets/img/aerial-tile-01-960.webp 960w, ../assets/img/aerial-tile-01-1280.webp 1280w, ../assets/img/aerial-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-01-1800.jpg" srcset="../assets/img/aerial-tile-01-320.jpg 320w, ../assets/img/aerial-tile-01-640.jpg 640w, ../assets/img/aerial-tile-01-960.jpg 960w, ../assets/img/aerial-tile-01-1280.jpg 1280w, ../assets/img/aerial-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 4" style="--i: 1">
+          <div class="slot reveal sp-4" style="--i: 1">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-02-320.webp 320w, ../assets/img/aerial-tile-02-640.webp 640w, ../assets/img/aerial-tile-02-960.webp 960w, ../assets/img/aerial-tile-02-1280.webp 1280w, ../assets/img/aerial-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-02-1800.jpg" srcset="../assets/img/aerial-tile-02-320.jpg 320w, ../assets/img/aerial-tile-02-640.jpg 640w, ../assets/img/aerial-tile-02-960.jpg 960w, ../assets/img/aerial-tile-02-1280.jpg 1280w, ../assets/img/aerial-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 2">
+          <div class="slot reveal sp-2" style="--i: 2">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-03-320.webp 320w, ../assets/img/aerial-tile-03-640.webp 640w, ../assets/img/aerial-tile-03-960.webp 960w, ../assets/img/aerial-tile-03-1280.webp 1280w, ../assets/img/aerial-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-03-1800.jpg" srcset="../assets/img/aerial-tile-03-320.jpg 320w, ../assets/img/aerial-tile-03-640.jpg 640w, ../assets/img/aerial-tile-03-960.jpg 960w, ../assets/img/aerial-tile-03-1280.jpg 1280w, ../assets/img/aerial-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 3">
+          <div class="slot reveal sp-3" style="--i: 3">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-04-320.webp 320w, ../assets/img/aerial-tile-04-640.webp 640w, ../assets/img/aerial-tile-04-960.webp 960w, ../assets/img/aerial-tile-04-1280.webp 1280w, ../assets/img/aerial-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-04-1800.jpg" srcset="../assets/img/aerial-tile-04-320.jpg 320w, ../assets/img/aerial-tile-04-640.jpg 640w, ../assets/img/aerial-tile-04-960.jpg 960w, ../assets/img/aerial-tile-04-1280.jpg 1280w, ../assets/img/aerial-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 4" style="--i: 4">
+          <div class="slot reveal sp-4" style="--i: 4">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-05-320.webp 320w, ../assets/img/aerial-tile-05-640.webp 640w, ../assets/img/aerial-tile-05-960.webp 960w, ../assets/img/aerial-tile-05-1280.webp 1280w, ../assets/img/aerial-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-05-1800.jpg" srcset="../assets/img/aerial-tile-05-320.jpg 320w, ../assets/img/aerial-tile-05-640.jpg 640w, ../assets/img/aerial-tile-05-960.jpg 960w, ../assets/img/aerial-tile-05-1280.jpg 1280w, ../assets/img/aerial-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 5">
+          <div class="slot reveal sp-3" style="--i: 5">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-06-320.webp 320w, ../assets/img/aerial-tile-06-640.webp 640w, ../assets/img/aerial-tile-06-960.webp 960w, ../assets/img/aerial-tile-06-1280.webp 1280w, ../assets/img/aerial-tile-06-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-06-1800.jpg" srcset="../assets/img/aerial-tile-06-320.jpg 320w, ../assets/img/aerial-tile-06-640.jpg 640w, ../assets/img/aerial-tile-06-960.jpg 960w, ../assets/img/aerial-tile-06-1280.jpg 1280w, ../assets/img/aerial-tile-06-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 2" style="--i: 6">
+          <div class="slot reveal sp-2" style="--i: 6">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-07-320.webp 320w, ../assets/img/aerial-tile-07-640.webp 640w, ../assets/img/aerial-tile-07-960.webp 960w, ../assets/img/aerial-tile-07-1280.webp 1280w, ../assets/img/aerial-tile-07-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-07-1800.jpg" srcset="../assets/img/aerial-tile-07-320.jpg 320w, ../assets/img/aerial-tile-07-640.jpg 640w, ../assets/img/aerial-tile-07-960.jpg 960w, ../assets/img/aerial-tile-07-1280.jpg 1280w, ../assets/img/aerial-tile-07-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
-          <div class="slot reveal 3" style="--i: 7">
+          <div class="slot reveal sp-3" style="--i: 7">
             <picture>
               <source type="image/webp" srcset="../assets/img/aerial-tile-08-320.webp 320w, ../assets/img/aerial-tile-08-640.webp 640w, ../assets/img/aerial-tile-08-960.webp 960w, ../assets/img/aerial-tile-08-1280.webp 1280w, ../assets/img/aerial-tile-08-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
               <img src="../assets/img/aerial-tile-08-1800.jpg" srcset="../assets/img/aerial-tile-08-320.jpg 320w, ../assets/img/aerial-tile-08-640.jpg 640w, ../assets/img/aerial-tile-08-960.jpg 960w, ../assets/img/aerial-tile-08-1280.jpg 1280w, ../assets/img/aerial-tile-08-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
             </picture>
           </div>
+        </div>
+      
+        <!-- The colour-grading film is architectural footage, so it lives
+             here with the buildings rather than in the grading section,
+             which keeps only the wipe. -->
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.archfilm">אדריכלות בתנועה</h3>
+          <figure class="filmshow reveal">
+          <video class="filmshow__video" controls playsinline preload="none"
+          poster="../assets/img/poster-grade-clip-1600.jpg">
+          <source src="../assets/video/grade-clip.mp4" type="video/mp4">
+          </video>
+          <figcaption class="filmshow__cap" data-i18n="video.archfilm">רצף אדריכלי</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -650,29 +677,27 @@
         <div class="wrap">
           <h3 id="grade-h" class="subhead mb-sub reveal" data-i18n="cat.grading">עריכת וידאו / קורקציית צבע</h3>
 
-          <div class="pair reveal">
+          <!-- The two pieces this section exists to show: the wipe and the
+               graded film. Both are centred and given room by .grade-showcase
+               rather than sharing a two-up row, which is what used to shrink
+               them to half width each. -->
+          <div class="grade-showcase reveal">
             <figure class="compare" style="--pos: 50%">
               <picture>
-                <source type="image/webp" srcset="../assets/img/grade-compare-after-320.webp 320w, ../assets/img/grade-compare-after-640.webp 640w, ../assets/img/grade-compare-after-960.webp 960w, ../assets/img/grade-compare-after-1280.webp 1280w, ../assets/img/grade-compare-after-1920.webp 1920w, ../assets/img/grade-compare-after-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
-                <img src="../assets/img/grade-compare-after-2400.jpg" srcset="../assets/img/grade-compare-after-320.jpg 320w, ../assets/img/grade-compare-after-640.jpg 640w, ../assets/img/grade-compare-after-960.jpg 960w, ../assets/img/grade-compare-after-1280.jpg 1280w, ../assets/img/grade-compare-after-1920.jpg 1920w, ../assets/img/grade-compare-after-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="The same frame after colour grading" width="2400" height="1350" loading="lazy"  decoding="async">
+                <source type="image/webp" srcset="../assets/img/grade-compare-after-320.webp 320w, ../assets/img/grade-compare-after-640.webp 640w, ../assets/img/grade-compare-after-960.webp 960w, ../assets/img/grade-compare-after-1280.webp 1280w, ../assets/img/grade-compare-after-1920.webp 1920w, ../assets/img/grade-compare-after-2560.webp 2560w, ../assets/img/grade-compare-after-3024.webp 3024w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img class="compare__img" src="../assets/img/grade-compare-after-3024.jpg" srcset="../assets/img/grade-compare-after-320.jpg 320w, ../assets/img/grade-compare-after-640.jpg 640w, ../assets/img/grade-compare-after-960.jpg 960w, ../assets/img/grade-compare-after-1280.jpg 1280w, ../assets/img/grade-compare-after-1920.jpg 1920w, ../assets/img/grade-compare-after-2560.jpg 2560w, ../assets/img/grade-compare-after-3024.jpg 3024w" sizes="(min-width: 46rem) 46vw, 94vw" alt="The same frame after colour grading" width="3024" height="1700" loading="lazy"  decoding="async">
               </picture>
-              <picture>
-                <source type="image/webp" srcset="../assets/img/grade-compare-before-320.webp 320w, ../assets/img/grade-compare-before-640.webp 640w, ../assets/img/grade-compare-before-960.webp 960w, ../assets/img/grade-compare-before-1280.webp 1280w, ../assets/img/grade-compare-before-1920.webp 1920w, ../assets/img/grade-compare-before-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
-                <img src="../assets/img/grade-compare-before-2400.jpg" srcset="../assets/img/grade-compare-before-320.jpg 320w, ../assets/img/grade-compare-before-640.jpg 640w, ../assets/img/grade-compare-before-960.jpg 960w, ../assets/img/grade-compare-before-1280.jpg 1280w, ../assets/img/grade-compare-before-1920.jpg 1920w, ../assets/img/grade-compare-before-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="A frame straight out of the camera, before grading" width="2400" height="1350" loading="lazy"  decoding="async">
-              </picture>
+                <picture>
+                  <source type="image/webp" srcset="../assets/img/grade-compare-before-320.webp 320w, ../assets/img/grade-compare-before-640.webp 640w, ../assets/img/grade-compare-before-960.webp 960w, ../assets/img/grade-compare-before-1280.webp 1280w, ../assets/img/grade-compare-before-1920.webp 1920w, ../assets/img/grade-compare-before-2560.webp 2560w, ../assets/img/grade-compare-before-3024.webp 3024w" sizes="(min-width: 46rem) 46vw, 94vw">
+                  <img class="compare__img compare__img--top" src="../assets/img/grade-compare-before-3024.jpg" srcset="../assets/img/grade-compare-before-320.jpg 320w, ../assets/img/grade-compare-before-640.jpg 640w, ../assets/img/grade-compare-before-960.jpg 960w, ../assets/img/grade-compare-before-1280.jpg 1280w, ../assets/img/grade-compare-before-1920.jpg 1920w, ../assets/img/grade-compare-before-2560.jpg 2560w, ../assets/img/grade-compare-before-3024.jpg 3024w" sizes="(min-width: 46rem) 46vw, 94vw" alt="A frame straight out of the camera, before grading" width="3024" height="1700" loading="lazy"  decoding="async">
+                </picture>
               <span class="compare__seam" aria-hidden="true"></span>
-              <span class="compare__badge compare__badge--before" data-i18n="grade.before">לפני דירוג</span>
-              <span class="compare__badge compare__badge--after" data-i18n="grade.after">אחרי דירוג</span>
-              <input class="compare__range" type="range" min="0" max="100" value="50"
-                     aria-label="גרירה לחשיפת התמונה המדורגת" data-i18n-attr="aria-label:a11y.compare">
+                <span class="compare__badge compare__badge--before" data-i18n="grade.before">ללא דירוג</span>
+                <span class="compare__badge compare__badge--after" data-i18n="grade.after">מדורג</span>
+                <input class="compare__range" type="range" min="0" max="100" value="50"
+                       aria-label="גרירה לחשיפת התמונה המדורגת" data-i18n-attr="aria-label:a11y.compare">
             </figure>
 
-            <div class="slot" style="--ar: 16 / 9;">
-              <picture>
-                <source type="image/webp" srcset="../assets/img/grade-featured-02-320.webp 320w, ../assets/img/grade-featured-02-640.webp 640w, ../assets/img/grade-featured-02-960.webp 960w, ../assets/img/grade-featured-02-1280.webp 1280w, ../assets/img/grade-featured-02-1920.webp 1920w, ../assets/img/grade-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
-                <img src="../assets/img/grade-featured-02-2400.jpg" srcset="../assets/img/grade-featured-02-320.jpg 320w, ../assets/img/grade-featured-02-640.jpg 640w, ../assets/img/grade-featured-02-960.jpg 960w, ../assets/img/grade-featured-02-1280.jpg 1280w, ../assets/img/grade-featured-02-1920.jpg 1920w, ../assets/img/grade-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Aerial view at night" width="2400" height="1350" loading="lazy"  decoding="async">
-              </picture>
-            </div>
           </div>
 
           <div class="pair-meta reveal">
@@ -696,6 +721,12 @@
           </div>
 
           <div class="grid-3 mt-sub is-rounded" aria-label="Video stills">
+            <div class="slot reveal" style="--i: 9; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/grade-featured-02-320.webp 320w, ../assets/img/grade-featured-02-640.webp 640w, ../assets/img/grade-featured-02-960.webp 960w, ../assets/img/grade-featured-02-1280.webp 1280w, ../assets/img/grade-featured-02-1920.webp 1920w, ../assets/img/grade-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/grade-featured-02-2400.jpg" srcset="../assets/img/grade-featured-02-320.jpg 320w, ../assets/img/grade-featured-02-640.jpg 640w, ../assets/img/grade-featured-02-960.jpg 960w, ../assets/img/grade-featured-02-1280.jpg 1280w, ../assets/img/grade-featured-02-1920.jpg 1920w, ../assets/img/grade-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Aerial view at night" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
             <div class="slot reveal" style="--i: 0; --ar: 16 / 9;">
               <picture>
                 <source type="image/webp" srcset="../assets/img/video-tile-01-320.webp 320w, ../assets/img/video-tile-01-640.webp 640w, ../assets/img/video-tile-01-960.webp 960w, ../assets/img/video-tile-01-1280.webp 1280w, ../assets/img/video-tile-01-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
@@ -805,7 +836,7 @@
     <footer class="split split--end" id="contact" aria-labelledby="contact-h">
 
       <figure class="split__portrait">
-        <div class="slot" style="--ar: 3 / 4;">
+        <div class="slot" style="--ar: 3 / 4; --focus: 50% 28%;">
           <picture>
             <source type="image/webp" srcset="../assets/img/footer-portrait-320.webp 320w, ../assets/img/footer-portrait-640.webp 640w, ../assets/img/footer-portrait-960.webp 960w, ../assets/img/footer-portrait-1280.webp 1280w, ../assets/img/footer-portrait-1500.webp 1500w" sizes="(min-width: 46rem) 34vw, 50vw">
             <img src="../assets/img/footer-portrait-1500.jpg" srcset="../assets/img/footer-portrait-320.jpg 320w, ../assets/img/footer-portrait-640.jpg 640w, ../assets/img/footer-portrait-960.jpg 960w, ../assets/img/footer-portrait-1280.jpg 1280w, ../assets/img/footer-portrait-1500.jpg 1500w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Footer" width="1500" height="2000" loading="lazy"  decoding="async">

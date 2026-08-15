@@ -82,13 +82,17 @@
     "a11y.lbClose": "סגירה",
     "a11y.lbPrev": "התמונה הקודמת",
     "a11y.lbNext": "התמונה הבאה",
-    "grade.before": "לפני דירוג",
-    "grade.after": "אחרי דירוג",
+    "grade.before": "ללא דירוג",
+    "grade.after": "מדורג",
     "a11y.compare": "גרירה לחשיפת התמונה המדורגת",
     "a11y.skip": "דילוג לתוכן הראשי",
     "a11y.lang": "בחירת שפה",
     "a11y.play": "הפעלת הסרטון",
-    "a11y.langChanged": "השפה הוחלפה לעברית"
+    "a11y.langChanged": "השפה הוחלפה לעברית",
+    "cat.proposalfilm": "סרט מלא · הצעת נישואין",
+    "video.proposalfilm": "Save the date · הסרט המלא",
+    "cat.archfilm": "אדריכלות בתנועה",
+    "video.archfilm": "רצף אדריכלי"
   },
   "en": {
     "meta.title": "Lottem Schefenbauer · Photography, Video & Aerial",
@@ -179,6 +183,10 @@
     "a11y.skip": "Skip to main content",
     "a11y.lang": "Choose language",
     "a11y.play": "Play video",
-    "a11y.langChanged": "Language changed to English"
+    "a11y.langChanged": "Language changed to English",
+    "cat.proposalfilm": "Full Film · A Marriage Proposal",
+    "video.proposalfilm": "Save the date · the full film",
+    "cat.archfilm": "Architecture in Motion",
+    "video.archfilm": "Architectural sequence"
   }
 }

@@ -47,7 +47,7 @@ refs = set()
 for page in PAGES:
     base = os.path.dirname(page)
     doc = open(page, encoding='utf-8').read()
-    for r in re.findall(r'(?:src|href|srcset)="([^"]+)"', doc):
+    for r in re.findall(r'(?:src|href|srcset|poster)="([^"]+)"', doc):
         for q in r.split(','):
             p = q.strip().split(' ')[0]
             if p.startswith(('assets/', 'css/', 'js/', '../')):
@@ -81,7 +81,11 @@ for m in re.finditer(r'([^{}]+)\{([^}]*)\}', css):
 if css.count('{') != css.count('}'): fail('css: unbalanced braces')
 used = set(re.findall(r'var\((--[\w-]+)', css))
 declared = set(re.findall(r'(--[\w-]+)\s*:', css))
-inline = {'--ar','--pos','--i','--slot-bg','--portrait-col','--chars','--cap','--reveal-dur','--fill-cap'}
+# Set from outside the stylesheets: an inline style attribute, or ui.js.
+# --peek/--full are measured per grid at runtime; --focus is a per-slot crop
+# nudge set inline when a subject sits off centre.
+inline = {'--ar','--pos','--i','--slot-bg','--portrait-col','--chars','--cap','--reveal-dur','--fill-cap',
+          '--peek','--full','--focus'}
 undef = sorted(used - declared - inline)
 if undef: fail(f'css: undefined variables {undef}')
 
@@ -101,16 +105,19 @@ if dupes: fail(f'duplicate ids: {sorted(dupes)}')
 for anchor in re.findall(r'href="#([^"]+)"', html):
     if f'id="{anchor}"' not in html: fail(f'nav link #{anchor} has no target')
 
-# ---- every <source> and <img> sits inside a <picture> ---------------------
+# ---- every <source> sits inside a <picture> or a <video> ------------------
+# A <source> that has drifted out of its parent is silently ignored by the
+# browser, which is why this is checked at all. <video> is a legitimate parent
+# too — the hero background loop offers webm before mp4 that way.
 for page in PAGES:
     doc = open(page, encoding='utf-8').read()
     depth, stray = 0, 0
-    for tok in re.finditer(r'<picture>|</picture>|<source\b|<img\b', doc):
+    for tok in re.finditer(r'<picture>|</picture>|<video\b|</video>|<source\b|<img\b', doc):
         t = tok.group(0)
-        if t == '<picture>': depth += 1
-        elif t == '</picture>': depth -= 1
+        if t in ('<picture>', '<video'): depth += 1
+        elif t in ('</picture>', '</video>'): depth -= 1
         elif t == '<source' and depth == 0: stray += 1
-    if stray: fail(f'{page}: {stray} <source> outside any <picture>')
+    if stray: fail(f'{page}: {stray} <source> outside any <picture> or <video>')
 
 # ---- structured data -------------------------------------------------------
 ld = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)

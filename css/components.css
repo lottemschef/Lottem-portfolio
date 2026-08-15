@@ -95,7 +95,8 @@
   letter-spacing: .1em;
   padding-inline: .7rem;
   color: var(--fg-dim);
-  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+              box-shadow .5s var(--ease-out);
 }
 
 .lang__btn:hover { color: var(--fg); }
@@ -104,8 +105,9 @@
    to go. It is marked with aria-current rather than aria-pressed now that the
    control navigates instead of toggling. */
 .lang__btn.is-current {
+  box-shadow: var(--glow-off);
   background: var(--accent-ground);
-  color: #14100A;          /* amber is light — dark type reads, white does not */
+  color: #FFF7F0;          /* copper is dark — light type reads, near-black does not */
   cursor: default;
 }
 
@@ -128,10 +130,20 @@
    button and make the reels unclickable. */
 picture { display: contents; }
 
-.slot img {
+/* The frame owns the box; the photograph fills it and is cropped by it.
+   Laying the image out absolutely rather than as a grid item is what makes
+   that unconditional: as a centred grid item its height:100% was resolving
+   short inside the mosaic rows, leaving a strip of slot ground showing along
+   the bottom of every narrow tile. Pinned to the edges there is nothing left
+   for a percentage to get wrong, so the ground can never show through. */
+.slot img,
+.slot video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--focus, 50% 50%);
   transition: transform var(--dur-slow) var(--ease);
 }
 
@@ -141,7 +153,61 @@ picture { display: contents; }
   a:hover > .slot img { transform: scale(1.045); }
 }
 
-/* Placeholder skin — visible only while .slot has no <img> child */
+/* ---------- hero film ----------
+   The opening is a full-viewport silent loop, not a banded image. The slot
+   drops its aspect-ratio lock here and takes its height from the viewport
+   instead, so the film always fills the screen and is cropped by it rather
+   than letterboxed into a strip. 100svh, not 100vh: on a phone the dynamic
+   browser chrome makes 100vh taller than what you can actually see, which
+   pushes the section under the address bar. */
+.slot--hero {
+  aspect-ratio: auto;
+  width: 100vw;
+  max-width: 100%;   /* 100vw counts the scrollbar; this stops it overflowing */
+
+  /* Exactly one screen, never more. An earlier build held the box at 16:9 or
+     taller so the graded top and bottom could never be trimmed, but that made
+     the hero overrun the fold on any screen wider than 16:9. Filling the
+     viewport wins: on a wide screen the crop is now taken off the top and
+     bottom instead of the sides. The framing is centred, so it trims evenly. */
+  height: 100svh;
+  max-height: 100svh;
+  background: #000;
+}
+
+@supports not (height: 100svh) {
+  .slot--hero { height: 100vh; }
+}
+
+.slot--hero .hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Dead centre, both axes. The old build biased the phone crop upward; that
+     would fight the centring set in the grade, so it is gone. */
+  object-position: center center;
+  background: #000;
+  border: 0;
+  pointer-events: none;   /* the hero is decoration, never a control */
+  z-index: 1;
+}
+
+@media (max-width: 40rem) {
+  /* A phone screen is tall and narrow; a touch under full height leaves a
+     hint of the next section showing, which reads as "keep going". */
+  .slot--hero { height: 88svh; max-height: 88svh; }
+}
+
+/* A frame with nothing in it takes no space at all. The placeholder skin
+   below is what used to paint the grey striped boxes; collapsing the element
+   instead means the grid re-flows around what actually loaded rather than
+   reserving a cell for something that is not there. Grids are auto-placed,
+   so removing an item closes the gap on its own. */
+.slot:not(:has(img)):not(:has(video)) { display: none; }
+
+/* Placeholder skin — retained for the build pipeline's own preview only */
 .slot:not(:has(img))::before {
   content: "";
   position: absolute;
@@ -330,7 +396,8 @@ picture { display: contents; }
   max-width: 100%;
   overflow-wrap: anywhere;
   color: var(--fg);
-  transition: color var(--dur) var(--ease);
+  transition: color var(--dur) var(--ease),
+              text-shadow .5s var(--ease-out);
 }
 
 /* underline that draws in from the reading edge */
@@ -408,6 +475,7 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   border-radius: 50%;
   background: #F7F2E6;
   box-shadow: 0 2px 14px rgba(0, 0, 0, .45);
+  transition: box-shadow .5s var(--ease-out);
 }
 
 .compare__badge {
@@ -442,6 +510,11 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
+  /* The control covers the whole 16:9 figure, so on a phone it sits directly
+     under the thumb for most of a scroll past this section. pan-y hands
+     vertical gestures back to the page and keeps only the sideways drag,
+     which is the one the wipe actually wants. */
+  touch-action: pan-y;
 }
 .compare__range::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -613,7 +686,7 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   padding-inline: 1.15rem;
   border-radius: 999px;
   background: var(--accent);
-  color: #14100A;
+  color: #FFF7F0;
   font-family: var(--f-display);
   font-weight: 800;
   font-size: var(--t-small);
@@ -925,8 +998,8 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
 .nav .lang__btn { min-height: 2.25rem; min-width: 2.4rem; color: rgba(247, 242, 230, .7); }
 .nav .lang__btn:hover { color: #F7F2E6; }
 /* This rule sits after the pressed state and matches as tightly, so without
-   restating it here the selected language keeps dim cream on amber. */
-.nav .lang__btn.is-current { color: #14100A; }
+   restating it here the selected language keeps dim cream on copper. */
+.nav .lang__btn.is-current { color: #FFF7F0; }
 
 /* ---------- burger ---------- */
 .nav__burger {
@@ -990,7 +1063,7 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
 
 .menu__link.is-current,
 .menu__link:hover {
-  color: var(--accent-ground);
+  color: var(--accent-lift);
   text-shadow: var(--glow-sm);
 }
 
@@ -1091,7 +1164,7 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   padding-inline: 1.4rem;
   border-radius: 999px;
   background: var(--accent);
-  color: #14100A;
+  color: #FFF7F0;
   font-family: var(--f-display);
   font-weight: 800;
   font-size: var(--t-small);
@@ -1100,4 +1173,229 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
 
 @media (hover: hover) {
   .notfound__back:hover { transform: translateY(-2px); box-shadow: var(--glow); }
+}
+
+/* ==========================================================================
+   SHOWCASES — the two places a single piece of work carries the section
+   ========================================================================== */
+
+/* The colour-grading pair. These are the point of the section, so they get
+   the width rather than sharing a row: one column, centred, and wide enough
+   to read as a statement without going edge to edge like a mosaic. */
+.grade-showcase {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.25rem);
+  width: min(86%, 76rem);
+  margin-inline: auto;
+}
+
+@media (max-width: 46rem) {
+  /* On a phone "centred at 86%" just means starved, so it takes the column
+     and keeps only enough inset to breathe. */
+  .grade-showcase { width: 100%; }
+}
+
+.grade-showcase .compare {
+  width: 100%;
+  border-radius: clamp(.4rem, 1vw, .75rem);
+}
+
+/* A film given the same footprint as the wipe above it, so the two read as a
+   pair rather than as a feature and an afterthought. */
+.grade-film,
+.filmshow {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: .7rem;
+}
+
+.grade-film__video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  background: #000;
+  border-radius: clamp(.4rem, 1vw, .75rem);
+  /* contain, not cover: this is a film with controls, and cropping a frame
+     the visitor is deliberately watching is worse than the letterbox that
+     never actually appears here — the clip is 16:9 and so is the box. */
+  object-fit: contain;
+}
+
+/* ---------- full-length film ----------
+   The frame follows the footage. This one is 1080x1920, so the box is 9:16
+   and the film fills it exactly; a 16:9 box would have put a black pillar
+   down each side. Capped by height as well as width so a tall film cannot
+   run past the viewport on a laptop. */
+.filmshow {
+  width: min(90%, 62rem);
+  margin-inline: auto;
+}
+
+.filmshow__video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  background: #000;
+  border-radius: clamp(.4rem, 1vw, .75rem);
+  object-fit: contain;
+}
+
+/* Both films are 16:9. The ratio is declared on the element rather than left
+   to the file so the box is correct before a single byte of video arrives —
+   no reflow when it loads, and no letterbox if a future clip differs. */
+.filmshow__video,
+.filmshow--landscape .filmshow__video {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 46rem) {
+  .filmshow { width: 100%; }
+}
+
+.grade-film__cap,
+.filmshow__cap {
+  font-family: var(--f-display);
+  font-size: var(--t-micro);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  opacity: .62;
+  text-align: center;
+}
+
+/* ==========================================================================
+   MOBILE "SHOW MORE" — a category opens on its strongest frame
+   ==========================================================================
+   Portrait photographs are tall, and a phone showing eight of them in a row
+   turns a category into a minute of scrolling before the next one starts.
+   Collapsed, a grid shows its opening frames and nothing else; the rest is
+   still in the DOM and still crawlable, just clipped. Everything here is
+   inside the mobile query, so the desktop grids are untouched. */
+@media (max-width: 46rem) {
+  .is-collapsible {
+    position: relative;
+    overflow: hidden;
+    /* --peek is set by ui.js from the height of the frames we keep visible,
+       so the cut always lands on a tile edge rather than mid-photograph. */
+    max-height: var(--peek, 60vh);
+    transition: max-height .55s var(--ease);
+  }
+
+  .is-collapsible.is-open { max-height: var(--full, none); }
+
+  /* A fade over the cut says "there is more" without a hard edge. */
+  .is-collapsible::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 6.5rem;
+    /* --bg is redefined by .on-dark / .on-light / .on-mute, so the fade
+       always resolves to the ground the grid is actually sitting on. */
+    background: linear-gradient(to bottom, transparent, var(--bg) 88%);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity .4s var(--ease);
+  }
+
+  .is-collapsible.is-open::after { opacity: 0; }
+
+  .showmore {
+    display: block;
+    margin: 1rem auto 0;
+    padding: .72rem 1.6rem;
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: var(--t-micro);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-lift);
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 2rem;
+    cursor: pointer;
+    box-shadow: var(--glow-off);
+    transition: background .3s var(--ease), color .3s var(--ease),
+                letter-spacing .3s var(--ease),
+                box-shadow .5s var(--ease-out);
+  }
+
+  .showmore:hover,
+  .showmore:focus-visible {
+    background: var(--accent-ground);
+    color: #FFF7F0;
+    letter-spacing: .2em;
+  }
+
+  .showmore__count { opacity: .6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-collapsible { transition: none; }
+  .is-collapsible::after { transition: none; }
+}
+
+/* ==========================================================================
+   COPPER GLOW — the accent earns a halo where it marks something active
+   ==========================================================================
+   Restrained on purpose: a glow on everything is a glow on nothing. It goes
+   on the elements that signal state — the current nav item, the focused or
+   hovered control, the play affordance — and nowhere else. Every one of these
+   is a shadow, so none of them affect layout and none can shift the grid. */
+
+/* The current section in the nav, and the underline that marks it. */
+.nav__link.is-current,
+.nav__link[aria-current="page"] { text-shadow: var(--glow-sm); }
+.nav__link.is-current::after,
+.nav__link[aria-current="page"]::after { box-shadow: var(--glow-sm); }
+
+/* The language chip is a filled copper pill; the halo lifts it off the bar. */
+.lang__btn.is-current { box-shadow: var(--glow-sm); }
+
+/* Controls, on hover and on focus alike — a keyboard user should get the
+   same signal a mouse user does. */
+.showmore:hover,
+.showmore:focus-visible,
+.player__play:hover,
+.player__play:focus-visible {
+  box-shadow: var(--glow-sm);
+}
+
+/* The wipe handle sits over a photograph and needs to stay findable. */
+.compare:hover .compare__seam::after,
+.compare__range:focus-visible + .compare__seam::after,
+.compare__range:focus-visible ~ .compare__seam::after {
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .45), var(--glow-sm);
+}
+
+/* Films get the halo on hover so they read as playable rather than as a
+   still. Kept on the figure, not the <video>, so native controls are clear.
+
+   The halo has to be transitioned on the resting state, not on :hover — a
+   transition declared only inside the hover rule eases the fade in and then
+   snaps on the way out. box-shadow is named explicitly rather than using
+   `all`, so nothing else on the element gets dragged into the animation.
+   The ease-out curve has a long tail, so the glow arrives gradually instead
+   of appearing the instant the pointer lands. */
+.filmshow__video {
+  box-shadow: var(--glow-off);
+  transition: box-shadow .55s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .filmshow:hover .filmshow__video { box-shadow: var(--glow-sm); }
+}
+
+.filmshow__video:focus-visible {
+  outline: 2px solid var(--accent-lift);
+  outline-offset: 3px;
+  box-shadow: var(--glow-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The halo is a state signal, not decoration, so it stays — but it should
+     not animate in. */
+  .nav__link, .showmore, .player__play, .filmshow__video { transition: none; }
 }

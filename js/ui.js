@@ -66,6 +66,53 @@ function initCompare() {
   });
 }
 
+/* ---------- hero film ----------
+   There is no image fallback behind this any more, so the job here is to get
+   the clip playing and keep it playing rather than to decide whether it is
+   wanted. The poster attribute covers the gap before the first frame decodes,
+   and it is the only thing a visitor sees if autoplay is refused outright.
+
+   Autoplay is refused more often than it looks: a muted inline video is
+   normally allowed, but Low Power Mode on iOS blocks it, and a tab restored
+   in the background starts paused. So we retry on the events that mean the
+   browser has changed its mind — first interaction, and returning to the tab. */
+function initHeroVideo() {
+  const video = document.querySelector(".hero-video");
+  if (!video) return;
+
+  // Belt and braces: muted+playsinline are the two attributes autoplay policy
+  // actually checks, and a stale cached page could be missing them.
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+
+  const attempt = () => video.play?.().catch(() => {});
+
+  attempt();
+  video.addEventListener("canplay", attempt, { once: true });
+  video.addEventListener("loadeddata", attempt, { once: true });
+
+  // A refused autoplay is recoverable the moment the visitor touches the page.
+  const onGesture = () => attempt();
+  ["pointerdown", "touchstart", "keydown"].forEach((e) =>
+    document.addEventListener(e, onGesture, { once: true, passive: true }));
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && video.paused) attempt();
+  });
+
+  /* Someone who asked for less motion should not be handed a moving picture.
+     Pausing rather than removing keeps the poster frame on screen, so the
+     opening is still a photograph rather than an empty black band. */
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const applyMotion = () => {
+    if (still.matches) { video.pause(); video.removeAttribute("autoplay"); }
+    else attempt();
+  };
+  applyMotion();
+  still.addEventListener?.("change", applyMotion);
+}
+
 /* ---------- video reels ----------
    Nothing is downloaded until the visitor asks for it: the frame shows a
    poster, and the <video> is only created on the first play. */
@@ -83,6 +130,12 @@ function initPlayers() {
       video.autoplay = true;
       video.playsInline = true;
       video.preload = "auto";
+      /* The frame already shows a poster, but the <video> paints its own black
+         background over it at z-index 3 while the file buffers. Handing it the
+         very image the browser already picked keeps the still on screen right
+         through the wait instead of flashing to black. */
+      const poster = frame.querySelector(".player__poster");
+      if (poster?.currentSrc) video.poster = poster.currentSrc;
       /* Every reel is silent footage, so muting costs nothing and removes the
          one reason a browser would refuse to start playing on its own. */
       video.muted = true;
@@ -409,6 +462,153 @@ function initImageFade() {
   });
 }
 
+/* ---------- mobile "show more" ----------
+   A category on a phone opens on its strongest frames and keeps the rest
+   folded away, so scrolling from Events to Live Music is a few thumb flicks
+   rather than a minute of portraits.
+
+   The tiles are never removed from the DOM — the grid is clipped with
+   max-height, so everything stays in the document for search engines and for
+   anyone who lands with JS disabled (they simply see the full grid, because
+   .is-collapsible is only ever added by this function).
+
+   Auto-collapse: once a grid the visitor opened has been scrolled well past,
+   it folds itself back up. Re-entering from below does not re-collapse it,
+   which would yank the page out from under a thumb mid-scroll. */
+const SHOWMORE_Q = window.matchMedia("(max-width: 46rem)");
+
+function initShowMore() {
+  const grids = document.querySelectorAll(".mosaic, .grid-3");
+  if (!grids.length) return;
+
+  const strings = {
+    more: document.documentElement.lang === "he" ? "הצגת הכל" : "Show more",
+    less: document.documentElement.lang === "he" ? "הצגת פחות" : "Show less",
+  };
+
+  const entries = [];
+
+  grids.forEach((grid) => {
+    const tiles = [...grid.children];
+    // Nothing to fold away if the category is barely more than the peek.
+    if (tiles.length < 4) return;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "showmore";
+    btn.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+
+    const label = () => {
+      const hidden = tiles.length - visibleCount(grid);
+      btn.innerHTML = grid.classList.contains("is-open")
+        ? strings.less
+        : `${strings.more} <span class="showmore__count">(${hidden})</span>`;
+    };
+
+    grid.after(btn);
+    entries.push({ grid, btn, tiles, label });
+
+    btn.addEventListener("click", () => {
+      const open = grid.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", String(open));
+      if (open) grid.style.setProperty("--full", grid.scrollHeight + "px");
+      label();
+      if (!open) {
+        // Collapsing from below would leave the viewport past the section.
+        const top = grid.getBoundingClientRect().top;
+        if (top < 0) grid.scrollIntoView({ block: "start", behavior: "auto" });
+      }
+    });
+  });
+
+  /* How much to show before the cut. One row of a mosaic, or the first two
+     cells of a portrait grid — measured from the tiles themselves so the
+     fold always lands on an edge rather than through someone's face. */
+  function visibleCount(grid) {
+    return grid.classList.contains("mosaic") ? rowCount(grid) : 2;
+  }
+
+  function rowCount(grid) {
+    const tiles = [...grid.children];
+    if (!tiles.length) return 1;
+    const firstTop = tiles[0].offsetTop;
+    const n = tiles.filter((t) => t.offsetTop === firstTop).length;
+    return n || 1;
+  }
+
+  function measure() {
+    entries.forEach(({ grid, btn, tiles, label }) => {
+      if (!SHOWMORE_Q.matches) {
+        grid.classList.remove("is-collapsible", "is-open");
+        grid.style.removeProperty("--peek");
+        grid.style.removeProperty("--full");
+        btn.hidden = true;
+        return;
+      }
+
+      const keep = Math.min(visibleCount(grid), tiles.length);
+      const last = tiles[keep - 1];
+      if (!last) return;
+
+      const peek = last.offsetTop + last.offsetHeight - tiles[0].offsetTop;
+      const full = grid.scrollHeight;
+
+      // Not worth a control if folding saves almost nothing.
+      if (full - peek < 120) {
+        grid.classList.remove("is-collapsible", "is-open");
+        btn.hidden = true;
+        return;
+      }
+
+      grid.classList.add("is-collapsible");
+      grid.style.setProperty("--peek", peek + "px");
+      grid.style.setProperty("--full", full + "px");
+      btn.hidden = false;
+      label();
+    });
+  }
+
+  // Tiles are lazy images; their height is only real once they have loaded.
+  measure();
+  window.addEventListener("load", measure);
+  document.querySelectorAll(".mosaic img, .grid-3 img").forEach((img) => {
+    if (!img.complete) img.addEventListener("load", debounce(measure, 120), { once: true });
+  });
+
+  let rt;
+  window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measure, 150); });
+  SHOWMORE_Q.addEventListener?.("change", measure);
+
+  /* Auto-collapse. A grid folds back once its bottom has travelled a full
+     screen above the fold — far enough that the visitor has clearly moved on,
+     and never while any part of it is still on screen. */
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((records) => {
+      records.forEach((r) => {
+        const grid = r.target;
+        if (!grid.classList.contains("is-open")) return;
+        const past = r.boundingClientRect.bottom < 0;
+        if (!r.isIntersecting && past) {
+          grid.classList.remove("is-open");
+          const btn = grid.nextElementSibling;
+          if (btn?.classList.contains("showmore")) {
+            btn.setAttribute("aria-expanded", "false");
+            const e = entries.find((x) => x.grid === grid);
+            e?.label();
+          }
+        }
+      });
+    }, { rootMargin: "100% 0px 0px 0px", threshold: 0 });
+    entries.forEach(({ grid }) => io.observe(grid));
+  }
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
 function initFit() {
   fitAllHeadings();
 
@@ -430,11 +630,13 @@ function init() {
   initImageFade();
   initFit();
   initCompare();
+  initHeroVideo();
   initPlayers();
   initReveal();
   initDock();
   initLightbox();
   initNav();
+  initShowMore();
 }
 
 if (document.readyState === "loading") {

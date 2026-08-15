@@ -118,3 +118,9 @@ python3 build-images.py
 
 אמרת שתחליף את שלושתם לפני העלייה — קבצים קטנים יותר, מדורגים, עם סאונד
 ולא בפורמט לוג. השמות צריכים להישאר זהים, אחרת צריך לגעת גם ב-HTML.
+
+> **Note (current build):** the `concerts-tile-01..08`, `dj-tile-01..06` and
+> `concerts-featured-02` frames were removed from the markup — empty cells are no
+> longer rendered at all. Dropping a master into `assets/photos/` will therefore
+> *not* auto-fill them any more; the slot has to be re-added to `index.html`
+> first. Every other slot in this inventory still auto-fills as described.

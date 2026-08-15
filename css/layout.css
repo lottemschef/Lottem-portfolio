@@ -16,20 +16,12 @@
 /* Sections whose content runs edge to edge (mosaics, full-bleed images) */
 .section--flush { padding-block: 0; }
 
-/* The opening photograph is 3.9:1 in the reference — but the reference is a
-   deck viewed on a desktop. At 375px that ratio is a 96px letterbox strip, so
-   the phone gets a 16:9 crop instead (art-directed in the <picture>).
-   Two cascade notes: the ratio is set on aspect-ratio rather than --ar,
-   because the element carries an inline --ar and an inline custom property
-   beats any stylesheet rule; and the selector is doubled because .slot is
-   declared in components.css, which loads after this file. */
-@media (max-width: 40rem) {
-  .slot.slot--hero { aspect-ratio: 16 / 9; }
-}
-
-/* Full width is the point of the opening frame, but its height should not
-   swallow the screen before anything else has a chance to appear. */
-.slot.slot--hero { max-height: 40vh; }
+/* The opening used to be a 3.9:1 photographic strip, capped at 40vh so it
+   could not swallow the screen. It is a full-viewport film now, so both the
+   ratio override and that cap are gone — they were the two rules holding the
+   hero down to a band, and being doubled selectors they outranked the height
+   set in components.css. The hero's sizing lives entirely in .slot--hero
+   there now; nothing about it belongs here any more. */
 
 .wrap {
   max-width: 96rem;
@@ -220,6 +212,17 @@
   gap: clamp(1rem, 4.4vw, 3.9rem);
   align-items: start;
 }
+
+/* A pair holding one frame takes the whole row rather than stranding it at
+   half width. This is a plain modifier rather than :has(> :only-child) on
+   purpose: :has() needs Chrome 105 / Safari 15.4 / Firefox 121, and a
+   selector-support fallback would have to stack *every* pair to catch the one
+   that needs it. A class costs nothing and works everywhere.
+
+   It has to sit below both base rules: all three selectors are one class deep,
+   so source order is what decides, and declared above .pair-meta it lost. */
+.pair--single,
+.pair-meta--single { grid-template-columns: minmax(0, 1fr); }
 
 @media (max-width: 46rem) {
   .pair, .pair-meta { grid-template-columns: minmax(0, 1fr); }
