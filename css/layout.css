@@ -156,6 +156,23 @@
   /* portrait on the far edge — the contact slide */
   .split--end .split__row         { grid-template-columns: minmax(0, 1fr) var(--portrait-col); }
   .split--end .split__portrait    { inset-inline-end: var(--pad-x); }
+
+  /* The portrait column is pinned top and bottom, so it inherits whatever
+     height the contact text happens to need — which was 335px against a
+     512px width, i.e. a landscape letterbox showing 49% of a 3:4 photograph.
+     Giving the slide a floor equal to the column's own 3:4 height makes the
+     frame match the picture exactly: the whole portrait, uncropped, at full
+     column width.
+
+     --portrait-col cannot be reused here: it carries a percentage, and a
+     percentage inside min-height resolves against the containing block's
+     *height*, not its width, so the calc silently evaluates to nothing. This
+     mirrors the same clamp in vw, which is width-relative and therefore valid
+     in a height context. The slide is full width, so 40vw tracks the 40%. */
+  .split--end {
+    --portrait-col-h: clamp(14rem, 40vw, 32rem);
+    min-height: calc(var(--portrait-col-h) * 4 / 3 + 2 * clamp(2.5rem, 5vw, 5rem));
+  }
 }
 
 /* The contact table and the closing headline share one measure so their edges

@@ -38,7 +38,7 @@ command -v avconvert >/dev/null || { echo "avconvert not found (macOS only)"; ex
 JOBS=(
   "hero-loop|hero clip cropped.mp4|Preset1920x1080|0|8"
   "grade-clip|grade fading clip.mp4|Preset1920x1080|0|"
-  "proposal-save-the-date|save the date.mov|Preset1920x1080|0|"
+  "proposal-save-the-date|save the date.mov|Preset1280x720|0|"   # 45s: 1080p put it over GitHub's 50MB advisory
 )
 
 for job in "${JOBS[@]}"; do

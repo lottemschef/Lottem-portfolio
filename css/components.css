@@ -347,7 +347,7 @@ picture { display: contents; }
   font-weight: 800;
   font-size: clamp(1.05rem, .95rem + .55vw, 1.55rem);
   letter-spacing: -.02em;
-  color: var(--fg);
+  color: var(--accent-ground);
   margin-bottom: .5rem;
 }
 

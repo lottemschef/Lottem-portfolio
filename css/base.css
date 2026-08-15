@@ -116,7 +116,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .on-light {
-  --accent-ground: var(--accent-deep);
+  /* #ad550c is 4.61:1 on the cream, so the brand copper carries the headings
+     here directly rather than dropping to the deeper tint. */
+  --accent-ground: var(--accent);
   --bg:     var(--bg-light);
   --fg:     #0A0A0A;
   --fg-dim: rgba(10, 10, 10, .60);
@@ -124,7 +126,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .on-mute {
-  --accent-ground: var(--accent-deep);
+  /* NOTE: copper on this grey is only 1.43:1. The ground is the problem, not
+     the hue — see the promo band. Kept on the brand colour for consistency. */
+  --accent-ground: var(--accent);
   --bg:     var(--bg-mute);
   --fg:     #0A0A0A;
   --fg-dim: rgba(10, 10, 10, .62);
@@ -231,7 +235,7 @@ h1, h2, h3 {
   font-size: var(--t-heading);
   line-height: 1.05;
   letter-spacing: -.03em;
-  color: var(--fg);
+  color: var(--accent-ground);
 }
 
 .lede {
