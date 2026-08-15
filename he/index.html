@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>לוטם שיפנבאור · צילום, וידאו וצילום אווירי</title>
+  <meta name="description" content="צלם עצמאי, עורך וידאו ומפעיל רחפן מסחרי מורשה. צילום סטילס, צילום אווירי, עריכה וקורקציית צבע בסטנדרט קולנועי.">
+  <meta name="theme-color" content="#000000">
+  <meta name="author" content="Lottem Schefenbauer">
+
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+
+  <!-- One page serves both languages; ?lang= pins either one. -->
+  <link rel="alternate" hreflang="en" href="../">
+  <link rel="alternate" hreflang="he" href="../he/">
+  <link rel="alternate" hreflang="x-default" href="../">
+
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="לוטם שיפנבאור · צילום, וידאו וצילום אווירי">
+  <meta property="og:description" content="צלם עצמאי, עורך וידאו ומפעיל רחפן מסחרי מורשה. צילום סטילס, צילום אווירי, עריכה וקורקציית צבע בסטנדרט קולנועי.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:locale" content="he_IL">
+  <meta property="og:locale:alternate" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- TODO once the domain is live: make og:image absolute and add
+       <link rel="canonical"> and <meta property="og:url">. Most link
+       previewers will not resolve a relative image path. See README. -->
+
+  <link rel="preload" href="../assets/fonts/rubik-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/assistant-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+  <link rel="stylesheet" href="../css/fonts.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Lottem Schefenbauer",
+    "description": "Freelance photographer, video editor and licensed commercial drone operator.",
+    "areaServed": { "@type": "Country", "name": "Israel" },
+    "address": { "@type": "PostalAddress", "addressCountry": "IL" },
+    "email": "lottem.schef@gmail.com",
+    "telephone": "+972-54-225-6566",
+    "image": "assets/og-image.jpg",
+    "sameAs": ["https://www.instagram.com/lotsdronephotography/"],
+    "knowsLanguage": ["he", "en"],
+    "founder": {
+      "@type": "Person",
+      "name": "Lottem Schefenbauer",
+      "jobTitle": "Photographer & Commercial Drone Operator",
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "licence",
+        "name": "Commercial drone operator, aircraft up to 25 kg",
+        "recognizedBy": { "@type": "Organization", "name": "Civil Aviation Authority of Israel" }
+      }
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skip">דילוג לתוכן הראשי</a>
+
+  <p class="visually-hidden" role="status" aria-live="polite" data-lang-status></p>
+
+  <!-- covers the language swap; see js/i18n.js -->
+  <div class="curtain" aria-hidden="true">
+    <p class="curtain__word" data-i18n="brand.name">לוטם שיפנבאור</p>
+    <span class="curtain__mark"></span>
+  </div>
+
+
+  <!-- Sticky navigation. The reference has none — it is a deck — but a
+       document eleven thousand pixels tall needs a way to move around it.
+       The language switch lives here now: it is a global control, and the
+       opening band goes back to carrying only the name and the year. -->
+  <header class="nav" data-nav>
+    <div class="nav__inner">
+      <a class="nav__brand" href="#top" data-i18n="brand.name">לוטם שיפנבאור</a>
+
+      <nav class="nav__links" aria-label="ניווט ראשי" data-i18n-attr="aria-label:a11y.nav">
+        <a class="nav__link" href="#top"          data-i18n="nav.home">בית</a>
+        <a class="nav__link" href="#events"       data-i18n="nav.events">אירועים</a>
+        <a class="nav__link" href="#live-music"   data-i18n="nav.music">מוזיקה חיה</a>
+        <a class="nav__link" href="#architecture" data-i18n="nav.arch">אדריכלות</a>
+        <a class="nav__link" href="#videography"  data-i18n="nav.video">וידאו</a>
+        <a class="nav__link" href="#contact"      data-i18n="nav.contact">צור קשר</a>
+      </nav>
+
+      <div class="nav__end">
+        <div class="lang">
+          <span class="lang__btn is-current" aria-current="true">עב</span>
+          <a class="lang__btn" href="../" hreflang="en" lang="en" data-lang-link>EN</a>
+        </div>
+        <button class="nav__burger" type="button" data-nav-toggle
+                aria-expanded="false" aria-controls="nav-menu"
+                aria-label="תפריט" data-i18n-attr="aria-label:a11y.menu">
+          <span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Full-screen menu, phone only -->
+  <div class="menu" id="nav-menu" data-menu hidden>
+    <nav class="menu__links" aria-label="ניווט ראשי" data-i18n-attr="aria-label:a11y.nav">
+      <a class="menu__link" href="#top"          data-i18n="nav.home">בית</a>
+      <a class="menu__link" href="#events"       data-i18n="nav.events">אירועים</a>
+      <a class="menu__link" href="#live-music"   data-i18n="nav.music">מוזיקה חיה</a>
+      <a class="menu__link" href="#architecture" data-i18n="nav.arch">אדריכלות</a>
+      <a class="menu__link" href="#videography"  data-i18n="nav.video">וידאו</a>
+      <a class="menu__link" href="#contact"      data-i18n="nav.contact">צור קשר</a>
+    </nav>
+  </div>
+
+  <div class="page">
+
+    <!-- ============ 01 · title band ============ -->
+    <header class="section hero on-dark" id="top">
+      <div class="wrap">
+
+        <div class="topbar">
+          <span class="topbar__name" data-i18n="brand.name">לוטם שיפנבאור</span>
+          <span class="topbar__year num lat" data-i18n="brand.year">2026</span>
+        </div>
+
+        <h1 class="mega mega--fill" data-i18n="hero.title">תיק עבודות</h1>
+      </div>
+    </header>
+
+    <main id="main">
+
+      <!-- ============ 02 · opening image ============ -->
+      <section class="section section--flush on-dark" aria-label="Opening image">
+        <div class="slot slot--hero bleed" style="--ar: 39 / 10;">
+          <picture>
+            <source media="(max-width: 40rem)" type="image/webp" srcset="../assets/img/hero-wide-tall-320.webp 320w, ../assets/img/hero-wide-tall-640.webp 640w, ../assets/img/hero-wide-tall-960.webp 960w, ../assets/img/hero-wide-tall-1280.webp 1280w" sizes="100vw">
+            <source media="(max-width: 40rem)" srcset="../assets/img/hero-wide-tall-320.jpg 320w, ../assets/img/hero-wide-tall-640.jpg 640w, ../assets/img/hero-wide-tall-960.jpg 960w, ../assets/img/hero-wide-tall-1280.jpg 1280w" sizes="100vw">
+            <source type="image/webp" srcset="../assets/img/hero-wide-tall-320.webp 320w, ../assets/img/hero-wide-tall-640.webp 640w, ../assets/img/hero-wide-tall-960.webp 960w, ../assets/img/hero-wide-tall-1280.webp 1280w, ../assets/img/hero-wide-tall-1600.webp 1600w" sizes="100vw">
+            <img src="../assets/img/hero-wide-tall-1600.jpg" srcset="../assets/img/hero-wide-tall-320.jpg 320w, ../assets/img/hero-wide-tall-640.jpg 640w, ../assets/img/hero-wide-tall-960.jpg 960w, ../assets/img/hero-wide-tall-1280.jpg 1280w, ../assets/img/hero-wide-tall-1600.jpg 1600w" sizes="100vw" alt="Aerial view at sunset" width="1600" height="900" fetchpriority="high" decoding="async">
+          </picture>
+        </div>
+      </section>
+
+      <!-- ============ 03–04 · profile + credentials ============
+           One slide in the reference: cream above, black below, the portrait
+           straddling the seam with the name laid over its foot. -->
+      <section class="split split--start" aria-labelledby="profile-h">
+
+        <figure class="split__portrait">
+          <div class="slot" style="--ar: 2 / 3;">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/profile-portrait-320.webp 320w, ../assets/img/profile-portrait-640.webp 640w, ../assets/img/profile-portrait-960.webp 960w, ../assets/img/profile-portrait-1280.webp 1280w, ../assets/img/profile-portrait-1400.webp 1400w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/profile-portrait-1400.jpg" srcset="../assets/img/profile-portrait-320.jpg 320w, ../assets/img/profile-portrait-640.jpg 640w, ../assets/img/profile-portrait-960.jpg 960w, ../assets/img/profile-portrait-1280.jpg 1280w, ../assets/img/profile-portrait-1400.jpg 1400w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Profile" width="1400" height="2100" loading="lazy" decoding="async">
+            </picture>
+          </div>
+          <figcaption class="nameplate" data-i18n="brand.name">לוטם שיפנבאור</figcaption>
+        </figure>
+
+        <div class="split__band split__band--top on-light">
+          <div class="wrap split__row">
+            <div class="split__gap" aria-hidden="true"></div>
+            <div class="stack">
+              <h2 id="profile-h" class="heading" data-i18n="profile.heading">הפרופיל שלי</h2>
+              <p class="lede profile__bio" data-i18n="profile.bio">אני צלם עצמאי, עורך וידאו ומפעיל רחפן מסחרי מורשה, מבוסס בישראל. אני מתמחה בלכידת המהות של מקום, ובהעברה של רגש וחוויה עמוקים דרך זווית אישית וייחודית. אני שואף למצוינות ולנגיעה קולנועית בכל פריים.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="split__band split__band--bottom on-dark">
+          <div class="wrap split__row">
+            <div class="split__gap" aria-hidden="true"></div>
+            <div>
+              <h3 class="heading cred__section" data-i18n="lic.heading">רישוי וציוד</h3>
+
+              <div class="cred">
+                <div class="cred__group">
+                  <p class="cred__lede" data-i18n="lic.lede">רשות התעופה האזרחית</p>
+                  <p class="cred__note" data-i18n="lic.note">רישיון מפעיל רחפן מסחרי · כלי טיס עד 25 ק״ג</p>
+                </div>
+                <div class="cred__group">
+                  <p class="cred__lede lat">DJI Mavic 4 Pro</p>
+                  <p class="cred__note" data-i18n="gear.note">צילום אווירי</p>
+                </div>
+
+                <div class="cred__group">
+                  <h3 class="cred__title" data-i18n="skills.heading">כלים</h3>
+                  <ul class="cred__list" role="list">
+                    <li data-i18n="skills.1">DaVinci Resolve</li>
+                    <li data-i18n="skills.2">Adobe Lightroom</li>
+                    <li data-i18n="skills.3">Adobe Premiere Pro</li>
+                  </ul>
+                </div>
+                <div class="cred__group">
+                  <h3 class="cred__title" data-i18n="exp.heading">התמחות</h3>
+                  <ul class="cred__list" role="list">
+                    <li data-i18n="exp.1">צילום סטילס</li>
+                    <li data-i18n="exp.2">צילום אווירי ברחפן</li>
+                    <li data-i18n="exp.3">עריכת וידאו</li>
+                    <li data-i18n="exp.4">קורקציית צבע מקצועית</li>
+                    <li data-i18n="exp.5">סיפור סיפורים</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============ events ============ -->
+      <section class="section on-dark" id="events" aria-labelledby="events-h">
+        <div class="wrap">
+          <div class="works-head mb-sub reveal">
+            <p class="works-mark" data-i18n="works.mark">העבודות שלי.</p>
+            <h2 id="events-h" class="mega works-head__mega" data-i18n="sec.events">אירועים</h2>
+          </div>
+          <p class="section__lede reveal" data-i18n="sec.events.lede">רגעים אינטימיים והפקות בקנה מידה גדול — אותה תשומת לב לשניהם.</p>
+        </div>
+
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.proposals">הצעות נישואין</h3>
+          <div class="pair reveal">
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/proposals-featured-01-320.webp 320w, ../assets/img/proposals-featured-01-640.webp 640w, ../assets/img/proposals-featured-01-960.webp 960w, ../assets/img/proposals-featured-01-1280.webp 1280w, ../assets/img/proposals-featured-01-1920.webp 1920w, ../assets/img/proposals-featured-01-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/proposals-featured-01-2400.jpg" srcset="../assets/img/proposals-featured-01-320.jpg 320w, ../assets/img/proposals-featured-01-640.jpg 640w, ../assets/img/proposals-featured-01-960.jpg 960w, ../assets/img/proposals-featured-01-1280.jpg 1280w, ../assets/img/proposals-featured-01-1920.jpg 1920w, ../assets/img/proposals-featured-01-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Proposals frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/proposals-featured-02-320.webp 320w, ../assets/img/proposals-featured-02-640.webp 640w, ../assets/img/proposals-featured-02-960.webp 960w, ../assets/img/proposals-featured-02-1280.webp 1280w, ../assets/img/proposals-featured-02-1920.webp 1920w, ../assets/img/proposals-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/proposals-featured-02-2400.jpg" srcset="../assets/img/proposals-featured-02-320.jpg 320w, ../assets/img/proposals-featured-02-640.jpg 640w, ../assets/img/proposals-featured-02-960.jpg 960w, ../assets/img/proposals-featured-02-1280.jpg 1280w, ../assets/img/proposals-featured-02-1920.jpg 1920w, ../assets/img/proposals-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Proposals frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+          </div>
+
+          <div class="pair-meta reveal">
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+              <p class="story" data-i18n="story.proposals">יש רגע אחד שבו הכול נעצר, והוא נמשך שנייה. התפקיד שלי הוא להיות במקום הנכון לפניו — בלי שאף אחד ירגיש שאני שם.</p>
+            </div>
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic bleed mt-sub" aria-label="Marriage proposals">
+          <div class="slot reveal 4" style="--i: 0">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/proposals-tile-01-320.webp 320w, ../assets/img/proposals-tile-01-640.webp 640w, ../assets/img/proposals-tile-01-960.webp 960w, ../assets/img/proposals-tile-01-1280.webp 1280w, ../assets/img/proposals-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/proposals-tile-01-1800.jpg" srcset="../assets/img/proposals-tile-01-320.jpg 320w, ../assets/img/proposals-tile-01-640.jpg 640w, ../assets/img/proposals-tile-01-960.jpg 960w, ../assets/img/proposals-tile-01-1280.jpg 1280w, ../assets/img/proposals-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 1">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/proposals-tile-02-320.webp 320w, ../assets/img/proposals-tile-02-640.webp 640w, ../assets/img/proposals-tile-02-960.webp 960w, ../assets/img/proposals-tile-02-1280.webp 1280w, ../assets/img/proposals-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/proposals-tile-02-1800.jpg" srcset="../assets/img/proposals-tile-02-320.jpg 320w, ../assets/img/proposals-tile-02-640.jpg 640w, ../assets/img/proposals-tile-02-960.jpg 960w, ../assets/img/proposals-tile-02-1280.jpg 1280w, ../assets/img/proposals-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 2">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/proposals-tile-03-320.webp 320w, ../assets/img/proposals-tile-03-640.webp 640w, ../assets/img/proposals-tile-03-960.webp 960w, ../assets/img/proposals-tile-03-1280.webp 1280w, ../assets/img/proposals-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/proposals-tile-03-1800.jpg" srcset="../assets/img/proposals-tile-03-320.jpg 320w, ../assets/img/proposals-tile-03-640.jpg 640w, ../assets/img/proposals-tile-03-960.jpg 960w, ../assets/img/proposals-tile-03-1280.jpg 1280w, ../assets/img/proposals-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 3">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/proposals-tile-04-320.webp 320w, ../assets/img/proposals-tile-04-640.webp 640w, ../assets/img/proposals-tile-04-960.webp 960w, ../assets/img/proposals-tile-04-1280.webp 1280w, ../assets/img/proposals-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/proposals-tile-04-1800.jpg" srcset="../assets/img/proposals-tile-04-320.jpg 320w, ../assets/img/proposals-tile-04-640.jpg 640w, ../assets/img/proposals-tile-04-960.jpg 960w, ../assets/img/proposals-tile-04-1280.jpg 1280w, ../assets/img/proposals-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 4">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/proposals-tile-05-320.webp 320w, ../assets/img/proposals-tile-05-640.webp 640w, ../assets/img/proposals-tile-05-960.webp 960w, ../assets/img/proposals-tile-05-1280.webp 1280w, ../assets/img/proposals-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/proposals-tile-05-1800.jpg" srcset="../assets/img/proposals-tile-05-320.jpg 320w, ../assets/img/proposals-tile-05-640.jpg 640w, ../assets/img/proposals-tile-05-960.jpg 960w, ../assets/img/proposals-tile-05-1280.jpg 1280w, ../assets/img/proposals-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Proposals frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.productions">הפקות ואירועים</h3>
+          <div class="pair reveal">
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/productions-featured-01-320.webp 320w, ../assets/img/productions-featured-01-640.webp 640w, ../assets/img/productions-featured-01-960.webp 960w, ../assets/img/productions-featured-01-1280.webp 1280w, ../assets/img/productions-featured-01-1920.webp 1920w, ../assets/img/productions-featured-01-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/productions-featured-01-2400.jpg" srcset="../assets/img/productions-featured-01-320.jpg 320w, ../assets/img/productions-featured-01-640.jpg 640w, ../assets/img/productions-featured-01-960.jpg 960w, ../assets/img/productions-featured-01-1280.jpg 1280w, ../assets/img/productions-featured-01-1920.jpg 1920w, ../assets/img/productions-featured-01-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Productions frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/productions-featured-02-320.webp 320w, ../assets/img/productions-featured-02-640.webp 640w, ../assets/img/productions-featured-02-960.webp 960w, ../assets/img/productions-featured-02-1280.webp 1280w, ../assets/img/productions-featured-02-1920.webp 1920w, ../assets/img/productions-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/productions-featured-02-2400.jpg" srcset="../assets/img/productions-featured-02-320.jpg 320w, ../assets/img/productions-featured-02-640.jpg 640w, ../assets/img/productions-featured-02-960.jpg 960w, ../assets/img/productions-featured-02-1280.jpg 1280w, ../assets/img/productions-featured-02-1920.jpg 1920w, ../assets/img/productions-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Productions frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+          </div>
+
+          <div class="pair-meta reveal">
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+              <p class="story" data-i18n="story.productions">אירוע גדול הוא עשרות רגעים קטנים שקורים במקביל. אני מחפש את אלה שמספרים את הערב כולו.</p>
+            </div>
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic bleed mt-sub" aria-label="Productions and events">
+          <div class="slot reveal 3" style="--i: 0">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-01-320.webp 320w, ../assets/img/productions-tile-01-640.webp 640w, ../assets/img/productions-tile-01-960.webp 960w, ../assets/img/productions-tile-01-1280.webp 1280w, ../assets/img/productions-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-01-1800.jpg" srcset="../assets/img/productions-tile-01-320.jpg 320w, ../assets/img/productions-tile-01-640.jpg 640w, ../assets/img/productions-tile-01-960.jpg 960w, ../assets/img/productions-tile-01-1280.jpg 1280w, ../assets/img/productions-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 4" style="--i: 1">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-02-320.webp 320w, ../assets/img/productions-tile-02-640.webp 640w, ../assets/img/productions-tile-02-960.webp 960w, ../assets/img/productions-tile-02-1280.webp 1280w, ../assets/img/productions-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-02-1800.jpg" srcset="../assets/img/productions-tile-02-320.jpg 320w, ../assets/img/productions-tile-02-640.jpg 640w, ../assets/img/productions-tile-02-960.jpg 960w, ../assets/img/productions-tile-02-1280.jpg 1280w, ../assets/img/productions-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 2">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-03-320.webp 320w, ../assets/img/productions-tile-03-640.webp 640w, ../assets/img/productions-tile-03-960.webp 960w, ../assets/img/productions-tile-03-1280.webp 1280w, ../assets/img/productions-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-03-1800.jpg" srcset="../assets/img/productions-tile-03-320.jpg 320w, ../assets/img/productions-tile-03-640.jpg 640w, ../assets/img/productions-tile-03-960.jpg 960w, ../assets/img/productions-tile-03-1280.jpg 1280w, ../assets/img/productions-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 3">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-04-320.webp 320w, ../assets/img/productions-tile-04-640.webp 640w, ../assets/img/productions-tile-04-960.webp 960w, ../assets/img/productions-tile-04-1280.webp 1280w, ../assets/img/productions-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-04-1800.jpg" srcset="../assets/img/productions-tile-04-320.jpg 320w, ../assets/img/productions-tile-04-640.jpg 640w, ../assets/img/productions-tile-04-960.jpg 960w, ../assets/img/productions-tile-04-1280.jpg 1280w, ../assets/img/productions-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 4" style="--i: 4">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-05-320.webp 320w, ../assets/img/productions-tile-05-640.webp 640w, ../assets/img/productions-tile-05-960.webp 960w, ../assets/img/productions-tile-05-1280.webp 1280w, ../assets/img/productions-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-05-1800.jpg" srcset="../assets/img/productions-tile-05-320.jpg 320w, ../assets/img/productions-tile-05-640.jpg 640w, ../assets/img/productions-tile-05-960.jpg 960w, ../assets/img/productions-tile-05-1280.jpg 1280w, ../assets/img/productions-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 5">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-06-320.webp 320w, ../assets/img/productions-tile-06-640.webp 640w, ../assets/img/productions-tile-06-960.webp 960w, ../assets/img/productions-tile-06-1280.webp 1280w, ../assets/img/productions-tile-06-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-06-1800.jpg" srcset="../assets/img/productions-tile-06-320.jpg 320w, ../assets/img/productions-tile-06-640.jpg 640w, ../assets/img/productions-tile-06-960.jpg 960w, ../assets/img/productions-tile-06-1280.jpg 1280w, ../assets/img/productions-tile-06-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 6">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-07-320.webp 320w, ../assets/img/productions-tile-07-640.webp 640w, ../assets/img/productions-tile-07-960.webp 960w, ../assets/img/productions-tile-07-1280.webp 1280w, ../assets/img/productions-tile-07-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-07-1800.jpg" srcset="../assets/img/productions-tile-07-320.jpg 320w, ../assets/img/productions-tile-07-640.jpg 640w, ../assets/img/productions-tile-07-960.jpg 960w, ../assets/img/productions-tile-07-1280.jpg 1280w, ../assets/img/productions-tile-07-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 7">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/productions-tile-08-320.webp 320w, ../assets/img/productions-tile-08-640.webp 640w, ../assets/img/productions-tile-08-960.webp 960w, ../assets/img/productions-tile-08-1280.webp 1280w, ../assets/img/productions-tile-08-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/productions-tile-08-1800.jpg" srcset="../assets/img/productions-tile-08-320.jpg 320w, ../assets/img/productions-tile-08-640.jpg 640w, ../assets/img/productions-tile-08-960.jpg 960w, ../assets/img/productions-tile-08-1280.jpg 1280w, ../assets/img/productions-tile-08-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Productions frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ live-music ============ -->
+      <section class="section on-dark" id="live-music" aria-labelledby="live-music-h">
+        <div class="wrap">
+          <div class="works-head mb-sub reveal">
+            <p class="works-mark" data-i18n="works.mark">העבודות שלי.</p>
+            <h2 id="live-music-h" class="mega works-head__mega" data-i18n="sec.music">מוזיקה חיה</h2>
+          </div>
+          <p class="section__lede reveal" data-i18n="sec.music.lede">האנרגיה הגולמית, התאורה המשתנה והאווירה של הופעה חיה.</p>
+        </div>
+
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.concerts">הופעות</h3>
+          <div class="pair reveal">
+            <div class="slot" style="--ar: 16 / 9;">
+              <span class="slot__tag"><b>concerts-featured-01</b>16:9</span>
+            </div>
+            <div class="slot" style="--ar: 16 / 9;">
+              <span class="slot__tag"><b>concerts-featured-02</b>16:9</span>
+            </div>
+          </div>
+
+          <div class="pair-meta reveal">
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+              <p class="story" data-i18n="story.concerts">תאורת במה משתנה כל שנייה ואי אפשר לבקש ממנה לחכות. הצילום כאן הוא לקרוא את האור לפני שהוא מגיע.</p>
+            </div>
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic bleed mt-sub" aria-label="Live concerts">
+          <div class="slot reveal 4" style="--i: 0"><span class="slot__tag"><b>concerts-tile-01</b></span></div>
+          <div class="slot reveal 2" style="--i: 1"><span class="slot__tag"><b>concerts-tile-02</b></span></div>
+          <div class="slot reveal 3" style="--i: 2"><span class="slot__tag"><b>concerts-tile-03</b></span></div>
+          <div class="slot reveal 3" style="--i: 3"><span class="slot__tag"><b>concerts-tile-04</b></span></div>
+          <div class="slot reveal 2" style="--i: 4"><span class="slot__tag"><b>concerts-tile-05</b></span></div>
+          <div class="slot reveal 4" style="--i: 5"><span class="slot__tag"><b>concerts-tile-06</b></span></div>
+          <div class="slot reveal 3" style="--i: 6"><span class="slot__tag"><b>concerts-tile-07</b></span></div>
+          <div class="slot reveal 3" style="--i: 7"><span class="slot__tag"><b>concerts-tile-08</b></span></div>
+        </div>
+
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.dj">סטים ודי-ג'יי</h3>
+        </div>
+        <div class="mosaic bleed mt-sub" aria-label="DJ sets">
+          <div class="slot reveal 4" style="--i: 0"><span class="slot__tag"><b>dj-tile-01</b></span></div>
+          <div class="slot reveal 3" style="--i: 1"><span class="slot__tag"><b>dj-tile-02</b></span></div>
+          <div class="slot reveal 2" style="--i: 2"><span class="slot__tag"><b>dj-tile-03</b></span></div>
+          <div class="slot reveal 3" style="--i: 3"><span class="slot__tag"><b>dj-tile-04</b></span></div>
+          <div class="slot reveal 5" style="--i: 4"><span class="slot__tag"><b>dj-tile-05</b></span></div>
+          <div class="slot reveal 3" style="--i: 5"><span class="slot__tag"><b>dj-tile-06</b></span></div>
+        </div>
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.artists">פורטרטים של אמנים</h3>
+          <div class="grid-3 mt-sub" aria-label="Artist portraits">
+            <div class="slot reveal" style="--i: 0; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-01</b></span></div>
+            <div class="slot reveal" style="--i: 1; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-02</b></span></div>
+            <div class="slot reveal" style="--i: 2; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-03</b></span></div>
+            <div class="slot reveal" style="--i: 3; --ar: 3 / 4;"><span class="slot__tag"><b>artists-tile-04</b></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ architecture ============ -->
+      <section class="section on-dark" id="architecture" aria-labelledby="architecture-h">
+        <div class="wrap">
+          <div class="works-head mb-sub reveal">
+            <p class="works-mark" data-i18n="works.mark">העבודות שלי.</p>
+            <h2 id="architecture-h" class="mega works-head__mega" data-i18n="sec.arch">אדריכלות</h2>
+          </div>
+          <p class="section__lede reveal" data-i18n="sec.arch.lede">קנה מידה, תכנון ומרחב — מהקרקע ומהאוויר.</p>
+        </div>
+
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.launches">השקות מבנה</h3>
+          <div class="pair reveal">
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/launches-featured-01-320.webp 320w, ../assets/img/launches-featured-01-640.webp 640w, ../assets/img/launches-featured-01-960.webp 960w, ../assets/img/launches-featured-01-1280.webp 1280w, ../assets/img/launches-featured-01-1920.webp 1920w, ../assets/img/launches-featured-01-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/launches-featured-01-2400.jpg" srcset="../assets/img/launches-featured-01-320.jpg 320w, ../assets/img/launches-featured-01-640.jpg 640w, ../assets/img/launches-featured-01-960.jpg 960w, ../assets/img/launches-featured-01-1280.jpg 1280w, ../assets/img/launches-featured-01-1920.jpg 1920w, ../assets/img/launches-featured-01-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Launches frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/launches-featured-02-320.webp 320w, ../assets/img/launches-featured-02-640.webp 640w, ../assets/img/launches-featured-02-960.webp 960w, ../assets/img/launches-featured-02-1280.webp 1280w, ../assets/img/launches-featured-02-1920.webp 1920w, ../assets/img/launches-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/launches-featured-02-2400.jpg" srcset="../assets/img/launches-featured-02-320.jpg 320w, ../assets/img/launches-featured-02-640.jpg 640w, ../assets/img/launches-featured-02-960.jpg 960w, ../assets/img/launches-featured-02-1280.jpg 1280w, ../assets/img/launches-featured-02-1920.jpg 1920w, ../assets/img/launches-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Launches frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+          </div>
+
+          <div class="pair-meta reveal">
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+              <p class="story" data-i18n="story.launches">מבנה חדש צריך להיראות כפי שתוכנן להיראות. אני מחפש את הזווית שבה הקווים מסתדרים והמרחב מקבל את הגודל האמיתי שלו.</p>
+            </div>
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic bleed mt-sub" aria-label="Venue launches">
+          <div class="slot reveal 4" style="--i: 0">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/launches-tile-01-320.webp 320w, ../assets/img/launches-tile-01-640.webp 640w, ../assets/img/launches-tile-01-960.webp 960w, ../assets/img/launches-tile-01-1280.webp 1280w, ../assets/img/launches-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/launches-tile-01-1800.jpg" srcset="../assets/img/launches-tile-01-320.jpg 320w, ../assets/img/launches-tile-01-640.jpg 640w, ../assets/img/launches-tile-01-960.jpg 960w, ../assets/img/launches-tile-01-1280.jpg 1280w, ../assets/img/launches-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 1">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/launches-tile-02-320.webp 320w, ../assets/img/launches-tile-02-640.webp 640w, ../assets/img/launches-tile-02-960.webp 960w, ../assets/img/launches-tile-02-1280.webp 1280w, ../assets/img/launches-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/launches-tile-02-1800.jpg" srcset="../assets/img/launches-tile-02-320.jpg 320w, ../assets/img/launches-tile-02-640.jpg 640w, ../assets/img/launches-tile-02-960.jpg 960w, ../assets/img/launches-tile-02-1280.jpg 1280w, ../assets/img/launches-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 2">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/launches-tile-03-320.webp 320w, ../assets/img/launches-tile-03-640.webp 640w, ../assets/img/launches-tile-03-960.webp 960w, ../assets/img/launches-tile-03-1280.webp 1280w, ../assets/img/launches-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/launches-tile-03-1800.jpg" srcset="../assets/img/launches-tile-03-320.jpg 320w, ../assets/img/launches-tile-03-640.jpg 640w, ../assets/img/launches-tile-03-960.jpg 960w, ../assets/img/launches-tile-03-1280.jpg 1280w, ../assets/img/launches-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 3">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/launches-tile-04-320.webp 320w, ../assets/img/launches-tile-04-640.webp 640w, ../assets/img/launches-tile-04-960.webp 960w, ../assets/img/launches-tile-04-1280.webp 1280w, ../assets/img/launches-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/launches-tile-04-1800.jpg" srcset="../assets/img/launches-tile-04-320.jpg 320w, ../assets/img/launches-tile-04-640.jpg 640w, ../assets/img/launches-tile-04-960.jpg 960w, ../assets/img/launches-tile-04-1280.jpg 1280w, ../assets/img/launches-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 4" style="--i: 4">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/launches-tile-05-320.webp 320w, ../assets/img/launches-tile-05-640.webp 640w, ../assets/img/launches-tile-05-960.webp 960w, ../assets/img/launches-tile-05-1280.webp 1280w, ../assets/img/launches-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/launches-tile-05-1800.jpg" srcset="../assets/img/launches-tile-05-320.jpg 320w, ../assets/img/launches-tile-05-640.jpg 640w, ../assets/img/launches-tile-05-960.jpg 960w, ../assets/img/launches-tile-05-1280.jpg 1280w, ../assets/img/launches-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 5">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/launches-tile-06-320.webp 320w, ../assets/img/launches-tile-06-640.webp 640w, ../assets/img/launches-tile-06-960.webp 960w, ../assets/img/launches-tile-06-1280.webp 1280w, ../assets/img/launches-tile-06-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/launches-tile-06-1800.jpg" srcset="../assets/img/launches-tile-06-320.jpg 320w, ../assets/img/launches-tile-06-640.jpg 640w, ../assets/img/launches-tile-06-960.jpg 960w, ../assets/img/launches-tile-06-1280.jpg 1280w, ../assets/img/launches-tile-06-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Launches frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <h3 class="subhead mb-sub reveal" data-i18n="cat.aerial">צילום אווירי</h3>
+          <div class="pair reveal">
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/aerial-featured-01-320.webp 320w, ../assets/img/aerial-featured-01-640.webp 640w, ../assets/img/aerial-featured-01-960.webp 960w, ../assets/img/aerial-featured-01-1280.webp 1280w, ../assets/img/aerial-featured-01-1920.webp 1920w, ../assets/img/aerial-featured-01-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/aerial-featured-01-2400.jpg" srcset="../assets/img/aerial-featured-01-320.jpg 320w, ../assets/img/aerial-featured-01-640.jpg 640w, ../assets/img/aerial-featured-01-960.jpg 960w, ../assets/img/aerial-featured-01-1280.jpg 1280w, ../assets/img/aerial-featured-01-1920.jpg 1920w, ../assets/img/aerial-featured-01-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Aerial frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/aerial-featured-02-320.webp 320w, ../assets/img/aerial-featured-02-640.webp 640w, ../assets/img/aerial-featured-02-960.webp 960w, ../assets/img/aerial-featured-02-1280.webp 1280w, ../assets/img/aerial-featured-02-1920.webp 1920w, ../assets/img/aerial-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/aerial-featured-02-2400.jpg" srcset="../assets/img/aerial-featured-02-320.jpg 320w, ../assets/img/aerial-featured-02-640.jpg 640w, ../assets/img/aerial-featured-02-960.jpg 960w, ../assets/img/aerial-featured-02-1280.jpg 1280w, ../assets/img/aerial-featured-02-1920.jpg 1920w, ../assets/img/aerial-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Aerial frame" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+          </div>
+
+          <div class="pair-meta reveal">
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+              <p class="story" data-i18n="story.aerial">מהאוויר רואים את מה שאי אפשר לראות מהקרקע — איך המבנה יושב בתוך הסביבה שלו, ואיפה הוא נגמר והיא מתחילה.</p>
+            </div>
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic bleed mt-sub" aria-label="Aerial photography">
+          <div class="slot reveal 3" style="--i: 0">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-01-320.webp 320w, ../assets/img/aerial-tile-01-640.webp 640w, ../assets/img/aerial-tile-01-960.webp 960w, ../assets/img/aerial-tile-01-1280.webp 1280w, ../assets/img/aerial-tile-01-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-01-1800.jpg" srcset="../assets/img/aerial-tile-01-320.jpg 320w, ../assets/img/aerial-tile-01-640.jpg 640w, ../assets/img/aerial-tile-01-960.jpg 960w, ../assets/img/aerial-tile-01-1280.jpg 1280w, ../assets/img/aerial-tile-01-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 4" style="--i: 1">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-02-320.webp 320w, ../assets/img/aerial-tile-02-640.webp 640w, ../assets/img/aerial-tile-02-960.webp 960w, ../assets/img/aerial-tile-02-1280.webp 1280w, ../assets/img/aerial-tile-02-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-02-1800.jpg" srcset="../assets/img/aerial-tile-02-320.jpg 320w, ../assets/img/aerial-tile-02-640.jpg 640w, ../assets/img/aerial-tile-02-960.jpg 960w, ../assets/img/aerial-tile-02-1280.jpg 1280w, ../assets/img/aerial-tile-02-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 2">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-03-320.webp 320w, ../assets/img/aerial-tile-03-640.webp 640w, ../assets/img/aerial-tile-03-960.webp 960w, ../assets/img/aerial-tile-03-1280.webp 1280w, ../assets/img/aerial-tile-03-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-03-1800.jpg" srcset="../assets/img/aerial-tile-03-320.jpg 320w, ../assets/img/aerial-tile-03-640.jpg 640w, ../assets/img/aerial-tile-03-960.jpg 960w, ../assets/img/aerial-tile-03-1280.jpg 1280w, ../assets/img/aerial-tile-03-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 3">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-04-320.webp 320w, ../assets/img/aerial-tile-04-640.webp 640w, ../assets/img/aerial-tile-04-960.webp 960w, ../assets/img/aerial-tile-04-1280.webp 1280w, ../assets/img/aerial-tile-04-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-04-1800.jpg" srcset="../assets/img/aerial-tile-04-320.jpg 320w, ../assets/img/aerial-tile-04-640.jpg 640w, ../assets/img/aerial-tile-04-960.jpg 960w, ../assets/img/aerial-tile-04-1280.jpg 1280w, ../assets/img/aerial-tile-04-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 4" style="--i: 4">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-05-320.webp 320w, ../assets/img/aerial-tile-05-640.webp 640w, ../assets/img/aerial-tile-05-960.webp 960w, ../assets/img/aerial-tile-05-1280.webp 1280w, ../assets/img/aerial-tile-05-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-05-1800.jpg" srcset="../assets/img/aerial-tile-05-320.jpg 320w, ../assets/img/aerial-tile-05-640.jpg 640w, ../assets/img/aerial-tile-05-960.jpg 960w, ../assets/img/aerial-tile-05-1280.jpg 1280w, ../assets/img/aerial-tile-05-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 5">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-06-320.webp 320w, ../assets/img/aerial-tile-06-640.webp 640w, ../assets/img/aerial-tile-06-960.webp 960w, ../assets/img/aerial-tile-06-1280.webp 1280w, ../assets/img/aerial-tile-06-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-06-1800.jpg" srcset="../assets/img/aerial-tile-06-320.jpg 320w, ../assets/img/aerial-tile-06-640.jpg 640w, ../assets/img/aerial-tile-06-960.jpg 960w, ../assets/img/aerial-tile-06-1280.jpg 1280w, ../assets/img/aerial-tile-06-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 2" style="--i: 6">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-07-320.webp 320w, ../assets/img/aerial-tile-07-640.webp 640w, ../assets/img/aerial-tile-07-960.webp 960w, ../assets/img/aerial-tile-07-1280.webp 1280w, ../assets/img/aerial-tile-07-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-07-1800.jpg" srcset="../assets/img/aerial-tile-07-320.jpg 320w, ../assets/img/aerial-tile-07-640.jpg 640w, ../assets/img/aerial-tile-07-960.jpg 960w, ../assets/img/aerial-tile-07-1280.jpg 1280w, ../assets/img/aerial-tile-07-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+          <div class="slot reveal 3" style="--i: 7">
+            <picture>
+              <source type="image/webp" srcset="../assets/img/aerial-tile-08-320.webp 320w, ../assets/img/aerial-tile-08-640.webp 640w, ../assets/img/aerial-tile-08-960.webp 960w, ../assets/img/aerial-tile-08-1280.webp 1280w, ../assets/img/aerial-tile-08-1800.webp 1800w" sizes="(min-width: 46rem) 34vw, 50vw">
+              <img src="../assets/img/aerial-tile-08-1800.jpg" srcset="../assets/img/aerial-tile-08-320.jpg 320w, ../assets/img/aerial-tile-08-640.jpg 640w, ../assets/img/aerial-tile-08-960.jpg 960w, ../assets/img/aerial-tile-08-1280.jpg 1280w, ../assets/img/aerial-tile-08-1800.jpg 1800w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Aerial frame" width="1800" height="1200" loading="lazy"  decoding="async">
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ videography ============ -->
+      <section class="section section--flush on-dark banner" id="videography" aria-labelledby="videography-h">
+        <div class="slot bleed" style="--ar: 16 / 9;">
+          <picture>
+            <source type="image/webp" srcset="../assets/img/video-hero-320.webp 320w, ../assets/img/video-hero-640.webp 640w, ../assets/img/video-hero-960.webp 960w, ../assets/img/video-hero-1280.webp 1280w, ../assets/img/video-hero-1920.webp 1920w, ../assets/img/video-hero-2400.webp 2400w" sizes="100vw">
+            <img src="../assets/img/video-hero-2400.jpg" srcset="../assets/img/video-hero-320.jpg 320w, ../assets/img/video-hero-640.jpg 640w, ../assets/img/video-hero-960.jpg 960w, ../assets/img/video-hero-1280.jpg 1280w, ../assets/img/video-hero-1920.jpg 1920w, ../assets/img/video-hero-2400.jpg 2400w" sizes="100vw" alt="Aerial view at sunset" width="2400" height="1350" loading="lazy"  decoding="async">
+          </picture>
+        </div>
+        <div class="banner__overlay wrap">
+          <h2 id="videography-h" class="mega" data-i18n="sec.video">וידאו</h2>
+          <p class="works-mark banner__mark" data-i18n="works.mark">העבודות שלי.</p>
+        </div>
+      </section>
+
+      <!-- ============ 12 · video edit / colour grading ============ -->
+      <section class="section on-dark" aria-labelledby="grade-h">
+        <div class="wrap">
+          <h3 id="grade-h" class="subhead mb-sub reveal" data-i18n="cat.grading">עריכת וידאו / קורקציית צבע</h3>
+
+          <div class="pair reveal">
+            <figure class="compare" style="--pos: 50%">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/grade-compare-after-320.webp 320w, ../assets/img/grade-compare-after-640.webp 640w, ../assets/img/grade-compare-after-960.webp 960w, ../assets/img/grade-compare-after-1280.webp 1280w, ../assets/img/grade-compare-after-1920.webp 1920w, ../assets/img/grade-compare-after-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/grade-compare-after-2400.jpg" srcset="../assets/img/grade-compare-after-320.jpg 320w, ../assets/img/grade-compare-after-640.jpg 640w, ../assets/img/grade-compare-after-960.jpg 960w, ../assets/img/grade-compare-after-1280.jpg 1280w, ../assets/img/grade-compare-after-1920.jpg 1920w, ../assets/img/grade-compare-after-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="The same frame after colour grading" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+              <picture>
+                <source type="image/webp" srcset="../assets/img/grade-compare-before-320.webp 320w, ../assets/img/grade-compare-before-640.webp 640w, ../assets/img/grade-compare-before-960.webp 960w, ../assets/img/grade-compare-before-1280.webp 1280w, ../assets/img/grade-compare-before-1920.webp 1920w, ../assets/img/grade-compare-before-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/grade-compare-before-2400.jpg" srcset="../assets/img/grade-compare-before-320.jpg 320w, ../assets/img/grade-compare-before-640.jpg 640w, ../assets/img/grade-compare-before-960.jpg 960w, ../assets/img/grade-compare-before-1280.jpg 1280w, ../assets/img/grade-compare-before-1920.jpg 1920w, ../assets/img/grade-compare-before-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="A frame straight out of the camera, before grading" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+              <span class="compare__seam" aria-hidden="true"></span>
+              <span class="compare__badge compare__badge--before" data-i18n="grade.before">לפני דירוג</span>
+              <span class="compare__badge compare__badge--after" data-i18n="grade.after">אחרי דירוג</span>
+              <input class="compare__range" type="range" min="0" max="100" value="50"
+                     aria-label="גרירה לחשיפת התמונה המדורגת" data-i18n-attr="aria-label:a11y.compare">
+            </figure>
+
+            <div class="slot" style="--ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/grade-featured-02-320.webp 320w, ../assets/img/grade-featured-02-640.webp 640w, ../assets/img/grade-featured-02-960.webp 960w, ../assets/img/grade-featured-02-1280.webp 1280w, ../assets/img/grade-featured-02-1920.webp 1920w, ../assets/img/grade-featured-02-2400.webp 2400w" sizes="(min-width: 46rem) 46vw, 94vw">
+                <img src="../assets/img/grade-featured-02-2400.jpg" srcset="../assets/img/grade-featured-02-320.jpg 320w, ../assets/img/grade-featured-02-640.jpg 640w, ../assets/img/grade-featured-02-960.jpg 960w, ../assets/img/grade-featured-02-1280.jpg 1280w, ../assets/img/grade-featured-02-1920.jpg 1920w, ../assets/img/grade-featured-02-2400.jpg 2400w" sizes="(min-width: 46rem) 46vw, 94vw" alt="Aerial view at night" width="2400" height="1350" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+          </div>
+
+          <div class="pair-meta reveal">
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+              <p class="story" data-i18n="story.grading">אני רואה את העולם דרך המבט שלי, ומביא אותו לחיים דרך קורקציית צבע ועריכה. כל פריים מחזיק תחושה, שנבנית מכוונון קפדני של צבע, גוון וסאונד. אני מעצב את מצב הרוח והאווירה כך שיתאימו לסיפור שאני רוצה לספר.</p>
+            </div>
+            <div>
+              <dl class="meta">
+                <dt class="meta__k" data-i18n="meta.location">מיקום</dt>
+                <dd class="meta__v">&mdash;</dd>
+                <dt class="meta__k" data-i18n="meta.year">שנה</dt>
+                <dd class="meta__v num lat">&mdash;</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="grid-3 mt-sub is-rounded" aria-label="Video stills">
+            <div class="slot reveal" style="--i: 0; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-01-320.webp 320w, ../assets/img/video-tile-01-640.webp 640w, ../assets/img/video-tile-01-960.webp 960w, ../assets/img/video-tile-01-1280.webp 1280w, ../assets/img/video-tile-01-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-01-1400.jpg" srcset="../assets/img/video-tile-01-320.jpg 320w, ../assets/img/video-tile-01-640.jpg 640w, ../assets/img/video-tile-01-960.jpg 960w, ../assets/img/video-tile-01-1280.jpg 1280w, ../assets/img/video-tile-01-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 0; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-02-320.webp 320w, ../assets/img/video-tile-02-640.webp 640w, ../assets/img/video-tile-02-960.webp 960w, ../assets/img/video-tile-02-1280.webp 1280w, ../assets/img/video-tile-02-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-02-1400.jpg" srcset="../assets/img/video-tile-02-320.jpg 320w, ../assets/img/video-tile-02-640.jpg 640w, ../assets/img/video-tile-02-960.jpg 960w, ../assets/img/video-tile-02-1280.jpg 1280w, ../assets/img/video-tile-02-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 1; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-03-320.webp 320w, ../assets/img/video-tile-03-640.webp 640w, ../assets/img/video-tile-03-960.webp 960w, ../assets/img/video-tile-03-1280.webp 1280w, ../assets/img/video-tile-03-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-03-1400.jpg" srcset="../assets/img/video-tile-03-320.jpg 320w, ../assets/img/video-tile-03-640.jpg 640w, ../assets/img/video-tile-03-960.jpg 960w, ../assets/img/video-tile-03-1280.jpg 1280w, ../assets/img/video-tile-03-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 2; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-04-320.webp 320w, ../assets/img/video-tile-04-640.webp 640w, ../assets/img/video-tile-04-960.webp 960w, ../assets/img/video-tile-04-1280.webp 1280w, ../assets/img/video-tile-04-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-04-1400.jpg" srcset="../assets/img/video-tile-04-320.jpg 320w, ../assets/img/video-tile-04-640.jpg 640w, ../assets/img/video-tile-04-960.jpg 960w, ../assets/img/video-tile-04-1280.jpg 1280w, ../assets/img/video-tile-04-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 3; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-05-320.webp 320w, ../assets/img/video-tile-05-640.webp 640w, ../assets/img/video-tile-05-960.webp 960w, ../assets/img/video-tile-05-1280.webp 1280w, ../assets/img/video-tile-05-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-05-1400.jpg" srcset="../assets/img/video-tile-05-320.jpg 320w, ../assets/img/video-tile-05-640.jpg 640w, ../assets/img/video-tile-05-960.jpg 960w, ../assets/img/video-tile-05-1280.jpg 1280w, ../assets/img/video-tile-05-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 4; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-06-320.webp 320w, ../assets/img/video-tile-06-640.webp 640w, ../assets/img/video-tile-06-960.webp 960w, ../assets/img/video-tile-06-1280.webp 1280w, ../assets/img/video-tile-06-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-06-1400.jpg" srcset="../assets/img/video-tile-06-320.jpg 320w, ../assets/img/video-tile-06-640.jpg 640w, ../assets/img/video-tile-06-960.jpg 960w, ../assets/img/video-tile-06-1280.jpg 1280w, ../assets/img/video-tile-06-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 5; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-07-320.webp 320w, ../assets/img/video-tile-07-640.webp 640w, ../assets/img/video-tile-07-960.webp 960w, ../assets/img/video-tile-07-1280.webp 1280w, ../assets/img/video-tile-07-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-07-1400.jpg" srcset="../assets/img/video-tile-07-320.jpg 320w, ../assets/img/video-tile-07-640.jpg 640w, ../assets/img/video-tile-07-960.jpg 960w, ../assets/img/video-tile-07-1280.jpg 1280w, ../assets/img/video-tile-07-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 6; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-08-320.webp 320w, ../assets/img/video-tile-08-640.webp 640w, ../assets/img/video-tile-08-960.webp 960w, ../assets/img/video-tile-08-1280.webp 1280w, ../assets/img/video-tile-08-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-08-1400.jpg" srcset="../assets/img/video-tile-08-320.jpg 320w, ../assets/img/video-tile-08-640.jpg 640w, ../assets/img/video-tile-08-960.jpg 960w, ../assets/img/video-tile-08-1280.jpg 1280w, ../assets/img/video-tile-08-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+            <div class="slot reveal" style="--i: 7; --ar: 16 / 9;">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/video-tile-09-320.webp 320w, ../assets/img/video-tile-09-640.webp 640w, ../assets/img/video-tile-09-960.webp 960w, ../assets/img/video-tile-09-1280.webp 1280w, ../assets/img/video-tile-09-1400.webp 1400w" sizes="(min-width: 46rem) 32vw, 49vw">
+                <img src="../assets/img/video-tile-09-1400.jpg" srcset="../assets/img/video-tile-09-320.jpg 320w, ../assets/img/video-tile-09-640.jpg 640w, ../assets/img/video-tile-09-960.jpg 960w, ../assets/img/video-tile-09-1280.jpg 1280w, ../assets/img/video-tile-09-1400.jpg 1400w" sizes="(min-width: 46rem) 32vw, 49vw" alt="Video still frame" width="1400" height="788" loading="lazy"  decoding="async">
+              </picture>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 13 · reels ============ -->
+      <section class="section on-mute" aria-labelledby="promo-h">
+        <div class="wrap">
+          <h3 id="promo-h" class="subhead mb-sub reveal" data-i18n="cat.promo">סרטי תדמית</h3>
+        </div>
+        <div class="wrap players">
+          <article class="player reveal" data-src="../assets/video/promo.mp4">
+            <div class="player__frame">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/poster-promo-320.webp 320w, ../assets/img/poster-promo-640.webp 640w, ../assets/img/poster-promo-960.webp 960w, ../assets/img/poster-promo-1280.webp 1280w, ../assets/img/poster-promo-1920.webp 1920w" sizes="(min-width: 46rem) 90vw, 94vw">
+                <img src="../assets/img/poster-promo-1920.jpg" srcset="../assets/img/poster-promo-320.jpg 320w, ../assets/img/poster-promo-640.jpg 640w, ../assets/img/poster-promo-960.jpg 960w, ../assets/img/poster-promo-1280.jpg 1280w, ../assets/img/poster-promo-1920.jpg 1920w" sizes="(min-width: 46rem) 90vw, 94vw" alt="" width="1920" height="1080" loading="lazy"  decoding="async">
+              </picture>
+              <button class="player__play" type="button" aria-label="הפעלת הסרטון" data-i18n-attr="aria-label:a11y.play"></button>
+            </div>
+            <p class="player__label" data-i18n="video.promo">סרטון תדמית</p>
+          </article>
+
+          <article class="player reveal" data-src="../assets/video/travel.mp4">
+            <div class="player__frame">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/poster-travel-320.webp 320w, ../assets/img/poster-travel-640.webp 640w, ../assets/img/poster-travel-960.webp 960w, ../assets/img/poster-travel-1280.webp 1280w, ../assets/img/poster-travel-1920.webp 1920w" sizes="(min-width: 46rem) 90vw, 94vw">
+                <img src="../assets/img/poster-travel-1920.jpg" srcset="../assets/img/poster-travel-320.jpg 320w, ../assets/img/poster-travel-640.jpg 640w, ../assets/img/poster-travel-960.jpg 960w, ../assets/img/poster-travel-1280.jpg 1280w, ../assets/img/poster-travel-1920.jpg 1920w" sizes="(min-width: 46rem) 90vw, 94vw" alt="" width="1920" height="1080" loading="lazy"  decoding="async">
+              </picture>
+              <button class="player__play" type="button" aria-label="הפעלת הסרטון" data-i18n-attr="aria-label:a11y.play"></button>
+            </div>
+            <p class="player__label" data-i18n="video.travel">צילום אווירי</p>
+          </article>
+
+          <article class="player reveal" data-src="../assets/video/social.mp4">
+            <div class="player__frame">
+              <picture>
+                <source type="image/webp" srcset="../assets/img/poster-social-320.webp 320w, ../assets/img/poster-social-640.webp 640w, ../assets/img/poster-social-960.webp 960w, ../assets/img/poster-social-1280.webp 1280w, ../assets/img/poster-social-1920.webp 1920w" sizes="(min-width: 46rem) 90vw, 94vw">
+                <img src="../assets/img/poster-social-1920.jpg" srcset="../assets/img/poster-social-320.jpg 320w, ../assets/img/poster-social-640.jpg 640w, ../assets/img/poster-social-960.jpg 960w, ../assets/img/poster-social-1280.jpg 1280w, ../assets/img/poster-social-1920.jpg 1920w" sizes="(min-width: 46rem) 90vw, 94vw" alt="" width="1920" height="1080" loading="lazy"  decoding="async">
+              </picture>
+              <button class="player__play" type="button" aria-label="הפעלת הסרטון" data-i18n-attr="aria-label:a11y.play"></button>
+            </div>
+            <p class="player__label" data-i18n="video.social">סרטון הצעת נישואין</p>
+          </article>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============ 14 · contact ============
+         The reference closes on the same construction as the profile slide:
+         cream above, black below, portrait across the seam — mirrored, so the
+         portrait hangs on the far edge and the copy runs down the near one. -->
+    <footer class="split split--end" id="contact" aria-labelledby="contact-h">
+
+      <figure class="split__portrait">
+        <div class="slot" style="--ar: 3 / 4;">
+          <picture>
+            <source type="image/webp" srcset="../assets/img/footer-portrait-320.webp 320w, ../assets/img/footer-portrait-640.webp 640w, ../assets/img/footer-portrait-960.webp 960w, ../assets/img/footer-portrait-1280.webp 1280w, ../assets/img/footer-portrait-1500.webp 1500w" sizes="(min-width: 46rem) 34vw, 50vw">
+            <img src="../assets/img/footer-portrait-1500.jpg" srcset="../assets/img/footer-portrait-320.jpg 320w, ../assets/img/footer-portrait-640.jpg 640w, ../assets/img/footer-portrait-960.jpg 960w, ../assets/img/footer-portrait-1280.jpg 1280w, ../assets/img/footer-portrait-1500.jpg 1500w" sizes="(min-width: 46rem) 34vw, 50vw" alt="Footer" width="1500" height="2000" loading="lazy" decoding="async">
+          </picture>
+        </div>
+      </figure>
+
+      <div class="split__band split__band--top on-light">
+        <div class="wrap split__row">
+          <div class="contact-col">
+            <h2 id="contact-h" class="visually-hidden" data-i18n="contact.heading">יצירת קשר</h2>
+
+            <div class="contact reveal">
+              <a class="contact__row" href="https://wa.me/972542256566" target="_blank" rel="noopener noreferrer">
+                <span class="contact__k" data-i18n="contact.phone">טלפון</span>
+                <span class="contact__v num lat">+972 54-225-6566</span>
+              </a>
+              <a class="contact__row" href="mailto:lottem.schef@gmail.com">
+                <span class="contact__k" data-i18n="contact.email">אימייל</span>
+                <span class="contact__v lat">lottem.schef@gmail.com</span>
+              </a>
+              <a class="contact__row" href="https://www.instagram.com/lotsdronephotography/" target="_blank" rel="noopener noreferrer">
+                <span class="contact__k" data-i18n="contact.instagram">אינסטגרם</span>
+                <span class="contact__v lat is-linked">@lotsdronephotography</span>
+              </a>
+            </div>
+          </div>
+          <div class="split__gap" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="split__band split__band--bottom on-dark">
+        <div class="wrap split__row">
+          <p class="mega mega--fill contact-col" data-i18n="contact.cta">בוא נעבוד יחד!</p>
+          <div class="split__gap" aria-hidden="true"></div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- Sticky controls. The WhatsApp pill is the site's standing call to
+       action; the arrow only appears once the page is long behind you. -->
+  <div class="dock" data-dock>
+    <a class="dock__wa" data-wa
+       href="https://wa.me/972542256566"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="פתיחת שיחה בוואטסאפ"
+       data-i18n-attr="aria-label:a11y.whatsapp">
+      <svg class="dock__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.06 2.87 1.21 3.07c.15.2 2.09 3.2 5.07 4.48.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35z"/>
+        <path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.2 8.2 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23z"/>
+      </svg>
+      <span class="dock__label" data-i18n="cta.talk">בוא נדבר</span>
+    </a>
+
+    <button class="dock__top" type="button" data-to-top
+            aria-label="חזרה לראש העמוד" data-i18n-attr="aria-label:a11y.toTop">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Full-size viewer. Every photograph on the page opens here. -->
+  <dialog class="lightbox" data-lightbox aria-label="Image viewer">
+    <button class="lightbox__close" type="button" data-lb-close
+            aria-label="סגירה" data-i18n-attr="aria-label:a11y.lbClose">&times;</button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" data-lb-prev
+            aria-label="התמונה הקודמת" data-i18n-attr="aria-label:a11y.lbPrev">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" alt="" width="1600" height="900" decoding="async">
+      <figcaption class="lightbox__caption"></figcaption>
+    </figure>
+    <button class="lightbox__nav lightbox__nav--next" type="button" data-lb-next
+            aria-label="התמונה הבאה" data-i18n-attr="aria-label:a11y.lbNext">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </dialog>
+
+  <script src="../js/lang.js"></script>
+  <script src="../js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+/* ==========================================================================
+   base.css — reset, design tokens, typography
+   Palette sampled from the reference PDF. See PLAN.md §2.
+   ========================================================================== */
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ul, ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul[role="list"], ol[role="list"] { list-style: none; }
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ---------- tokens ---------- */
+:root {
+  /* grounds — sampled from the reference, do not adjust by eye */
+  --bg-dark:   #000000;
+  --bg-light:  #F7F2E6;
+  --bg-mute:   #8A877F;
+
+  /* Warm amber. It reads as craft and quality rather than alarm, sits in the
+     same warm family as the cream so the palette holds together, and is far
+     more legible than the red it replaces: 7.8:1 on black against 4.0:1. */
+  --accent:      #C89446;
+  --accent-deep: #8C601F;   /* the same hue, dark enough for the cream ground */
+
+  /* The halo now belongs to hover, not to rest. Three layers: a tight core,
+     a bloom, a wide wash. */
+  --glow:
+    0 0 8px  rgba(200, 148, 70, .70),
+    0 0 26px rgba(200, 148, 70, .50),
+    0 0 70px rgba(200, 148, 70, .32);
+  --glow-sm:
+    0 0 5px  rgba(200, 148, 70, .65),
+    0 0 16px rgba(200, 148, 70, .44),
+    0 0 40px rgba(200, 148, 70, .24);
+
+  /* Components read this so they take the right depth for whatever they
+     happen to be sitting on. */
+  --accent-ground: var(--accent);
+
+  /* Typefaces — self-hosted variable fonts, see css/fonts.css.
+     One display family for everything, as in the reference deck. */
+  --f-display: "Rubik", system-ui, -apple-system, sans-serif;
+  --f-body:    "Assistant", system-ui, -apple-system, sans-serif;
+
+  /* Type scale — fluid between 375px and 1600px viewports. The desktop end
+     is set from the reference deck, measured as a share of its 1400px width. */
+  --t-micro:   clamp(.66rem, .64rem + .08vw, .74rem);
+  --t-small:   clamp(.78rem, .75rem + .14vw, .90rem);
+  --t-body:    clamp(.92rem, .89rem + .16vw, 1.04rem);
+  --t-lead:    clamp(.96rem, .92rem + .22vw, 1.12rem);
+  --t-heading: clamp(1.25rem, 1.05rem + .85vw, 2.05rem);
+  --t-sub:     clamp(1.15rem, .95rem + .85vw, 1.85rem);
+  --t-h2:      clamp(1.35rem, 1.10rem + 1.05vw, 2.15rem);
+
+  /* Rhythm — the reference keeps a 5.7% side margin and hairline gutters
+     between mosaic tiles (roughly 0.6% of the page width). */
+  --pad-x:     clamp(1.05rem, .40rem + 2.90vw, 3.6rem);
+  --section-y: clamp(1.9rem, 1.1rem + 3.3vw, 4.3rem);
+  --gutter:    clamp(.25rem, .12rem + .55vw, .6rem);
+
+  /* Motion. One easing for everything so the page moves with one hand, and a
+     short scale of durations rather than a number invented at each call site. */
+  --ease:      cubic-bezier(.22, .61, .36, 1);
+  --ease-out:  cubic-bezier(.16, 1, .3, 1);   /* longer tail, for entrances */
+  --dur-xs:    .18s;   /* state flicks — hover, focus */
+  --dur:       .45s;   /* the default */
+  --dur-slow:  .70s;   /* image zooms */
+  --dur-enter: .85s;   /* something arriving on screen */
+}
+
+/* Per-ground foreground tokens. Every section declares its ground once and
+   the components inside read --fg / --fg-dim / --rule without knowing which. */
+.on-dark {
+  --accent-ground: var(--accent);
+  --bg:     var(--bg-dark);
+  --fg:     #F7F2E6;
+  --fg-dim: rgba(247, 242, 230, .64);
+  --rule:   rgba(247, 242, 230, .18);
+}
+
+.on-light {
+  --accent-ground: var(--accent-deep);
+  --bg:     var(--bg-light);
+  --fg:     #0A0A0A;
+  --fg-dim: rgba(10, 10, 10, .60);
+  --rule:   rgba(10, 10, 10, .16);
+}
+
+.on-mute {
+  --accent-ground: var(--accent-deep);
+  --bg:     var(--bg-mute);
+  --fg:     #0A0A0A;
+  --fg-dim: rgba(10, 10, 10, .62);
+  --rule:   rgba(10, 10, 10, .18);
+}
+
+/* ---------- base typography ---------- */
+/* Nothing on the page is meant to be dragged over and highlighted — it reads
+   as a piece of work, not a document. Controls keep their own behaviour, and
+   the contact details stay selectable so an address can still be copied. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  background: var(--bg-dark);
+  color: #F7F2E6;
+  font-family: var(--f-body);
+  font-size: var(--t-body);
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Latin runs inside Hebrew text keep their own direction so punctuation,
+   slashes and numerals don't get reordered by the bidi algorithm. */
+.lat {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Numerals that line up in columns */
+.num { font-variant-numeric: tabular-nums; }
+
+h1, h2, h3 {
+  font-weight: 900;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+/* ---------- display headings ----------
+   Two behaviours, matching the reference. The banner headings (PORTFOLIO,
+   WORK WITH ME!) are set flush to both edges of their column — .mega--fill,
+   sized by js/ui.js, because CSS cannot fit text to a box. The section
+   headings (PHOTOGRAPHY, VIDEOGRAPHY) sit at a fixed display size instead:
+   fitting them too would blow up short words like "צילום" to absurd sizes. */
+.mega {
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(1.9rem, 1.0rem + 4.2vw, 5rem);
+  line-height: .92;
+  letter-spacing: -.025em;
+  color: var(--accent-ground);
+  text-transform: uppercase;
+  text-wrap: nowrap;
+  transition: text-shadow .45s var(--ease), color .45s var(--ease);
+}
+
+/* The halo is a reward for looking closely, not the resting state. */
+@media (hover: hover) {
+  .mega:hover { text-shadow: var(--glow); }
+}
+
+/* Pre-script fallback for the fitted headings — close enough that nothing
+   jumps visibly, and the only size if scripting is off. */
+.mega--fill { font-size: clamp(2rem, 9vw, 7.5rem); }
+
+/* The Hebrew has no uppercase to reach for, so it carries the weight alone. */
+:root[lang="he"] .mega { text-transform: none; letter-spacing: -.03em; }
+
+/* Section subheads — "Landscape Photography", "Video Edit / Color Grading".
+   Two short lines in the reference, not one long one. */
+.subhead {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--t-sub);
+  line-height: 1.05;
+  color: var(--accent-ground);
+  letter-spacing: -.02em;
+  max-width: 12ch;
+  text-wrap: balance;
+  transition: text-shadow .45s var(--ease);
+}
+
+@media (hover: hover) {
+  .subhead:hover { text-shadow: var(--glow-sm); }
+}
+
+/* "My Works." — the white counterweight to the red headings */
+.works-mark {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--t-h2);
+  line-height: 1;
+  color: var(--fg);
+  letter-spacing: -.03em;
+  max-width: 6ch;
+  text-wrap: balance;
+}
+
+/* Block headings on a light or dark ground — "My Profile", "Education" */
+.heading {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--t-heading);
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  color: var(--fg);
+}
+
+.lede {
+  font-size: var(--t-lead);
+  line-height: 1.5;
+}
+
+/* ---------- scroll reveal ----------
+   A short lift as each block enters the frame. js/ui.js adds .is-in; the
+   no-script and reduced-motion paths leave everything visible from the start,
+   so nothing is ever hidden behind an effect that might not run. */
+/* Hidden only once the script has confirmed it is able to reveal things
+   again. Without the flag the content is simply visible — so a failed script,
+   a blocked file or a browser that suspends observers can never leave the
+   page blank. This session proved the failure mode is not hypothetical. */
+.js-reveal .reveal {
+  opacity: 0;
+  transform: translateY(1.4rem);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+
+.js-reveal .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Tiles in a row come in one after the next rather than as a block */
+.js-reveal .reveal[style*="--i"] { transition-delay: calc(var(--i) * 55ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* The one place selecting text is genuinely useful */
+.contact__v,
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ---------- accessibility ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent-ground);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--pad-x);
+  top: -100%;
+  z-index: 100;
+  background: var(--accent);
+  color: #14100A;
+  padding: .6rem 1rem;
+  font-weight: 700;
+}
+.skip-link:focus { top: .75rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Short line under a section heading, setting up what follows */
+.section__lede {
+  max-width: 52ch;
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: var(--fg-dim);
+  margin-top: clamp(.5rem, 1.5vw, 1rem);
+}
+
+/* ==========================================================================
+   Opening sequence — first paint only
+   ==========================================================================
+   The page announces itself once: the bar, then the name, then the title with
+   a bloom of the halo that settles back to rest, then the photograph. It does
+   not repeat on a language switch — the curtain owns that moment.
+
+   Scoped to .js-intro, which the script only adds once it knows it can take
+   the sequence off again. No script, no hiding. */
+
+.js-intro .nav,
+.js-intro .topbar,
+.js-intro .hero .mega,
+.js-intro .slot--hero { opacity: 0; }
+
+.js-intro.is-ready .nav {
+  animation: intro-fade var(--dur-enter) var(--ease-out) .05s both;
+}
+.js-intro.is-ready .topbar {
+  animation: intro-fade var(--dur-enter) var(--ease-out) .18s both;
+}
+.js-intro.is-ready .hero .mega {
+  animation: intro-title 1.1s var(--ease-out) .28s both;
+}
+.js-intro.is-ready .slot--hero {
+  animation: intro-rise 1s var(--ease-out) .5s both;
+}
+
+@keyframes intro-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes intro-rise {
+  from { opacity: 0; transform: translateY(1.2rem) scale(1.02); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* The halo blooms as the title lands, then fades — so the glow is introduced
+   once and afterwards belongs to hover, exactly as it does everywhere else. */
+@keyframes intro-title {
+  0%   { opacity: 0; transform: translateY(.6rem); text-shadow: none; }
+  45%  { opacity: 1; transform: none; text-shadow: var(--glow); }
+  100% { opacity: 1; transform: none; text-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-intro .nav,
+  .js-intro .topbar,
+  .js-intro .hero .mega,
+  .js-intro .slot--hero { opacity: 1; animation: none; }
+}
+
+/* ---------- reveal timing by what the thing is ----------
+   A heading should arrive quickly; a grid of photographs should flow. One
+   duration for all of it read as a single mechanical sweep. */
+.js-reveal .reveal { transition-duration: var(--reveal-dur, .6s); }
+
+.js-reveal .subhead.reveal,
+.js-reveal .works-head.reveal   { --reveal-dur: .42s; }
+.js-reveal .section__lede.reveal,
+.js-reveal .pair-meta.reveal    { --reveal-dur: .55s; }
+.js-reveal .slot.reveal         { --reveal-dur: .8s; }
+.js-reveal .pair.reveal,
+.js-reveal .player.reveal       { --reveal-dur: .9s; }
+
+/* Headings lift less than pictures — the shorter the travel, the crisper */
+.js-reveal .subhead.reveal,
+.js-reveal .works-head.reveal { transform: translateY(.7rem); }
+.js-reveal .subhead.reveal.is-in,
+.js-reveal .works-head.reveal.is-in { transform: none; }

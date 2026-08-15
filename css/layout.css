@@ -1,0 +1,329 @@
+/* ==========================================================================
+   layout.css — page shell, section grounds, image-slot skeleton
+   ========================================================================== */
+
+.page { display: flow-root; }
+
+/* Every section paints its own ground; .on-dark / .on-light / .on-mute
+   supply --bg and the matching foreground tokens (see base.css). */
+.section {
+  background: var(--bg);
+  color: var(--fg);
+  padding-block: var(--section-y);
+  container-type: inline-size;
+}
+
+/* Sections whose content runs edge to edge (mosaics, full-bleed images) */
+.section--flush { padding-block: 0; }
+
+/* The opening photograph is 3.9:1 in the reference — but the reference is a
+   deck viewed on a desktop. At 375px that ratio is a 96px letterbox strip, so
+   the phone gets a 16:9 crop instead (art-directed in the <picture>).
+   Two cascade notes: the ratio is set on aspect-ratio rather than --ar,
+   because the element carries an inline --ar and an inline custom property
+   beats any stylesheet rule; and the selector is doubled because .slot is
+   declared in components.css, which loads after this file. */
+@media (max-width: 40rem) {
+  .slot.slot--hero { aspect-ratio: 16 / 9; }
+}
+
+/* Full width is the point of the opening frame, but its height should not
+   swallow the screen before anything else has a chance to appear. */
+.slot.slot--hero { max-height: 40vh; }
+
+.wrap {
+  max-width: 96rem;
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
+  container-type: inline-size;
+}
+
+/* Full-bleed strip, still inside the section ground */
+.bleed {
+  width: 100%;
+  margin-inline: 0;
+}
+
+/* ---------- top band: name · language · year ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: clamp(1rem, 2.5vw, 1.75rem) clamp(.5rem, 1.2vw, .9rem);
+}
+
+.topbar__name,
+.topbar__year {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-small);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.topbar__end {
+  display: flex;
+  align-items: center;
+  gap: clamp(.75rem, 2vw, 1.5rem);
+}
+
+/* ---------- hero ----------
+   The reference keeps the title band tight: the name/year row sits just above
+   the word and the photograph starts just below it. */
+.hero { padding-block: 0 clamp(.9rem, 2vw, 1.6rem); }
+.hero .topbar { padding-block: clamp(.6rem, 1.4vw, 1rem) clamp(.1rem, .4vw, .35rem); }
+
+/* The bio is justified in the reference, both edges flush.
+   Only in English, though: no browser ships a Hebrew hyphenation dictionary,
+   so justified Hebrew can only stretch word spaces — which opens rivers in a
+   narrow column. Hebrew gets a ragged edge instead. */
+.profile__bio { max-width: 68ch; }
+
+:root[lang="en"] .profile__bio,
+:root[lang="en"] .story--justify {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* ---------- works header: "My Works." + "PHOTOGRAPHY" ---------- */
+.works-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+/* The red heading sits flush to the outer edge of the row, opposite the
+   white "My Works." mark — as in the reference. */
+.works-head__mega { flex: 1 1 20rem; min-width: 0; text-align: end; }
+
+/* ---------- split slide ----------
+   The reference uses this construction twice: for the profile and again for
+   the contact slide. The ground splits horizontally — cream above, black
+   below — and a portrait straddles the seam, tying the two halves together.
+   That straddle is what stops the page reading as a stack of stripes.
+
+   Two full-width bands paint the grounds; the portrait is lifted out of the
+   flow and placed across both. --split-side says which edge it hangs on.
+   Below 52rem it all returns to normal flow and stacks. */
+/* The two slides give the portrait different weight: about 30% of the page on
+   the profile, about 40% on the closing slide. */
+.split { position: relative; --portrait-col: clamp(13rem, 30%, 25rem); }
+.split--end { --portrait-col: clamp(14rem, 40%, 32rem); }
+
+.split__band { background: var(--bg); color: var(--fg); }
+.split__band--top    { padding-block: clamp(2.5rem, 5vw, 5rem) clamp(1.5rem, 3vw, 2.5rem); }
+.split__band--bottom { padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2.5rem, 5vw, 5rem); }
+
+.split__row { display: grid; gap: clamp(1.5rem, 4vw, 3.5rem); }
+
+.split__portrait { position: relative; margin: 0; }
+
+/* Reserves the portrait's column so the copy never runs underneath it */
+.split__gap { display: none; }
+
+/* Stacked, the portrait cannot straddle anything — so instead of leading the
+   section (marooned on the body's black, ahead of the copy it belongs to) it
+   sits between the two bands, keeping the reference's reading order: profile
+   text then portrait, contact table then portrait then the closing headline.
+   It carries the cream of the band above so the seam still reads as one slide. */
+@media (max-width: 52rem) {
+  .split { display: flex; flex-direction: column; }
+  .split__band--top    { order: 1; }
+  .split__portrait     { order: 2; background: var(--bg-light); }
+  .split__band--bottom { order: 3; }
+
+  /* while the frame is still empty, its placeholder should read as part of
+     the cream band above rather than as a black hole between the two */
+  .split__portrait .slot { --slot-bg: #E7E0CE; }
+  .split__portrait .slot:not(:has(img))::before {
+    background: repeating-linear-gradient(135deg,
+      rgba(10, 10, 10, .05) 0 10px, transparent 10px 20px);
+    border-color: rgba(10, 10, 10, .22);
+  }
+  .split__portrait .slot__tag { color: rgba(10, 10, 10, .55); }
+}
+
+@media (min-width: 52rem) {
+  .split__gap { display: block; }
+
+  .split__portrait {
+    position: absolute;
+    inset-block: clamp(2.5rem, 5vw, 5rem);
+    width: var(--portrait-col);
+    z-index: 2;
+  }
+  .split__portrait .slot { height: 100%; aspect-ratio: auto; }
+
+  /* portrait on the reading-start edge — the profile slide */
+  .split--start .split__row       { grid-template-columns: var(--portrait-col) minmax(0, 1fr); }
+  .split--start .split__portrait  { inset-inline-start: var(--pad-x); }
+
+  /* portrait on the far edge — the contact slide */
+  .split--end .split__row         { grid-template-columns: minmax(0, 1fr) var(--portrait-col); }
+  .split--end .split__portrait    { inset-inline-end: var(--pad-x); }
+}
+
+/* The contact table and the closing headline share one measure so their edges
+   line up, as they do in the reference — where the table runs to about 44% of
+   the page. A percentage here would resolve against the grid track rather than
+   the page, so the measure is set in rem: 36rem lands on ~45% at 1280px. */
+.contact-col { max-width: 36rem; }
+@media (max-width: 52rem) { .contact-col { max-width: none; } }
+
+/* Résumé columns — licence / skills / expertise.
+   Two columns as in the reference; the third group sits under the first. */
+.cred {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2.25rem) clamp(1.5rem, 4vw, 3.5rem);
+}
+@media (min-width: 40rem) {
+  .cred { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- image mosaics ----------
+   The grids keep LTR order in both languages: the composition of a mosaic
+   is a visual decision, not a reading direction. See PLAN.md §4.
+
+   Each mosaic row shares one height and the tiles crop to their own width,
+   which is what makes the reference read as a mosaic rather than a set of
+   loose cards. Tiles therefore drop their own aspect ratio and fill the row. */
+.mosaic {
+  display: grid;
+  gap: var(--gutter);
+  direction: ltr;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: clamp(7rem, 12.5vw, 14rem);
+}
+
+.mosaic > .slot {
+  aspect-ratio: auto;
+  height: 100%;
+}
+
+/* ---------- featured pairs ----------
+   Two treatments in the reference, and they differ on purpose: the landscape
+   pair sits inside the page margins, the event pair runs edge to edge. The
+   captions stay within the margins either way. */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 4.4vw, 3.9rem);
+}
+.pair--bleed { gap: var(--gutter); }
+
+.pair-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 4.4vw, 3.9rem);
+  align-items: start;
+}
+
+@media (max-width: 46rem) {
+  .pair, .pair-meta { grid-template-columns: minmax(0, 1fr); }
+  .pair { gap: var(--gutter); }
+}
+
+/* ---------- portrait section ----------
+   Three columns in the reference: the red subhead alone on the outside, the
+   large frame, then a smaller frame with its paragraph beneath. */
+.portrait-lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  align-items: start;
+}
+@media (min-width: 52rem) {
+  .portrait-lead { grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr) minmax(0, 1.41fr); }
+}
+
+/* The three-up portrait row is inset further than the rest of the page */
+.portrait-row {
+  display: grid;
+  direction: ltr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.6rem, 1.2vw, 1.1rem);
+  padding-inline: clamp(0rem, 4.2vw, 5rem);
+}
+@media (max-width: 40rem) {
+  .portrait-row { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-inline: 0; }
+}
+
+/* Even three-up rows — portrait sets and video stills, where every frame
+   shares one aspect ratio rather than cropping to a mosaic row. */
+.grid-3 {
+  display: grid;
+  direction: ltr;
+  gap: var(--gutter);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 46rem) {
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 30rem) {
+  .grid-3 { grid-template-columns: minmax(0, 1fr); }
+}
+/* Span helpers used by the mosaic rows */
+.sp-2  { grid-column: span 2; }
+.sp-3  { grid-column: span 3; }
+.sp-4  { grid-column: span 4; }
+.sp-5  { grid-column: span 5; }
+.sp-8  { grid-column: span 8; }
+.row-2 { grid-row: span 2; }
+
+@media (max-width: 46rem) {
+  .mosaic > * { grid-column: span 6; }
+  .mosaic >   .row-2 { grid-row: auto; }
+}
+
+/* ---------- banner: mega heading laid over a still ---------- */
+.banner { position: relative; }
+
+/* A scrim top and bottom. The reference lays its heading over a dark frame,
+   but the photograph here is whatever gets dropped in — this keeps the type
+   legible over a bright sky as well as a night shot. */
+.banner__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-block: clamp(1rem, 3vw, 2.75rem);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, .55) 0%,
+    rgba(0, 0, 0, .12) 32%,
+    rgba(0, 0, 0, .12) 62%,
+    rgba(0, 0, 0, .60) 100%);
+}
+
+.banner__mark { align-self: flex-end; }
+
+/* ---------- video players ---------- */
+.players {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  justify-items: center;
+}
+
+/* ---------- contact ---------- */
+/* The explicit minmax(0, …) matters: an implicit auto track would size to the
+   heading's min-content, and .mega is nowrap — the track would grow past the
+   viewport and take the fitting script's target width with it. */
+.contact-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: end;
+}
+@media (min-width: 52rem) {
+  .contact-foot { grid-template-columns: minmax(0, 1fr) minmax(0, 18rem); }
+}
+
+/* ---------- spacing helpers ---------- */
+.stack     { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1rem, 2.5vw, 1.75rem); }
+.mt-sub    { margin-top: clamp(1.25rem, 3vw, 2.25rem); }
+.mb-sub    { margin-bottom: clamp(1.25rem, 3vw, 2.25rem); }

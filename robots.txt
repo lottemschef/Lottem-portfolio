@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Camera originals are not served; nothing to crawl there.
+Disallow: /old/
+
+Sitemap: /sitemap.xml

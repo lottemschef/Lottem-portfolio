@@ -1,0 +1,13 @@
+.DS_Store
+*.log
+
+# Camera originals — gigabytes, and never served. Keep your own backup of
+# assets/video/source and assets/photos/originals outside git.
+assets/video/source/
+assets/photos/originals/
+
+# The old React project, kept locally as a reference only
+old/
+
+# Local editor / tool state
+.claude/
