@@ -440,6 +440,12 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   overflow: hidden;
   direction: ltr;          /* a wipe is not a reading direction */
   isolation: isolate;
+  cursor: ew-resize;
+  /* The figure handles the drag itself (see initCompare). pan-y leaves
+     vertical scrolling to the page and lets every horizontal gesture reach
+     the handler, which is what the wipe needs and what a phone was failing
+     to deliver while the native range owned the gesture. */
+  touch-action: pan-y;
 }
 
 .compare__img {
@@ -510,11 +516,11 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
-  /* The control covers the whole 16:9 figure, so on a phone it sits directly
-     under the thumb for most of a scroll past this section. pan-y hands
-     vertical gestures back to the page and keeps only the sideways drag,
-     which is the one the wipe actually wants. */
-  touch-action: pan-y;
+  /* Kept for keyboard and assistive tech, but it no longer receives pointers:
+     stretched over the whole figure it was intercepting every touch, and its
+     native drag behaviour is exactly what was unreliable on a phone. Tab still
+     reaches it and the focus ring below still shows. */
+  pointer-events: none;
 }
 .compare__range::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -996,6 +1002,15 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
 
 .nav .lang { border-color: rgba(247, 242, 230, .22); }
 .nav .lang__btn { min-height: 2.25rem; min-width: 2.4rem; color: rgba(247, 242, 230, .7); }
+
+/* The slim chip keeps the bar tight for a mouse, but on a touch screen it is
+   the only global control on the page and 36x38 is under the 44px minimum —
+   which is the very thing the base rule was sized to avoid. Coarse pointers
+   get the full target back; the bar grows by a few pixels and nothing else
+   moves, because the row is centre-aligned. */
+@media (pointer: coarse) {
+  .nav .lang__btn { min-height: 2.75rem; min-width: 2.75rem; }
+}
 .nav .lang__btn:hover { color: #F7F2E6; }
 /* This rule sits after the pressed state and matches as tightly, so without
    restating it here the selected language keeps dim cream on copper. */
@@ -1305,7 +1320,7 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   .showmore {
     display: block;
     margin: 1rem auto 0;
-    padding: .72rem 1.6rem;
+    padding: .85rem 1.6rem;   /* clears the 44px touch minimum */
     font-family: var(--f-display);
     font-weight: 800;
     font-size: var(--t-micro);

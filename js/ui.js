@@ -55,14 +55,83 @@ function fitAllHeadings() {
   document.querySelectorAll(FIT_SELECTOR).forEach(fitHeading);
 }
 
-/* ---------- before / after comparison ---------- */
+/* ---------- before / after comparison ----------
+   The wipe used to be driven entirely by an invisible <input type="range">
+   stretched over the figure. That works with a mouse and it works with a
+   keyboard, but on a phone it is unreliable: the browser has to decide whether
+   a touch is a horizontal drag or the start of a vertical scroll, and while it
+   is deciding it keeps the gesture for itself. Often the wipe simply did not
+   move.
+
+   So the pointer is handled here instead. Touch is given one small grace
+   period to declare its direction — mostly sideways and we take the gesture,
+   mostly downwards and we hand it straight back so the page scrolls normally.
+   Mouse and pen commit on contact, because for them there is nothing to
+   disambiguate. The range input stays in the markup and stays in sync: it is
+   what a keyboard and a screen reader drive. */
 function initCompare() {
   document.querySelectorAll(".compare").forEach((fig) => {
     const range = fig.querySelector(".compare__range");
     if (!range) return;
-    const draw = () => fig.style.setProperty("--pos", `${range.value}%`);
-    range.addEventListener("input", draw);
-    draw();
+
+    const set = (pct) => {
+      const v = Math.max(0, Math.min(100, pct));
+      fig.style.setProperty("--pos", `${v}%`);
+      range.value = String(Math.round(v));
+    };
+
+    // the keyboard path — arrows, Home/End — still goes through the input
+    range.addEventListener("input", () => set(Number(range.value)));
+    set(Number(range.value));
+
+    /* The figure is forced to LTR in CSS, so this stays correct on the Hebrew
+       page: a wipe reveals left-to-right regardless of reading direction. */
+    const pctFromX = (x) => {
+      const r = fig.getBoundingClientRect();
+      return r.width ? ((x - r.left) / r.width) * 100 : 50;
+    };
+
+    let pid = null, dragging = false, decided = false, startX = 0, startY = 0;
+
+    const release = () => {
+      if (pid !== null && fig.hasPointerCapture?.(pid)) fig.releasePointerCapture(pid);
+      pid = null; dragging = false; decided = false;
+    };
+
+    fig.addEventListener("pointerdown", (e) => {
+      pid = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      if (e.pointerType === "touch") { dragging = false; decided = false; return; }
+      dragging = true;
+      decided = true;
+      fig.setPointerCapture(pid);
+      set(pctFromX(e.clientX));
+    });
+
+    fig.addEventListener("pointermove", (e) => {
+      if (e.pointerId !== pid) return;
+
+      if (!decided) {
+        const dx = Math.abs(e.clientX - startX);
+        const dy = Math.abs(e.clientY - startY);
+        if (dx < 6 && dy < 6) return;      // too small to read as either yet
+        decided = true;
+        if (dy > dx) { pid = null; return; }   // a scroll — leave it to the page
+        dragging = true;
+        fig.setPointerCapture(pid);
+      }
+
+      if (!dragging) return;
+      e.preventDefault();
+      set(pctFromX(e.clientX));
+    });
+
+    fig.addEventListener("pointerup", release);
+    fig.addEventListener("pointercancel", release);
+
+    // A tap with no drag should still move the wipe to where it landed.
+    fig.addEventListener("click", (e) => { if (!decided) set(pctFromX(e.clientX)); });
   });
 }
 
@@ -135,7 +204,11 @@ function initPlayers() {
          very image the browser already picked keeps the still on screen right
          through the wait instead of flashing to black. */
       const poster = frame.querySelector(".player__poster");
-      if (poster?.currentSrc) video.poster = poster.currentSrc;
+      /* currentSrc is empty until the browser has actually picked a candidate,
+         which for a lazy image below the fold may not have happened yet. Fall
+         back to the plain src so the frame never starts on black. */
+      const posterSrc = poster && (poster.currentSrc || poster.getAttribute("src"));
+      if (posterSrc) video.poster = posterSrc;
       /* Every reel is silent footage, so muting costs nothing and removes the
          one reason a browser would refuse to start playing on its own. */
       video.muted = true;
