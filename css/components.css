@@ -276,6 +276,14 @@ picture { display: contents; }
 .meta__v {
   font-style: italic;
   color: var(--fg-dim);
+  /* Physical, not logical, and deliberately so. The year is marked .lat, which
+     sets direction: ltr to stop the bidi algorithm reordering numerals inside
+     Hebrew. `start` is resolved from each value's own direction, so on the
+     Hebrew page the place name hugged the right of its box and the year the
+     left of the same box: one column, two opposite edges. Pinning both to the
+     left makes them line up whatever the direction. English is unaffected —
+     `start` already resolved to left there. */
+  text-align: left;
 }
 
 .story {
@@ -1215,6 +1223,18 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   border-radius: clamp(.4rem, 1vw, .75rem);
 }
 
+/* Each work in this section states its own place and year directly beneath
+   itself. Held to the same measure as the frame above it so the two read as
+   one item rather than as a caption that drifted loose. */
+/* A work standing on its own in the row centres its detail under itself,
+   rather than stretching the pair of columns across the full width where a
+   single frame does not need them. Matches the reel captions below. */
+.grade-showcase__meta {
+  width: min(100%, 34rem);
+  margin-inline: auto;
+  margin-block-start: calc(-1 * clamp(.5rem, 2vw, 1.25rem));
+}
+
 /* A film given the same footprint as the wipe above it, so the two read as a
    pair rather than as a feature and an afterthought. */
 .grade-film,
@@ -1292,30 +1312,33 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   .is-collapsible {
     position: relative;
     overflow: hidden;
-    /* --peek is set by ui.js from the height of the frames we keep visible,
-       so the cut always lands on a tile edge rather than mid-photograph. */
-    max-height: var(--peek, 60vh);
+    /* Folded means folded: on a phone the grid shows nothing at all until the
+       control is pressed. A partial first row read as photographs stacked on
+       top of one another, because every frame was a crop cut off mid-image. */
+    max-height: 0;
     transition: max-height .55s var(--ease);
   }
 
   .is-collapsible.is-open { max-height: var(--full, none); }
 
-  /* A fade over the cut says "there is more" without a hard edge. */
-  .is-collapsible::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 6.5rem;
-    /* --bg is redefined by .on-dark / .on-light / .on-mute, so the fade
-       always resolves to the ground the grid is actually sitting on. */
-    background: linear-gradient(to bottom, transparent, var(--bg) 88%);
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity .4s var(--ease);
+  /* Nothing peeks out any more, so there is no cut left to soften. */
+  .is-collapsible::after { content: none; }
+
+  /* Phone: show the whole photograph rather than a crop of it. The slot stops
+     imposing an aspect ratio and the image sets its own height, so frames sit
+     one under the other at their true proportions instead of being sliced to
+     a fixed box and reading as a stack. */
+  .grid-3 > .slot {
+    aspect-ratio: auto;
+    height: auto;
   }
 
-  .is-collapsible.is-open::after { opacity: 0; }
+  .grid-3 > .slot img {
+    position: static;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
 
   .showmore {
     display: block;
@@ -1413,4 +1436,59 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   /* The halo is a state signal, not decoration, so it stays — but it should
      not animate in. */
   .nav__link, .showmore, .player__play, .filmshow__video { transition: none; }
+}
+
+
+/* A reel that was not shot where the section's stills were says so under its
+   own frame, rather than borrowing the location printed above the row. */
+.player__meta {
+  width: 100%;
+  margin: .75rem auto 0;
+}
+
+/* A caption standing alone under one frame reads as centred only if the label
+   and the value sit either side of the page's middle. Left at the two-column
+   ratio the pair uses, the label started at the block's left edge and the value
+   butted straight up against it, so the whole line drifted left of centre and
+   looked cramped. Mirrored around a real gutter instead: the label ends just
+   before the middle, the value starts just after it. Above 46rem only — the
+   phone stacks these full width and is left exactly as it is. */
+@media (min-width: 46rem) {
+  /* One frame, one caption, laid out on thirds: the labels run out to the
+     first third and stop, the middle third is left empty, and the values pick
+     up again on the second third. Held tight around the centre the line read
+     as one cramped clump under a wide photograph. Above 46rem only — the phone
+     keeps its own stacked measure. */
+  .pair-meta--single .meta,
+  .grade-showcase__meta,
+  .player__meta {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 33.33%;
+  }
+
+  .pair-meta--single .meta > .meta__k,
+  .grade-showcase__meta > .meta__k,
+  .player__meta > .meta__k { text-align: right; }
+}
+
+/* A lone caption sits in the same two places on screen in both languages.
+   Left to itself the grid lays its columns out along the text direction, so on
+   the Hebrew page the label and the value simply swapped sides of the page:
+   a mirror of the English layout rather than a match for it. Only the column
+   order is forced back — the words keep their own direction, so the Hebrew
+   still reads right to left and the comma in "אולם אגמים, באר שבע" stays put.
+   The year already carries .lat for exactly that reason and is left alone.
+   Above 46rem only: the phone stacks these and is untouched. */
+@media (min-width: 46rem) {
+  [dir="rtl"] .pair-meta--single .meta,
+  [dir="rtl"] .grade-showcase__meta,
+  [dir="rtl"] .player__meta { direction: ltr; }
+
+  [dir="rtl"] .pair-meta--single .meta > .meta__k,
+  [dir="rtl"] .grade-showcase__meta > .meta__k,
+  [dir="rtl"] .player__meta > .meta__k,
+  [dir="rtl"] .pair-meta--single .meta > .meta__v:not(.lat),
+  [dir="rtl"] .grade-showcase__meta > .meta__v:not(.lat),
+  [dir="rtl"] .player__meta > .meta__v:not(.lat) { direction: rtl; }
 }

@@ -173,6 +173,15 @@
     --portrait-col-h: clamp(14rem, 40vw, 32rem);
     min-height: calc(var(--portrait-col-h) * 4 / 3 + 2 * clamp(2.5rem, 5vw, 5rem));
   }
+
+  /* Both the reserved column and that min-height exist only to hold the
+     portrait. With no portrait in the slide they were reserving a column and
+     roughly 350px of height for nothing, so the contact block sat above a
+     large empty field. Keyed off the portrait's presence rather than deleted,
+     so dropping a portrait back in restores the original layout by itself. */
+  .split:not(:has(.split__portrait)) .split__row { grid-template-columns: minmax(0, 1fr); }
+  .split:not(:has(.split__portrait)) .split__gap { display: none; }
+  .split--end:not(:has(.split__portrait)) { min-height: 0; }
 }
 
 /* The contact table and the closing headline share one measure so their edges
@@ -241,9 +250,19 @@
 .pair--single,
 .pair-meta--single { grid-template-columns: minmax(0, 1fr); }
 
+/* A two-up row labels each frame under the frame it belongs to, even when both
+   were shot in the same place: one caption under the left photograph and a bare
+   column under the right one read as a mistake rather than as shared detail. */
+.pair-meta__second { display: block; }
+
 @media (max-width: 46rem) {
   .pair, .pair-meta { grid-template-columns: minmax(0, 1fr); }
   .pair { gap: var(--gutter); }
+
+  /* Stacked, the pair is one frame after another and the caption already sits
+     directly under the first: repeating it here would only be the same lines
+     twice in a row. The phone layout is left exactly as it was. */
+  .pair-meta__second { display: none; }
 }
 
 /* ---------- portrait section ----------
