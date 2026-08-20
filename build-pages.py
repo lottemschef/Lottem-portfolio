@@ -13,7 +13,7 @@ Why two files rather than swapping text in the browser: a crawler asking for
 the Hebrew page has to receive Hebrew HTML. Swapping at runtime meant both
 URLs returned English, so the Hebrew half of the site was invisible to search.
 """
-import json, os, re, sys
+import hashlib, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT)
@@ -109,12 +109,37 @@ def head(html, lang, strings):
     return html
 
 
+def stamp_assets(html):
+    """Give every stylesheet and script a ?v= tag taken from its own contents.
+
+    Without one a browser will happily keep serving the copy it cached the
+    first time, so a deploy that only touches CSS or JS reaches nobody until
+    they hard-reload — which visitors do not do, and which cost real time to
+    diagnose more than once here. The tag is a hash of the file, so it changes
+    exactly when the file does and stays put when it does not.
+    """
+    def tag(m):
+        attr, path = m.group(1), m.group(2)
+        local = path.lstrip('./')
+        if not os.path.exists(local):
+            return m.group(0)
+        digest = hashlib.sha256(open(local, 'rb').read()).hexdigest()[:8]
+        return f'{attr}"{path}?v={digest}"'
+
+    # An existing ?v= has to be matched and replaced, not skipped: index.html is
+    # both the template and an output of this script, so the second run reads
+    # back its own stamped markup. Without the optional query here the tag froze
+    # at whatever the first build produced and stopped tracking the file.
+    return re.sub(r'(href=|src=)"((?:\.\./)?(?:css|js)/[^"?]+\.(?:css|js))(?:\?[^"]*)?"', tag, html)
+
+
 def build(lang):
     s = STRINGS[lang]
     html = put_text(SRC, s)
     html = put_attrs(html, s)
     html = head(html, lang, s)
     html = language_switch(html, lang)
+    html = stamp_assets(html)
     if lang == 'he':
         html = relativise(html)
         os.makedirs('he', exist_ok=True)
