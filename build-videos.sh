@@ -55,6 +55,9 @@ JOBS=(
   # autoplay at once, so the lighter ladder is the one worth serving.
   "agamim-night|hall night.mp4|Preset1280x720|0||3"
   "agamim-sunset|hall sunset.mp4|Preset1280x720|0||3"
+  # The Videography banner. 1080p, unlike the two-up reels: this one runs the
+  # full width of the page, so it is the one clip that is actually seen at size.
+  "video-banner|promotion 4.mp4|Preset1920x1080|0||4"
 )
 
 for job in "${JOBS[@]}"; do

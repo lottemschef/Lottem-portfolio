@@ -455,9 +455,22 @@
         </div>
 
         <!-- Full width, and therefore a direct child of the section rather
-             than of the padded column. See .bleed in layout.css. -->
-        <figure class="frame bleed reveal">
-          <x-photo name="video-hero" altkey="alt.videoHero" sizes="100vw">
+             than of the padded column. See .bleed in layout.css.
+
+             The banner is the film of the photograph that used to stand here:
+             the same walker, the same silhouette, the same sunset, now moving.
+
+             No autoplay attribute, unlike the Events reels. This one is driven
+             entirely by the observer in js/ui.js, which is why it also carries
+             preload="none" — nothing about the file is fetched until it is on
+             screen. The poster is a frame of the film itself, so there is no
+             jump when it starts. -->
+        <figure class="frame bleed banner reveal">
+          <video class="reel__video" muted loop playsinline preload="none"
+                 width="1920" height="1080"
+                 poster="assets/img/poster-video-banner-1920.jpg" data-reel>
+            <source src="assets/video/video-banner.mp4" type="video/mp4">
+          </video>
         </figure>
 
         <div class="wrap" style="margin-block-start: var(--block-y)">

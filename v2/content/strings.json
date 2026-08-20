@@ -79,8 +79,7 @@
     "alt.artists": "A portrait of a performing artist",
     "alt.gradeBefore": "A frame straight out of the camera, before grading",
     "alt.gradeAfter": "The same frame after colour grading",
-    "alt.portrait": "Lottem Schefenbauer",
-    "alt.videoHero": "A photographer in silhouette against the sunset"
+    "alt.portrait": "Lottem Schefenbauer"
   },
   "he": {
     "meta.title": "לוטם שיפנבאור · צלם, עורך ומפעיל רחפן",
@@ -162,7 +161,6 @@
     "alt.artists": "פורטרט של אמן מבצע",
     "alt.gradeBefore": "הפריים ישירות מהמצלמה, לפני הקולור",
     "alt.gradeAfter": "אותו פריים אחרי הקולור",
-    "alt.portrait": "לוטם שיפנבאור",
-    "alt.videoHero": "צלם בצללית מול השקיעה"
+    "alt.portrait": "לוטם שיפנבאור"
   }
 }

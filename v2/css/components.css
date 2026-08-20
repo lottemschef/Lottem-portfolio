@@ -616,6 +616,24 @@
 /* Someone who asked for less motion keeps the poster frame instead: js/ui.js
    pauses rather than removes, so the reel is still a photograph. */
 
+/* ---------- the Videography banner ----------
+   A full-bleed film where a full-bleed photograph used to be. It keeps the
+   picture's styling exactly: the width of the page, its own proportions, and
+   the frame's corner and clipping, so the section's rhythm is unchanged by the
+   swap.
+
+   object-fit: cover is set as asked. With height: auto the box already takes
+   the film's own proportions, so there is nothing for it to crop today — it is
+   what would fill the frame if this banner is ever given a fixed height, and
+   until then it guarantees the film can never sit letterboxed inside it. */
+.banner .reel__video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+
 
 /* ==========================================================================
    VIDEO PLAYERS

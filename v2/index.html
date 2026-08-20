@@ -52,7 +52,7 @@
   <link rel="stylesheet" href="css/fonts.css?v=6def77e8">
   <link rel="stylesheet" href="css/base.css?v=375be75e">
   <link rel="stylesheet" href="css/layout.css?v=1800a5f5">
-  <link rel="stylesheet" href="css/components.css?v=3456d4ad">
+  <link rel="stylesheet" href="css/components.css?v=e0021f1e">
 
   <script type="application/ld+json">
   {
@@ -452,9 +452,22 @@
         </div>
 
         <!-- Full width, and therefore a direct child of the section rather
-             than of the padded column. See .bleed in layout.css. -->
-        <figure class="frame bleed reveal">
-          <picture><source type="image/webp" srcset="../assets/img/video-hero-320.webp 320w, ../assets/img/video-hero-640.webp 640w, ../assets/img/video-hero-960.webp 960w, ../assets/img/video-hero-1280.webp 1280w, ../assets/img/video-hero-1920.webp 1920w" sizes="100vw"><img src="../assets/img/video-hero-1920.jpg" srcset="../assets/img/video-hero-320.jpg 320w, ../assets/img/video-hero-640.jpg 640w, ../assets/img/video-hero-960.jpg 960w, ../assets/img/video-hero-1280.jpg 1280w, ../assets/img/video-hero-1920.jpg 1920w" sizes="100vw" alt="A photographer in silhouette against the sunset" data-i18n-attr="alt:alt.videoHero" width="1920" height="1080" loading="lazy" decoding="async"></picture>
+             than of the padded column. See .bleed in layout.css.
+
+             The banner is the film of the photograph that used to stand here:
+             the same walker, the same silhouette, the same sunset, now moving.
+
+             No autoplay attribute, unlike the Events reels. This one is driven
+             entirely by the observer in js/ui.js, which is why it also carries
+             preload="none" — nothing about the file is fetched until it is on
+             screen. The poster is a frame of the film itself, so there is no
+             jump when it starts. -->
+        <figure class="frame bleed banner reveal">
+          <video class="reel__video" muted loop playsinline preload="none"
+                 width="1920" height="1080"
+                 poster="../assets/img/poster-video-banner-1920.jpg" data-reel>
+            <source src="../assets/video/video-banner.mp4" type="video/mp4">
+          </video>
         </figure>
 
         <div class="wrap" style="margin-block-start: var(--block-y)">
