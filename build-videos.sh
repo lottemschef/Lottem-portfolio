@@ -50,6 +50,11 @@ JOBS=(
   "event-resort|event 5.mp4|Preset1280x720|0||5.8"
   "event-market|evet 3.mp4|Preset1920x1080|0||1.7"
   "promo-film|event longer 1.mp4|Preset1280x720|0||4.3"
+  # The two Agamim Hall aerials the Events section loops. 720p rather than
+  # 1080p on purpose: they render about 500px wide in a two-up row and both
+  # autoplay at once, so the lighter ladder is the one worth serving.
+  "agamim-night|hall night.mp4|Preset1280x720|0||3"
+  "agamim-sunset|hall sunset.mp4|Preset1280x720|0||3"
 )
 
 for job in "${JOBS[@]}"; do
