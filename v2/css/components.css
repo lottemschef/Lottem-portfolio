@@ -180,8 +180,15 @@
   z-index: 80;
   inset-block-start: var(--sp-4);
   inset-inline-end: var(--sp-4);
-  width: 3rem;
-  height: 3rem;
+
+  /* 52px, not the 48 it wants to look like, because of the scale below. The
+     button grows from .85 as it arrives, and 48 x .85 is 40.8 — under the 44px
+     minimum for the whole of the half second it is fading in, which is exactly
+     when a thumb already on its way is most likely to land. At 52 the smallest
+     it ever gets is 44.2, so the target is legal at every frame of the
+     entrance rather than only once it has settled. */
+  width: 3.25rem;
+  height: 3.25rem;
   display: grid;
   place-items: center;
   gap: 0;
@@ -240,20 +247,42 @@
      per cent leaves a legible ghost of the page behind the navigation. */
   background: #050505;
   display: grid;
-  align-content: center;
   gap: var(--sp-5);
   padding: var(--sp-8) var(--pad-x);
   opacity: 0;
+
+  /* Centred, but never at the cost of reaching something. On a short screen —
+     a phone held sideways is the usual one — six large links and the language
+     control are taller than the viewport, and plain `center` overflows equally
+     in both directions with the top half unreachable by any scroll. `safe`
+     gives up centring exactly when centring would hide something; browsers
+     without it fall back to the line above. */
+  align-content: center;
+  align-content: safe center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+
+  /* Click-through until it is actually open. It is invisible for the whole
+     fade either way, and without this it went on swallowing every tap on the
+     page for the length of the transition after being dismissed. */
+  pointer-events: none;
+
   transition: opacity var(--dur) var(--ease);
 }
 
 .menu[hidden] { display: none; }
-.menu.is-open { opacity: 1; }
+
+.menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 .menu__link {
   display: flex;
   align-items: baseline;
   gap: var(--sp-4);
+  min-height: 2.75rem;   /* 44px of target even if the type ever shrinks */
   font-family: var(--f-display);
   font-weight: 700;
   font-size: clamp(1.6rem, 9vw, 2.6rem);

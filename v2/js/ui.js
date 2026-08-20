@@ -91,25 +91,13 @@ function initRail() {
      one can never win against a tall neighbour even when it fills the screen.
      The midpoint is also literally where the rail is, so the marker always
      names the section the rail is drawn over. */
-  function updateCurrent() {
-    if (!sections.length) return;
-
-    const middle = window.scrollY + window.innerHeight / 2;
-    let current = sections[0];
-
-    for (const section of sections) {
-      const top = section.offsetTop;
-      if (top <= middle) current = section;
-    }
-
-    // The last section is often shorter than half a screen, so the midpoint
-    // may never reach it. Touching the bottom of the page means you are there.
-    const atBottom =
-      window.innerHeight + window.scrollY >= document.body.scrollHeight - 2;
-    if (atBottom) current = sections[sections.length - 1];
-
+  /* Marks one section current, everywhere it is listed. Pulled out so a click
+     can use it too: waiting for the scroll that follows means the marker lags
+     a whole section behind the page, and a link to the section you are already
+     on produces no scroll at all and so would never light up. */
+  function mark(section) {
     links.forEach((link) => {
-      const on = link.getAttribute("href") === `#${current.id}`;
+      const on = link.getAttribute("href") === `#${section.id}`;
       link.classList.toggle("is-current", on);
       if (on) link.setAttribute("aria-current", "true");
       else link.removeAttribute("aria-current");
@@ -118,9 +106,43 @@ function initRail() {
     /* The rail is fixed, so it has no section of its own to inherit colours
        from — it has to be told which ground it is floating over. */
     if (rail) {
-      rail.dataset.ground = current.classList.contains("on-light") ? "light" : "dark";
+      rail.dataset.ground = section.classList.contains("on-light") ? "light" : "dark";
     }
   }
+
+  /* Distance from the top of the document. Not offsetTop, which is measured
+     against the nearest positioned ancestor: every .section is position:
+     relative already, so wrapping one in another positioned element at any
+     point would silently start returning a number relative to that instead,
+     and the marker would drift. This is right whatever the page is nested in. */
+  const topOf = (el) => el.getBoundingClientRect().top + window.scrollY;
+
+  function updateCurrent() {
+    if (!sections.length) return;
+
+    const middle = window.scrollY + window.innerHeight / 2;
+    let current = sections[0];
+
+    for (const section of sections) {
+      if (topOf(section) <= middle) current = section;
+    }
+
+    // The last section is often shorter than half a screen, so the midpoint
+    // may never reach it. Touching the bottom of the page means you are there.
+    const atBottom =
+      window.innerHeight + window.scrollY >= document.body.scrollHeight - 2;
+    if (atBottom) current = sections[sections.length - 1];
+
+    mark(current);
+  }
+
+  // light the link the moment it is chosen, not when the scrolling catches up
+  links.forEach((link) => {
+    link.addEventListener("click", () => {
+      const target = document.querySelector(link.getAttribute("href"));
+      if (target) mark(target);
+    });
+  });
 
   onScrollFrame(() => {
     updateVisibility();
@@ -142,37 +164,54 @@ function initMenu() {
     close: toggle.dataset.labelClose || "Close the menu",
   };
 
-  const setOpen = (open) => {
+  /* One variable is the truth, and every attribute is written from it.
+
+     This used to hide the overlay from a transitionend listener attached at
+     the moment of closing, and that had two ways of going wrong. The listener
+     never checked whether the menu had been reopened since, and transitionend
+     bubbles, so a transition finishing anywhere inside the overlay would run
+     it -- the language buttons in the foot carry one. Tapping to close and
+     tapping again straight away, which is exactly what an impatient thumb
+     does, left the menu reopened and then immediately hidden by the stranded
+     listener: aria-expanded="true", the button showing a cross, and nothing on
+     screen. It took two more taps to recover.
+
+     A single timer that the next open cancels cannot do that. */
+  let open = false;
+  let hideTimer = 0;
+
+  /* Matches --dur in base.css. The overlay is invisible and click-through the
+     moment .is-open comes off, so this only decides when it leaves the layout;
+     being a little generous costs nothing. */
+  const FADE_MS = 450;
+
+  const setOpen = (next) => {
+    if (next === open) return;
+    open = next;
+    clearTimeout(hideTimer);
+
     toggle.setAttribute("aria-expanded", String(open));
     toggle.setAttribute("aria-label", open ? labels.close : labels.open);
     document.body.style.overflow = open ? "hidden" : "";
 
     if (open) {
       menu.hidden = false;
-      requestAnimationFrame(() => menu.classList.add("is-open"));
+      // a frame between display and opacity, or the fade has nothing to run from
+      requestAnimationFrame(() => { if (open) menu.classList.add("is-open"); });
       menu.querySelector("a")?.focus({ preventScroll: true });
     } else {
       menu.classList.remove("is-open");
-      const done = () => {
-        menu.hidden = true;
-        menu.removeEventListener("transitionend", done);
-      };
-      menu.addEventListener("transitionend", done);
-      // reduced motion means the transition never fires — close anyway
-      setTimeout(() => {
-        if (!menu.classList.contains("is-open")) menu.hidden = true;
-      }, 400);
+      hideTimer = setTimeout(() => { if (!open) menu.hidden = true; }, FADE_MS);
     }
   };
 
-  toggle.addEventListener("click", () =>
-    setOpen(toggle.getAttribute("aria-expanded") !== "true"));
+  toggle.addEventListener("click", () => setOpen(!open));
 
   menu.querySelectorAll("a").forEach((link) =>
     link.addEventListener("click", () => setOpen(false)));
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+    if (e.key === "Escape" && open) {
       setOpen(false);
       toggle.focus();
     }
