@@ -1025,17 +1025,35 @@
 
 .lightbox__figure {
   margin: 0;
+  min-inline-size: 0;
   display: grid;
-  justify-items: center;
-  min-width: 0;
+  place-items: center;
 }
 
-/* The whole photograph, as large as the window allows, never cropped */
+/* The whole photograph, as large as the window allows, never cropped — inside
+   a box that does not depend on which file happens to be loaded.
+
+   That dependence was the jump. The image was sized `width: auto` under a
+   max-width and max-height, so its rendered box came from the intrinsic size of
+   whatever was decoded at that moment — and two different things are decoded in
+   the first second. Opening a photograph went 1280x853, the warm thumbnail at
+   its own natural size, then 1476x984 when the full file landed: 196px wider
+   and 131px taller, in one frame, after the picture was already on screen.
+   Moving between two photographs of different proportions moved the box again,
+   and because the figure centres it, the whole picture slid sideways.
+
+   Both axes are definite here, which is the point. Sizing the height as a
+   percentage of the figure was tried first and is not reliable: the grid row is
+   auto, so the percentage has nothing settled to resolve against, and the
+   browser fell back to the file's own ratio on some frames and honoured the
+   cell on others — 1177px of picture inside a 1016px cell, quietly cropped top
+   and bottom. Measuring against svh instead depends on the window and nothing
+   else, so the rectangle is the same before and after any load, and object-fit
+   letterboxes the picture whole inside it. The subtraction is the block padding
+   on .lightbox[open] above; change one and change the other. */
 .lightbox__img {
-  max-width: 100%;
-  max-height: calc(100svh - 6rem);
-  width: auto;
-  height: auto;
+  inline-size: 100%;
+  block-size: calc(100svh - 2 * var(--sp-5));
   object-fit: contain;
 }
 
@@ -1056,6 +1074,35 @@
 
 .lightbox__nav svg { width: 1.15rem; height: 1.15rem; }
 
+/* ---------- the viewer on a phone ----------
+   Three columns is the wrong shape at this width. Two 3rem buttons and their
+   gaps take 173px of a 375px screen, leaving the photograph 221px to be shown
+   in — a 1400px picture drawn at 221x125, in the one view whose entire purpose
+   is looking at it properly. The buttons move over the picture instead, which
+   is what every viewer does at this size, and the frame gets the whole width.
+
+   inset-inline-start on the previous button keeps the pair mirrored the same
+   way the grid mirrors them above: start is the left in English and the right
+   in Hebrew, which is where previous belongs in each. */
+@media (max-width: 46rem) {
+  .lightbox[open] {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--sp-3);
+  }
+
+  .lightbox__nav {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(10, 10, 10, .55);
+    backdrop-filter: blur(6px);
+  }
+
+  .lightbox__nav--prev { inset-inline-start: var(--sp-3); }
+  .lightbox__nav--next { inset-inline-end: var(--sp-3); }
+}
+
 .lightbox__close {
   position: absolute;
   inset-block-start: var(--sp-4);
@@ -1065,6 +1112,14 @@
   z-index: 2;
 }
 
-/* Physical, not logical: prev is the picture on the left in both languages,
-   because the arrow points at where the picture will come from. */
-.lightbox__nav svg { transform: none; }
+/* The buttons are grid items, and a grid lays its columns out in the writing
+   direction — so in Hebrew the markup's first button, "previous", is already
+   placed on the right-hand side, which is where previous belongs when the row
+   runs right to left. That part was never wrong.
+
+   The chevron inside it was. It went on pointing left while sitting on the
+   right, and the next button pointed right from the left-hand side, so both
+   arrows contradicted the side they were on and the direction they took you.
+   The glyph is mirrored with the layout; the comment that used to sit here
+   claimed prev was on the left in both languages, and it simply was not. */
+[dir="rtl"] .lightbox__nav svg { transform: scaleX(-1); }

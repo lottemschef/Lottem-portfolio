@@ -787,29 +787,64 @@ function initLightbox() {
     return best;
   }
 
-  function show(i) {
+  /* Warm the neighbours. By the time the visitor presses next, the file is
+     usually already decoded and the change is instant. */
+  function preload(i) {
+    const source = shots[(i + shots.length) % shots.length];
+    if (!source) return;
+    const url = widest(source);
+    if (url) new Image().src = url;
+  }
+
+  /* Which show() call is the live one. An await sits in the middle of the
+     function, so two quick presses of next can overlap: without this the first
+     decode could finish last and put its picture up over the second. */
+  let token = 0;
+
+  async function show(i, opening) {
     index = (i + shots.length) % shots.length;
     const source = shots[index];
+    const mine = ++token;
+
+    /* alt only. It describes the picture for someone who cannot see it, and it
+       is not drawn on screen: no typography goes near a photograph here, in
+       the viewer any more than in the grid. */
     img.alt = source.alt || "";
 
-    /* Open on whatever is already decoded so the frame is never blank, then
-       swap in the full-size file when it arrives. Stopping at the warm copy
-       would mean the one view built for looking at a photograph properly is
-       the one showing a thumbnail blown up. */
+    /* Opening, put up whatever is already decoded so the frame is never blank
+       — the box is fixed now, so the thumbnail costs a moment of softness
+       rather than a jump. Navigating, leave the previous photograph on screen
+       instead: a blur that sharpens is worse than a beat of the picture you
+       were already looking at, and the neighbours are usually warm anyway. */
     const warm = source.currentSrc || source.src;
-    const full = widest(source);
-    img.src = warm;
-    if (full && full !== warm) {
-      const hi = new Image();
-      hi.addEventListener("load", () => {
-        if (shots[index] === source) img.src = full;   // they may have moved on
-      }, { once: true });
-      hi.src = full;
+    if (opening && warm) img.src = warm;
+
+    const target = widest(source) || warm;
+    if (target) {
+      /* decode() rather than load: load fires when the bytes are in, decode
+         when the frame is ready to paint. Swapping on load can still show one
+         partly-drawn frame, which is the flicker at the end of the change. */
+      const next = new Image();
+      next.src = target;
+
+      /* Raced against a deadline, never simply awaited. decode() is tied to the
+         rendering loop, so in a tab that is not being painted it can stay
+         pending indefinitely — and an await that never settles means the line
+         below never runs and the viewer quietly stops changing picture. A swap
+         one frame less perfect beats a viewer that is stuck. The catch covers a
+         broken or cancelled file, where letting the element fall back to its
+         own alt text is better than leaving the previous photograph up. */
+      await Promise.race([
+        next.decode().catch(() => {}),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+
+      if (mine !== token) return;     // they moved on while this was decoding
+      img.src = target;
     }
 
-    /* alt only. It describes the picture for someone who cannot see it, and
-       it is not drawn on screen: no typography goes near a photograph here,
-       in the viewer any more than in the grid. */
+    preload(index + 1);
+    preload(index - 1);
   }
 
   shots.forEach((shot, i) => {
@@ -819,13 +854,13 @@ function initLightbox() {
     frame.setAttribute("role", "button");
 
     frame.addEventListener("click", () => {
-      opener = frame; openedByKeyboard = false; show(i); box.showModal();
+      opener = frame; openedByKeyboard = false; show(i, true); box.showModal();
     });
 
     frame.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault();
-      opener = frame; openedByKeyboard = true; show(i); box.showModal();
+      opener = frame; openedByKeyboard = true; show(i, true); box.showModal();
     });
   });
 
@@ -834,8 +869,15 @@ function initLightbox() {
   box.querySelector("[data-lb-close]").addEventListener("click", () => box.close());
 
   box.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") { e.preventDefault(); show(index + 1); }
-    if (e.key === "ArrowLeft")  { e.preventDefault(); show(index - 1); }
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    /* The arrows follow the pictures, not the keyboard. The row runs right to
+       left in Hebrew and the grid puts the next button on the left, so Left is
+       what has to advance there — otherwise the key and the button sitting
+       under the same finger disagree about which way forward is. */
+    const rtl = document.documentElement.dir === "rtl";
+    const forward = rtl ? e.key === "ArrowLeft" : e.key === "ArrowRight";
+    show(index + (forward ? 1 : -1));
   });
 
   // clicking the backdrop closes; clicking the picture does not
