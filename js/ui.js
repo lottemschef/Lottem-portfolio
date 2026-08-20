@@ -192,7 +192,7 @@ function initPlayers() {
   /* Creating and starting a reel. Pulled out of the click handler so that the
      scroll watcher below can do exactly the same thing without duplicating it,
      and so that clicking still behaves identically to before. */
-  function start(player) {
+  function start(player, auto) {
     const button = player.querySelector(".player__play");
     const frame = player.querySelector(".player__frame");
     const src = player.dataset.src;
@@ -201,7 +201,12 @@ function initPlayers() {
     {
       const video = document.createElement("video");
       video.src = src;
-      video.controls = true;
+      /* Scrolled to, a reel is a moving photograph: it loops, silently, with
+         no furniture over it. Reached by the button instead — which is what
+         happens when autoplay is switched off — it is a deliberate request to
+         watch something, so it gets its controls and plays once. */
+      video.controls = !auto;
+      video.loop = !!auto;
       video.autoplay = true;
       video.playsInline = true;
       video.preload = "auto";
@@ -243,7 +248,7 @@ function initPlayers() {
   players.forEach((player) => {
     const button = player.querySelector(".player__play");
     button?.addEventListener("click", () => {
-      const video = start(player);
+      const video = start(player, false);
       // a click is a deliberate act, so move the keyboard there; scrolling into
       // view is not, and stealing focus mid-scroll would yank the page around
       video?.focus({ preventScroll: true });
@@ -272,6 +277,14 @@ function watchOnScroll(players, start) {
   if (!("IntersectionObserver" in window)) return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   if (navigator.connection?.saveData) return;
+
+  /* With this running the reels start themselves, so the play button is only
+     the fallback for the cases above that return early. Hidden rather than
+     removed: it is what a keyboard reaches for if autoplay is ever refused. */
+  players.forEach((p) => {
+    const b = p.querySelector(".player__play");
+    if (b) b.hidden = true;
+  });
 
   const items = players.map((el) => ({ el, kind: "player" }));
 
@@ -310,9 +323,12 @@ function watchOnScroll(players, start) {
     if (!best) return;
 
     let v = videoOf(best);
-    if (!v && best.kind === "player") v = start(best.el);
+    if (!v && best.kind === "player") v = start(best.el, true);
     if (!v) return;
     v.muted = true;
+    /* The inline films carry `controls` in the markup so they still work with
+       no script at all. Once this is driving them they are loops, not players. */
+    if (best.kind === "inline") { v.controls = false; v.loop = true; }
     v.play?.().catch(() => {});
   }, { threshold: [0, 0.25, 0.55, 0.75, 1] });
 
@@ -678,6 +694,18 @@ function initImageFade() {
    Auto-collapse: once a grid the visitor opened has been scrolled well past,
    it folds itself back up. Re-entering from below does not re-collapse it,
    which would yank the page out from under a thumb mid-scroll. */
+/* Opening the link should land at the top of the page. The browser restores
+   whatever scroll position it remembers for a URL, and with scroll-behavior:
+   smooth on the root that restoration animates — so a shared link could open
+   part way down and then visibly slide further. A real #section link is still
+   honoured; only the remembered position is dropped. */
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+if (!location.hash) {
+  window.addEventListener("load", () => {
+    if (!location.hash) window.scrollTo({ top: 0, behavior: "auto" });
+  }, { once: true });
+}
+
 const SHOWMORE_Q = window.matchMedia("(max-width: 46rem)");
 
 function initShowMore() {
