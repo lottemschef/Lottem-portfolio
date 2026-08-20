@@ -186,13 +186,19 @@ function initHeroVideo() {
    Nothing is downloaded until the visitor asks for it: the frame shows a
    poster, and the <video> is only created on the first play. */
 function initPlayers() {
-  document.querySelectorAll(".player").forEach((player) => {
+  const players = [...document.querySelectorAll(".player")];
+  if (!players.length) return;
+
+  /* Creating and starting a reel. Pulled out of the click handler so that the
+     scroll watcher below can do exactly the same thing without duplicating it,
+     and so that clicking still behaves identically to before. */
+  function start(player) {
     const button = player.querySelector(".player__play");
     const frame = player.querySelector(".player__frame");
     const src = player.dataset.src;
-    if (!button || !frame || !src) return;
+    if (!frame || !src || player.classList.contains("is-playing")) return null;
 
-    button.addEventListener("click", () => {
+    {
       const video = document.createElement("video");
       video.src = src;
       video.controls = true;
@@ -226,12 +232,97 @@ function initPlayers() {
       }, { once: true });
 
       frame.append(video);
-      button.remove();
+      button?.remove();
       player.classList.add("is-playing");
-      video.focus({ preventScroll: true });
       // controls are on, so a refusal is recoverable rather than a dead end
       video.play?.().catch(() => {});
+      return video;
+    }
+  }
+
+  players.forEach((player) => {
+    const button = player.querySelector(".player__play");
+    button?.addEventListener("click", () => {
+      const video = start(player);
+      // a click is a deliberate act, so move the keyboard there; scrolling into
+      // view is not, and stealing focus mid-scroll would yank the page around
+      video?.focus({ preventScroll: true });
     }, { once: true });
+  });
+
+  watchOnScroll(players, start);
+}
+
+/* ---------- reels that start themselves ----------
+   A reel begins when it is the thing on screen and stops when it is not, so a
+   visitor scrolling through sees the work move without hunting for play
+   buttons. Three rules keep that from turning into a nuisance:
+
+     · only one plays at a time, or a single scroll would set four files
+       downloading at once over whatever connection the visitor is on;
+     · muted, because no browser will start a reel with sound unprompted, and
+       these reels carry no real audio anyway;
+     · the long proposal film is left alone. It runs forty-five seconds and it
+       is the only piece here with a real soundtrack, so it stays a deliberate
+       choice rather than something that ambushes you on the way past.
+
+   Reduced motion and Data Saver both switch the whole thing off; the play
+   buttons still work exactly as they did. */
+function watchOnScroll(players, start) {
+  if (!("IntersectionObserver" in window)) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (navigator.connection?.saveData) return;
+
+  const items = players.map((el) => ({ el, kind: "player" }));
+
+  // the inline colour-grading film can join in; the proposal film cannot
+  document.querySelectorAll("figure.filmshow video").forEach((video) => {
+    const src = video.currentSrc || video.querySelector("source")?.getAttribute("src") || "";
+    if (/proposal/i.test(src)) return;
+    items.push({ el: video.closest("figure"), kind: "inline", video });
+  });
+  if (!items.length) return;
+
+  let current = null;
+  const ratios = new Map();
+
+  const videoOf = (item) =>
+    item.kind === "inline" ? item.video : item.el.querySelector("video");
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const item = items.find((i) => i.el === e.target);
+      if (item) ratios.set(item, e.isIntersecting ? e.intersectionRatio : 0);
+    });
+
+    // whichever reel is showing the most of itself wins, if it is really on screen
+    let best = null, bestRatio = 0.55;
+    ratios.forEach((r, item) => { if (r > bestRatio) { bestRatio = r; best = item; } });
+
+    if (best === current) return;
+
+    if (current) {
+      const v = videoOf(current);
+      // never interrupt someone who took over with the controls
+      if (v && !v.paused && v.muted) v.pause();
+    }
+    current = best;
+    if (!best) return;
+
+    let v = videoOf(best);
+    if (!v && best.kind === "player") v = start(best.el);
+    if (!v) return;
+    v.muted = true;
+    v.play?.().catch(() => {});
+  }, { threshold: [0, 0.25, 0.55, 0.75, 1] });
+
+  items.forEach((i) => observer.observe(i.el));
+
+  // a backgrounded tab should not sit there playing to nobody
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden || !current) return;
+    const v = videoOf(current);
+    if (v && v.muted) v.pause();
   });
 }
 
@@ -346,17 +437,56 @@ function initLightbox() {
   let opener = null;
   let openedByKeyboard = false;
 
+  /* The widest file the browser was offered. Not the one it picked: that was
+     chosen for a thumbnail a couple of hundred pixels wide. */
+  function widest(el) {
+    const set = el.getAttribute("srcset");
+    if (!set) return el.src;
+    let best = el.src, bestW = 0;
+    for (const part of set.split(",")) {
+      const [url, w] = part.trim().split(/\s+/);
+      const width = parseInt(w, 10) || 0;
+      if (url && width >= bestW) { bestW = width; best = url; }
+    }
+    return best;
+  }
+
+  /* Place and year are already on the page beside the work, and already in the
+     right language, so the caption is read back out of the document rather than
+     duplicated into another set of strings. */
+  function captionFor(el) {
+    const scope = el.closest("section, footer");
+    const dl = scope && scope.querySelector("dl.meta");
+    if (!dl) return "";
+    const parts = [...dl.querySelectorAll("dd")].map((d) => d.textContent.trim()).filter(Boolean);
+    return parts.slice(0, 2).join(" · ");
+  }
+
   function show(i) {
     index = (i + shots.length) % shots.length;
     const source = shots[index];
-    // currentSrc is the size the browser already chose, so it is usually warm
-    img.src = source.currentSrc || source.src;
     img.alt = source.alt || "";
 
+    /* Open on whatever is already decoded so the frame is never blank, then
+       swap in the full-size file once it arrives. Stopping at the warm copy,
+       as this used to, meant the one view built for looking at a photograph
+       properly was the one showing a thumbnail blown up. */
+    const warm = source.currentSrc || source.src;
+    const full = widest(source);
+    img.src = warm;
+    if (full && full !== warm) {
+      const hi = new Image();
+      hi.addEventListener("load", () => {
+        // the visitor may have moved on while this was loading
+        if (shots[index] === source) img.src = full;
+      }, { once: true });
+      hi.src = full;
+    }
+
     /* The alt text describes the picture for someone who cannot see it — it is
-       not a caption. Show a caption only where the slot carries real detail
-       (data-caption), which is where Location / Year will land once we have it. */
-    const detail = source.closest(".slot")?.dataset.caption || "";
+       not a caption. A slot may name its own; otherwise fall back to the work's
+       location and year. */
+    const detail = source.closest(".slot")?.dataset.caption || captionFor(source);
     caption.textContent = detail;
     caption.hidden = !detail;
   }
@@ -585,7 +715,25 @@ function initShowMore() {
     btn.addEventListener("click", () => {
       const open = grid.classList.toggle("is-open");
       btn.setAttribute("aria-expanded", String(open));
-      if (open) grid.style.setProperty("--full", grid.scrollHeight + "px");
+      if (open) {
+        grid.style.setProperty("--full", grid.scrollHeight + "px");
+        /* --full is a snapshot, and these are lazy images: one that decodes
+           after the measurement would be clipped by a max-height taken before
+           it had a height. Once the opening transition is over the cap has
+           done its job, so drop it and let the grid size to its content. */
+        grid.addEventListener("transitionend", function done(e) {
+          if (e.propertyName !== "max-height") return;
+          grid.removeEventListener("transitionend", done);
+          if (grid.classList.contains("is-open")) grid.style.maxHeight = "none";
+        });
+      } else {
+        /* Collapsing from max-height:none would jump rather than animate, so
+           pin the height it actually has, force a reflow, then hand it back
+           to the stylesheet's zero. */
+        grid.style.maxHeight = grid.scrollHeight + "px";
+        void grid.offsetHeight;
+        grid.style.maxHeight = "";
+      }
       label();
       if (!open) {
         // Collapsing from below would leave the viewport past the section.
@@ -595,36 +743,24 @@ function initShowMore() {
     });
   });
 
-  /* How much to show before the cut. One row of a mosaic, or the first two
-     cells of a portrait grid — measured from the tiles themselves so the
-     fold always lands on an edge rather than through someone's face. */
-  function visibleCount(grid) {
-    return grid.classList.contains("mosaic") ? rowCount(grid) : 2;
-  }
-
-  function rowCount(grid) {
-    const tiles = [...grid.children];
-    if (!tiles.length) return 1;
-    const firstTop = tiles[0].offsetTop;
-    const n = tiles.filter((t) => t.offsetTop === firstTop).length;
-    return n || 1;
+  /* Nothing is shown while a grid is folded. A peek of one row looked like
+     photographs stacked on each other, because each visible frame was cut off
+     partway down, so the fold now hides the grid outright and the control
+     carries the whole count. */
+  function visibleCount() {
+    return 0;
   }
 
   function measure() {
     entries.forEach(({ grid, btn, tiles, label }) => {
       if (!SHOWMORE_Q.matches) {
         grid.classList.remove("is-collapsible", "is-open");
-        grid.style.removeProperty("--peek");
-        grid.style.removeProperty("--full");
+          grid.style.removeProperty("--full");
         btn.hidden = true;
         return;
       }
 
-      const keep = Math.min(visibleCount(grid), tiles.length);
-      const last = tiles[keep - 1];
-      if (!last) return;
-
-      const peek = last.offsetTop + last.offsetHeight - tiles[0].offsetTop;
+      const peek = 0;
       const full = grid.scrollHeight;
 
       // Not worth a control if folding saves almost nothing.
@@ -635,7 +771,6 @@ function initShowMore() {
       }
 
       grid.classList.add("is-collapsible");
-      grid.style.setProperty("--peek", peek + "px");
       grid.style.setProperty("--full", full + "px");
       btn.hidden = false;
       label();
