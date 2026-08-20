@@ -1324,22 +1324,6 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   /* Nothing peeks out any more, so there is no cut left to soften. */
   .is-collapsible::after { content: none; }
 
-  /* Phone: show the whole photograph rather than a crop of it. The slot stops
-     imposing an aspect ratio and the image sets its own height, so frames sit
-     one under the other at their true proportions instead of being sliced to
-     a fixed box and reading as a stack. */
-  .grid-3 > .slot {
-    aspect-ratio: auto;
-    height: auto;
-  }
-
-  .grid-3 > .slot img {
-    position: static;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-  }
-
   .showmore {
     display: block;
     margin: 1rem auto 0;

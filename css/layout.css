@@ -208,17 +208,42 @@
    Each mosaic row shares one height and the tiles crop to their own width,
    which is what makes the reference read as a mosaic rather than a set of
    loose cards. Tiles therefore drop their own aspect ratio and fill the row. */
-.mosaic {
-  display: grid;
-  gap: var(--gutter);
+/* Photographs are shown whole. The twelve-column grid this used to be sized
+   every tile to a fixed row height and let object-fit: cover crop whatever did
+   not fit, which on a photographer's page is the one thing the layout must not
+   do. Columns instead: each frame keeps its own proportions, and the column
+   flow closes the gaps that equal-height rows would leave under the shorter
+   ones. Reading order still runs down a column, so two frames that follow each
+   other in the sequence stay next to each other. */
+.mosaic,
+.grid-3 {
+  columns: 3;
+  column-gap: var(--gutter);
   direction: ltr;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: clamp(7rem, 12.5vw, 14rem);
 }
 
-.mosaic > .slot {
+.mosaic > .slot,
+.grid-3 > .slot {
   aspect-ratio: auto;
-  height: 100%;
+  height: auto;
+  break-inside: avoid;      /* a frame is never split across two columns */
+  margin-bottom: var(--gutter);
+}
+
+.mosaic > .slot img,
+.grid-3 > .slot img {
+  position: static;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 62rem) {
+  .mosaic, .grid-3 { columns: 2; }
+}
+
+@media (max-width: 40rem) {
+  .mosaic, .grid-3 { columns: 1; }
 }
 
 /* ---------- featured pairs ----------
@@ -290,20 +315,6 @@
   .portrait-row { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-inline: 0; }
 }
 
-/* Even three-up rows — portrait sets and video stills, where every frame
-   shares one aspect ratio rather than cropping to a mosaic row. */
-.grid-3 {
-  display: grid;
-  direction: ltr;
-  gap: var(--gutter);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-@media (max-width: 46rem) {
-  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 30rem) {
-  .grid-3 { grid-template-columns: minmax(0, 1fr); }
-}
 /* Span helpers used by the mosaic rows */
 .sp-2  { grid-column: span 2; }
 .sp-3  { grid-column: span 3; }
@@ -312,10 +323,7 @@
 .sp-8  { grid-column: span 8; }
 .row-2 { grid-row: span 2; }
 
-@media (max-width: 46rem) {
-  .mosaic > * { grid-column: span 6; }
-  .mosaic >   .row-2 { grid-row: auto; }
-}
+
 
 /* ---------- banner: mega heading laid over a still ---------- */
 .banner { position: relative; }
@@ -365,4 +373,11 @@
 /* ---------- spacing helpers ---------- */
 .stack     { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1rem, 2.5vw, 1.75rem); }
 .mt-sub    { margin-top: clamp(1.25rem, 3vw, 2.25rem); }
+
+/* A grid of photographs needs more air above it than a line of type does.
+   At .mt-sub the first row sat almost against the paragraph that introduces
+   it, so the set read as a continuation of the sentence rather than as the
+   work itself. */
+.mosaic.mt-sub,
+.grid-3.mt-sub { margin-top: clamp(2.5rem, 6vw, 4.5rem); }
 .mb-sub    { margin-bottom: clamp(1.25rem, 3vw, 2.25rem); }
