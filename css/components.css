@@ -1326,7 +1326,9 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
 
   .showmore {
     display: block;
-    margin: 1rem auto 0;
+    /* The bottom margin is the one that matters: with none, the control ended
+       flush against the next section's heading and the two read as one block. */
+    margin: 1rem auto clamp(2.5rem, 7vw, 4rem);
     padding: .85rem 1.6rem;   /* clears the 44px touch minimum */
     font-family: var(--f-display);
     font-weight: 800;

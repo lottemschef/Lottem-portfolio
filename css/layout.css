@@ -87,9 +87,18 @@
   gap: 1.5rem;
   flex-wrap: wrap;
 }
-/* The red heading sits flush to the outer edge of the row, opposite the
-   white "My Works." mark — as in the reference. */
-.works-head__mega { flex: 1 1 20rem; min-width: 0; text-align: end; }
+/* The heading starts where every other line on the page starts. It used to sit
+   flush against the far edge of the row, which paired it with the "My Works."
+   mark opposite — but that mark now appears once at the top rather than above
+   every section, so the heading was left alone against the wrong margin. `end`
+   also flips with the text direction, so on the Hebrew page it was landing on
+   the left while the subheads beneath it stayed right. */
+.works-head__mega { flex: 1 1 20rem; min-width: 0; text-align: start; order: -1; }
+
+/* The mark keeps the far edge it always had; only the order is swapped, so the
+   heading can begin on the same margin as every other line while the two still
+   sit at opposite ends of the row. */
+.works-head .works-mark { margin-inline-start: auto; }
 
 /* ---------- split slide ----------
    The reference uses this construction twice: for the profile and again for
@@ -354,6 +363,10 @@
   display: grid;
   gap: clamp(2rem, 5vw, 3.5rem);
   justify-items: center;
+  /* The first film sat directly against the paragraph above it, with nothing
+     to say the text had ended and the work had begun. Same measure as the
+     space above a grid of photographs. */
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 /* ---------- contact ---------- */
