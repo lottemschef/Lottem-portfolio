@@ -108,7 +108,13 @@ a { color: inherit; text-decoration: none; }
      padding above still clears it at every width down to 60rem, where the
      rail gives way to the menu button entirely. */
   --rail-inset: var(--sp-3);
-  --rail-w:     1.9rem;      /* markers only, below 82rem */
+
+  /* Markers only at this size, so the rail is exactly one marker wide — and
+     this has to be the marker's own box, 2.2rem, not the shorter line it draws
+     at rest. Same trap as the labels above: --pad-x is built from this number,
+     so anything the rail paints wider than it is spilling into space the
+     layout believes is empty. */
+  --rail-w:     2.2rem;
 
   /* ---- motion ---- */
   --ease:     cubic-bezier(.22, .61, .36, 1);
@@ -140,17 +146,40 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
-/* Labels on, so the rail is wider and it earns a wider gutter with it. */
+/* ---- labels on ----
+
+   --rail-w has one job: to be the widest the rail's contents can ever draw. Get
+   it wrong and every guarantee above collapses quietly, because --pad-x is
+   built from it while the labels are `white-space: nowrap` and will simply
+   overflow a box that is too small for them. That is exactly what happened at
+   6.5rem: the box measured 104px and reported a comfortable 46px of clearance,
+   while "VIDEOGRAPHY" drew 110px inside it, spilled 39px past the edge the
+   measurement trusted, and left 8px to the photographs. The declared box and
+   the painted text have to agree, or the arithmetic is measuring nothing.
+
+   So it is stated per language, because the words differ. English needs room
+   for VIDEOGRAPHY, the longest of the six; Hebrew's longest is מוזיקה חיה,
+   which is barely more than half as wide. Each is the mark's own 2.2rem, plus
+   the --sp-3 between mark and label, plus the label, plus a little headroom for
+   the fallback face before the webfont lands.
+
+   If a section is ever renamed, this is the number to check. */
 @media (min-width: 82rem) {
   :root {
-    --rail-w: 6.5rem;
+    --rail-w: 7.5rem;                        /* fits מוזיקה חיה */
     --rail-inset: var(--sp-4);
     --rail-gap: var(--sp-5);
     --pad-x: clamp(
       calc(var(--rail-inset) + var(--rail-w) + var(--rail-gap)),
       8vw,
-      11rem);
+      15rem);
   }
+
+  /* The English labels are the long ones, so English is where the extra margin
+     is spent. --pad-x is a calc over --rail-w, and custom properties resolve
+     where they are used, so raising the width here widens the page margin with
+     it and nothing else needs saying. Hebrew keeps the tighter figure above. */
+  :root[lang="en"] { --rail-w: 10.25rem; }   /* fits VIDEOGRAPHY */
 }
 
 /* Per-ground foreground tokens. A section declares its ground once and every

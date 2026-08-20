@@ -85,18 +85,36 @@
 }
 
 /* The marker. A line rather than a dot: it grows toward the label as the
-   section becomes current, which reads as a position on a track. */
+   section becomes current, which reads as a position on a track.
+
+   It grows by transform, inside a box that never changes size. Animating the
+   width instead is the obvious way and it moved the text: the link is a flex
+   row, so every millimetre the marker gained pushed the label the same distance
+   to the right — 1.1rem of it on the current item, more again on hover. On the
+   long labels that was enough to carry the last letters over the photographs
+   beside them, which read as the type growing on hover when in fact the type
+   never changed size at all. A scaled line reserves its full length from the
+   start and the label cannot be moved by it. */
 .rail__mark {
   flex: none;
-  width: 1.1rem;
+  width: 2.2rem;              /* the longest the line ever draws */
   height: 2px;
   background: currentColor;
   opacity: .5;
+
+  /* .5 of 2.2rem is the 1.1rem resting line the width version drew */
+  transform: scaleX(.5);
+  transform-origin: left center;
+
   transition:
-    width var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
     opacity var(--dur-xs) var(--ease),
     background-color var(--dur-xs) var(--ease);
 }
+
+/* Physical, because the rail is mirrored: the line has to grow away from the
+   page edge it sits against, which is the right-hand one in Hebrew. */
+[dir="rtl"] .rail__mark { transform-origin: right center; }
 
 .rail__label {
   font-family: var(--f-display);
@@ -113,11 +131,16 @@
 .rail__link:hover,
 .rail__link:focus-visible { color: var(--rail-fg-strong); }
 
-.rail__link:hover .rail__mark { width: 1.7rem; opacity: 1; }
+/* Hover changes the colour of the text and the length of the line. It does not
+   touch the type: no scale, no weight, no size, nothing that alters how much
+   room a label needs, so a label can never grow into the photographs beside
+   it. Both fractions below are of the marker's fixed 2.2rem box. */
+.rail__link:hover .rail__mark,
+.rail__link:focus-visible .rail__mark { transform: scaleX(.773); opacity: 1; }
 
 .rail__link.is-current { color: var(--rail-fg-strong); }
 .rail__link.is-current .rail__mark {
-  width: 2.2rem;
+  transform: scaleX(1);
   opacity: 1;
   background: var(--accent-lift);
 }
