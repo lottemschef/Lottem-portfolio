@@ -1,0 +1,1000 @@
+/* ==========================================================================
+   components.css — the side rail, controls, media, and the viewer
+   ========================================================================== */
+
+/* ==========================================================================
+   THE SIDE RAIL
+   --------------------------------------------------------------------------
+   The brief: a side navigation that is not there at the top of the page and
+   arrives once the visitor starts to scroll.
+
+   It is fixed, vertically centred, and lives in the page's own side margin —
+   not in the viewport's. .rail__inner is centred to the same --shell as .wrap,
+   so on a wide screen the rail sits exactly where the page's left margin is
+   rather than drifting off toward the window edge.
+
+   That it cannot reach the text is a fact of the numbers, not a hope: the rail
+   ends --rail-inset + --rail-w from the shell's edge, and --pad-x is set no
+   smaller than that in the same breakpoint. See base.css, the 82rem query.
+
+   Hidden means hidden. opacity alone would leave six links in the tab order
+   and in the accessibility tree while nothing is on screen, so visibility goes
+   with it and the rail is genuinely absent until it is shown.
+   ========================================================================== */
+.rail {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+
+  --rail-slide: -.9rem;
+  --rail-fg: rgba(247, 242, 230, .72);
+  --rail-fg-strong: #F7F2E6;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(var(--rail-slide));
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+
+[dir="rtl"] .rail { --rail-slide: .9rem; }
+
+.rail.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* The rail floats over whichever section is behind it, and those alternate
+   between black and cream. js/ui.js reports the ground; the rail restates its
+   own colours rather than inheriting, because it is fixed and has no section
+   of its own to read from. */
+.rail[data-ground="light"] {
+  --rail-fg: rgba(10, 10, 10, .68);
+  --rail-fg-strong: #0A0A0A;
+}
+
+.rail__inner {
+  width: min(100%, var(--shell));
+  margin-inline: auto;
+  padding-inline: var(--rail-inset);
+}
+
+.rail__nav {
+  pointer-events: auto;
+  display: grid;
+  gap: var(--sp-3);
+  width: var(--rail-w);
+}
+
+.rail__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  /* 44px of target for a link whose visible mark is 2px tall */
+  min-height: 2.75rem;
+  color: var(--rail-fg);
+  transition: color var(--dur-xs) var(--ease);
+}
+
+/* The marker. A line rather than a dot: it grows toward the label as the
+   section becomes current, which reads as a position on a track. */
+.rail__mark {
+  flex: none;
+  width: 1.1rem;
+  height: 2px;
+  background: currentColor;
+  opacity: .5;
+  transition:
+    width var(--dur) var(--ease),
+    opacity var(--dur-xs) var(--ease),
+    background-color var(--dur-xs) var(--ease);
+}
+
+.rail__label {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+:root[lang="he"] .rail__label { text-transform: none; letter-spacing: .06em; }
+
+.rail__link:hover,
+.rail__link:focus-visible { color: var(--rail-fg-strong); }
+
+.rail__link:hover .rail__mark { width: 1.7rem; opacity: 1; }
+
+.rail__link.is-current { color: var(--rail-fg-strong); }
+.rail__link.is-current .rail__mark {
+  width: 2.2rem;
+  opacity: 1;
+  background: var(--accent-lift);
+}
+
+/* ---------- below 82rem: markers only ----------
+   There is not enough side margin here for labels to sit beside the text
+   without one reaching the other, so the rail collapses to its markers and the
+   label appears as a chip on hover or keyboard focus. Transient, so it may
+   overlap the page; permanent, it could not. */
+@media (max-width: 81.999rem) {
+  .rail__label {
+    position: absolute;
+    inset-inline-start: calc(1.1rem + var(--sp-3));
+    top: 50%;
+    transform: translateY(-50%) translateX(calc(var(--rail-slide) * .5));
+    padding: var(--sp-2) var(--sp-3);
+    background: #0A0A0A;
+    color: #F7F2E6;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-xs) var(--ease), transform var(--dur-xs) var(--ease);
+  }
+
+  .rail__link:hover .rail__label,
+  .rail__link:focus-visible .rail__label {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+/* Below 60rem the rail gives way to the menu button and its overlay. */
+@media (max-width: 59.999rem) {
+  .rail { display: none; }
+}
+
+/* The language control at the foot of the rail. At the top of the page the
+   hero carries its own copy of this — so the language is always reachable even
+   though the rail is not. */
+.rail__foot {
+  pointer-events: auto;
+  margin-block-start: var(--sp-6);
+  padding-block-start: var(--sp-4);
+  border-block-start: 1px solid currentColor;
+  width: 3.4rem;
+  color: var(--rail-fg);
+  opacity: .55;
+}
+
+.rail__foot .lang { color: var(--rail-fg-strong); }
+
+
+/* ==========================================================================
+   MENU BUTTON + OVERLAY — the rail's form below 60rem
+   --------------------------------------------------------------------------
+   Same rule as the rail: absent at the top of the page, arrives on scroll.
+   ========================================================================== */
+.menubtn {
+  position: fixed;
+  z-index: 80;
+  inset-block-start: var(--sp-4);
+  inset-inline-end: var(--sp-4);
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, .72);
+  color: #F7F2E6;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(247, 242, 230, .18);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(.85);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+
+.menubtn.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+@media (min-width: 60rem) { .menubtn { display: none; } }
+
+.menubtn__bars { position: relative; width: 1.15rem; height: 2px; }
+.menubtn__bars,
+.menubtn__bars::before,
+.menubtn__bars::after {
+  background: currentColor;
+  transition: transform var(--dur-xs) var(--ease), opacity var(--dur-xs) var(--ease);
+}
+.menubtn__bars::before,
+.menubtn__bars::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 2px;
+}
+.menubtn__bars::before { top: -.42rem; }
+.menubtn__bars::after  { top:  .42rem; }
+
+.menubtn[aria-expanded="true"] .menubtn__bars { background: transparent; }
+.menubtn[aria-expanded="true"] .menubtn__bars::before { transform: translateY(.42rem) rotate(45deg); }
+.menubtn[aria-expanded="true"] .menubtn__bars::after  { transform: translateY(-.42rem) rotate(-45deg); }
+
+/* ---------- the overlay ---------- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  /* Opaque, not 96% black. The overlay opens over whichever section you were
+     reading, and half of those are the cream ground — through which even four
+     per cent leaves a legible ghost of the page behind the navigation. */
+  background: #050505;
+  display: grid;
+  align-content: center;
+  gap: var(--sp-5);
+  padding: var(--sp-8) var(--pad-x);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.menu[hidden] { display: none; }
+.menu.is-open { opacity: 1; }
+
+.menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 9vw, 2.6rem);
+  line-height: 1.1;
+  color: #F7F2E6;
+  padding-block: var(--sp-2);
+}
+
+.menu__num {
+  font-size: var(--t-micro);
+  letter-spacing: .18em;
+  color: var(--accent-lift);
+}
+
+.menu__link.is-current { color: var(--accent-lift); }
+
+.menu__foot {
+  margin-block-start: var(--sp-5);
+  padding-block-start: var(--sp-5);
+  border-block-start: 1px solid rgba(247, 242, 230, .18);
+}
+
+
+/* ==========================================================================
+   LANGUAGE SWITCH
+   ========================================================================== */
+.lang {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+/* 44px of touch target on the smallest control on the site */
+.lang__btn {
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-micro);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: currentColor;
+  opacity: .6;
+  transition: opacity var(--dur-xs) var(--ease);
+}
+
+.lang__btn:hover { opacity: 1; }
+
+/* The current language is a span, not a link — there is nowhere for it to go */
+.lang__btn.is-current {
+  opacity: 1;
+  color: var(--accent-lift);
+  cursor: default;
+}
+
+/* ---------- the curtain over a language swap ---------- */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  gap: var(--sp-4);
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .19s var(--ease);
+}
+
+.curtain.is-on { opacity: 1; }
+
+.curtain__word {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: var(--t-small);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
+}
+
+@media (prefers-reduced-motion: reduce) { .curtain { display: none; } }
+
+
+/* ==========================================================================
+   BUTTONS
+   --------------------------------------------------------------------------
+   The brief is explicit: a button never sits against the text above it. Three
+   rules enforce that, and none of them can be forgotten at a call site.
+
+     · the button carries its own padding — --sp-5 across, --sp-3 down, and a
+       floor of 3.25rem so it is a comfortable target as well as a comfortable
+       shape;
+     · .actions is the only correct wrapper for one, and it opens with --sp-7
+       of space — four rem, a clear step above anything the text itself uses;
+     · and the safety net at the bottom of this block catches a button dropped
+       straight after a paragraph without one.
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  min-height: 3.25rem;
+  padding-block: var(--sp-3);
+  padding-inline: var(--sp-5);
+  border-radius: 999px;
+  border: 1px solid transparent;
+
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-small);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+
+  transition:
+    background-color var(--dur-xs) var(--ease),
+    border-color var(--dur-xs) var(--ease),
+    color var(--dur-xs) var(--ease),
+    transform var(--dur-xs) var(--ease);
+}
+
+:root[lang="he"] .btn { text-transform: none; letter-spacing: .02em; }
+
+.btn__icon { flex: none; width: 1.15rem; height: 1.15rem; }
+
+.btn--solid {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #FFF7F0;              /* 5.15:1 on the copper */
+}
+.btn--solid:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+
+.btn--ghost {
+  border-color: var(--rule);
+  color: var(--fg);
+}
+.btn--ghost:hover { border-color: var(--accent-ground); color: var(--accent-ground); }
+
+@media (hover: hover) {
+  .btn:hover { transform: translateY(-2px); }
+}
+
+/* The wrapper. Gap handles the space between buttons, so no button needs — or
+   should have — a margin of its own. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-block-start: var(--sp-7);
+}
+
+.actions .btn { margin: 0; }
+
+/* The safety net. If a button ever lands directly after running text without
+   its wrapper, it still gets the full step of air. */
+:is(p, ul, ol, dl, h1, h2, h3, .lede, .prose, .meta) + :is(.btn, .actions) {
+  margin-block-start: var(--sp-7);
+}
+
+.btn + .btn { margin-inline-start: var(--sp-4); }
+.actions .btn + .btn { margin-inline-start: 0; }
+
+
+/* ==========================================================================
+   HERO
+   --------------------------------------------------------------------------
+   The one place on the site where a picture is deliberately cropped: this is a
+   background film filling the window, not a photograph being exhibited. Every
+   frame in the galleries below is shown whole — see layout.css.
+   ========================================================================== */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  background: #000;
+  overflow: hidden;
+}
+
+.hero__media { position: absolute; inset: 0; }
+
+.hero__media video,
+.hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The scrim. Weighted to the bottom, because that is where the title, the
+   role line and the opening sentence all sit — and the film behind them is a
+   copper sunset, i.e. very close in hue and value to the copper the title is
+   set in. The middle stays light so the photograph is still the subject; the
+   picture is dark enough by 70% down that the type holds whatever frame the
+   loop happens to be on. */
+.hero__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, .62) 0%,
+    rgba(0, 0, 0, .20) 26%,
+    rgba(0, 0, 0, .34) 50%,
+    rgba(0, 0, 0, .70) 74%,
+    rgba(0, 0, 0, .88) 100%);
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--sp-5);
+  padding-block: var(--sp-4) var(--sp-6);
+}
+
+.hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  color: #F7F2E6;
+}
+
+.hero__name,
+.hero__year {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+:root[lang="he"] .hero__name { letter-spacing: .08em; }
+
+.hero__title {
+  align-self: end;
+  display: grid;
+  gap: var(--sp-4);
+  max-width: 46rem;
+}
+
+.hero__role {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-small);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
+}
+
+.hero .lede { color: rgba(247, 242, 230, .82); }
+
+.hero__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+/* The scroll cue. It is the only thing on the first screen that says the page
+   continues, since the navigation deliberately is not there yet. */
+.hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(247, 242, 230, .75);
+  padding-block: var(--sp-2);
+  transition: color var(--dur-xs) var(--ease);
+}
+
+.hero__scroll:hover { color: #F7F2E6; }
+
+.hero__scroll::after {
+  content: "";
+  width: 1px;
+  height: 2.6rem;
+  background: linear-gradient(to bottom, currentColor, transparent);
+  animation: cue 2.4s var(--ease) infinite;
+  transform-origin: top;
+}
+
+@keyframes cue {
+  0%, 100% { transform: scaleY(.45); opacity: .5; }
+  50%      { transform: scaleY(1);   opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll::after { animation: none; transform: none; }
+}
+
+/* The cue and the hero's own language switch belong to the first screen only.
+   They fade as the rail takes over, so the two never both ask for attention. */
+.hero__scroll,
+.hero__lang { transition: opacity var(--dur) var(--ease); }
+.is-scrolled .hero__scroll,
+.is-scrolled .hero__lang { opacity: 0; pointer-events: none; }
+
+
+/* ==========================================================================
+   REELS — a film that behaves like a photograph
+   --------------------------------------------------------------------------
+   No controls, no play button, no furniture of any kind: it starts itself,
+   runs silently and loops, and the only thing on screen is the picture. The
+   attributes in the markup are what make that work with no script at all —
+   `muted` and `playsinline` are the two the autoplay policy actually checks.
+
+   preload="none" is the counterweight. Four of these sit in the Events section
+   and together they are a great deal of video to fetch on first paint, so the
+   file is not touched until js/ui.js sees the reel come into view. With the
+   script off the browser falls back to its own autoplay behaviour, which is
+   the correct outcome either way.
+   ========================================================================== */
+.reel { background: #000; }
+
+.reel__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+}
+
+/* Someone who asked for less motion keeps the poster frame instead: js/ui.js
+   pauses rather than removes, so the reel is still a photograph. */
+
+
+/* ==========================================================================
+   VIDEO PLAYERS
+   --------------------------------------------------------------------------
+   Nothing downloads until it is wanted: the frame shows a poster and the
+   <video> is created on first play, or when the reel scrolls into view.
+   ========================================================================== */
+.player { width: 100%; margin: 0; }
+
+.player__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;   /* the files' own ratio — nothing is cut */
+  overflow: hidden;
+  background: #000;
+  border-radius: 2px;
+}
+
+.player__poster,
+.player__frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.player__frame video { z-index: 3; background: #000; }
+
+/* A veil so the play control holds against a bright frame */
+.player__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, .22);
+  transition: background var(--dur) var(--ease);
+}
+
+.player.is-playing .player__frame::after { display: none; }
+
+@media (hover: hover) {
+  .player__frame:hover::after { background: rgba(0, 0, 0, .34); }
+}
+
+.player__play {
+  position: absolute;
+  z-index: 4;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  width: 4.5rem;
+  height: 4.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .5);
+  background: rgba(10, 10, 10, .45);
+  backdrop-filter: blur(6px);
+  transition: background var(--dur-xs) var(--ease), transform var(--dur-xs) var(--ease);
+}
+
+[dir="rtl"] .player__play { transform: translate(50%, -50%); }
+
+/* Physical properties on purpose: playback direction is not reading
+   direction, so the triangle points the same way in both languages. */
+.player__play::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: .55rem 0 .55rem .95rem;
+  border-color: transparent transparent transparent #F7F2E6;
+  margin-left: .22rem;
+}
+
+@media (hover: hover) {
+  .player__play:hover { background: var(--accent); border-color: var(--accent); }
+  .player__frame:hover .player__play { transform: translate(-50%, -50%) scale(1.06); }
+  [dir="rtl"] .player__frame:hover .player__play { transform: translate(50%, -50%) scale(1.06); }
+}
+
+/* A reel that will not load should say so rather than sit there black */
+.player__error {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5);
+  text-align: center;
+  font-size: var(--t-small);
+  color: rgba(247, 242, 230, .78);
+  background: #0A0A0A;
+}
+
+/* A film with its own controls, played on purpose rather than in passing */
+.filmshow { margin: 0; }
+
+.filmshow video {
+  width: 100%;
+  height: auto;
+  background: #000;
+  border-radius: 2px;
+}
+
+
+/* ==========================================================================
+   BEFORE / AFTER GRADING WIPE
+   ========================================================================== */
+.compare {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  touch-action: pan-y;     /* the page still scrolls through the figure */
+  direction: ltr;          /* a wipe reveals left to right in both languages */
+  cursor: ew-resize;
+  background: #000;
+}
+
+.compare picture { display: block; }
+
+/* contain rather than the default fill: the two frames of a wipe share one
+   ratio today, so the two render identically — but a replacement pair that
+   does not share one would be stretched rather than fitted, and the whole
+   point of the comparison is that only the grade differs. */
+.compare__img { width: 100%; height: auto; display: block; object-fit: contain; }
+
+/* The second picture is stacked exactly over the first and clipped */
+.compare picture:nth-of-type(2) {
+  position: absolute;
+  inset: 0;
+}
+
+.compare__img--top {
+  height: 100%;
+  object-fit: cover;
+  clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
+}
+
+.compare__seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos, 50%);
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(247, 242, 230, .9);
+  pointer-events: none;
+}
+
+.compare__seam::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 2px solid rgba(247, 242, 230, .9);
+  background: rgba(10, 10, 10, .35);
+  backdrop-filter: blur(4px);
+}
+
+/* The before / after labels are no longer drawn: the brief is that no
+   typography sits on a photograph, and these sat on one. They stay in the
+   markup because the wipe still has to describe itself to a screen reader,
+   which cannot infer "this half is ungraded" from a seam and a drag handle.
+   To put them back on screen, delete this rule. */
+.compare__badge {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+
+/* The input is the control a keyboard and a screen reader drive; the pointer
+   is handled in js/ui.js, because on a phone the browser keeps a horizontal
+   drag for itself while it decides whether it was meant to be a scroll. */
+.compare__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+}
+
+.compare__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 3rem; height: 100%;
+}
+.compare__range::-moz-range-thumb { width: 3rem; height: 100%; border: 0; opacity: 0; }
+.compare__range:focus-visible { outline: 2px solid var(--accent-lift); outline-offset: 3px; }
+
+
+/* ==========================================================================
+   CONTACT
+   ========================================================================== */
+.contact { display: grid; }
+
+.contact__row {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  align-items: baseline;
+  padding-block: var(--sp-4);
+  border-block-start: 1px solid var(--rule);
+  transition: color var(--dur-xs) var(--ease);
+}
+
+.contact__row:last-child { border-block-end: 1px solid var(--rule); }
+.contact__row:hover { color: var(--accent-ground); }
+
+@media (max-width: 34rem) {
+  .contact__row { grid-template-columns: minmax(0, 1fr); gap: var(--sp-1); }
+}
+
+.contact__k {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+:root[lang="he"] .contact__k { letter-spacing: .04em; }
+
+.contact__v {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  /* the one place on the site where selecting text is genuinely useful */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.contact__cta {
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: var(--t-mega);
+  line-height: .9;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  color: var(--accent-ground);
+}
+
+:root[lang="he"] .contact__cta { text-transform: none; letter-spacing: -.02em; }
+
+
+/* ==========================================================================
+   STICKY DOCK — WhatsApp, and back to top
+   --------------------------------------------------------------------------
+   The pill is the standing call to action. Like the rail it is absent at the
+   top of the page, and it folds away again over the contact section, where the
+   same invitation is already on the page in full.
+   ========================================================================== */
+.dock {
+  position: fixed;
+  z-index: 50;
+  inset-block-end: var(--sp-4);
+  inset-inline-end: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  pointer-events: none;
+}
+
+.dock__wa,
+.dock__top {
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(.6rem);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+
+.dock__wa.is-shown,
+.dock__top.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.dock__wa {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 3.25rem;
+  padding-inline: var(--sp-5);
+  border-radius: 999px;
+  background: var(--accent);
+  color: #FFF7F0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-small);
+  letter-spacing: .08em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+}
+
+.dock__wa:hover { background: var(--accent-deep); }
+
+.dock__icon { width: 1.35rem; height: 1.35rem; flex: none; }
+
+@media (max-width: 34rem) {
+  .dock__label { display: none; }
+  .dock__wa { padding-inline: 0; width: 3.25rem; justify-content: center; }
+}
+
+.dock__top {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .22);
+  background: rgba(10, 10, 10, .7);
+  color: #F7F2E6;
+  backdrop-filter: blur(10px);
+}
+
+.dock__top svg { width: 1.1rem; height: 1.1rem; }
+.dock__top:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
+
+
+/* ==========================================================================
+   LIGHTBOX
+   --------------------------------------------------------------------------
+   <dialog> does the heavy lifting: focus trapping, Esc, and inerting the page
+   behind all come for free.
+   ========================================================================== */
+.lightbox {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100svh;
+  max-height: 100svh;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, .96);
+  color: #F7F2E6;
+  overflow: hidden;
+}
+
+.lightbox::backdrop { background: rgba(0, 0, 0, .9); }
+
+.lightbox[open] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-5) var(--sp-3);
+}
+
+.lightbox__figure {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+}
+
+/* The whole photograph, as large as the window allows, never cropped */
+.lightbox__img {
+  max-width: 100%;
+  max-height: calc(100svh - 6rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.lightbox__close,
+.lightbox__nav {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .22);
+  color: #F7F2E6;
+  transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease);
+}
+
+.lightbox__close:hover,
+.lightbox__nav:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
+
+.lightbox__nav svg { width: 1.15rem; height: 1.15rem; }
+
+.lightbox__close {
+  position: absolute;
+  inset-block-start: var(--sp-4);
+  inset-inline-end: var(--sp-4);
+  font-size: 1.4rem;
+  line-height: 1;
+  z-index: 2;
+}
+
+/* Physical, not logical: prev is the picture on the left in both languages,
+   because the arrow points at where the picture will come from. */
+.lightbox__nav svg { transform: none; }
