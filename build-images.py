@@ -124,8 +124,42 @@ def rewrite_markup(manifest):
                   r'<span class="slot__tag"><b>([a-z0-9-]+)</b>[^<]*</span>\s*</div>',
                   fill, html)
 
+    # A <video poster> is not a <picture>, so the rewrite above never reaches it.
+    # Left alone it keeps pointing at whatever width the ladder used to end on,
+    # which is a 404 the moment a master is replaced at a different size.
+    def poster(m):
+        name = m.group(1)
+        if name not in manifest:
+            return m.group(0)
+        return f'poster="assets/img/{name}-{manifest[name]["widths"][-1]}.jpg"'
+
+    html = re.sub(r'poster="assets/img/([a-z0-9-]+?)-\d+\.jpg"', poster, html)
+
+    html = retune_sizes(html)
+
     open(page, 'w', encoding='utf-8').write(html)
     return changed
+
+
+def retune_sizes(html):
+    """Match each mosaic tile's `sizes` to the width it is actually given.
+
+    Every tile used to declare 34vw regardless of how many columns it spans, so
+    a tile rendering 232px wide on a 1440px screen was asking for — and getting
+    — a 1280px file: nearly three times the pixels it could show. The mosaic is
+    a 12-column grid running the full width, so a span is simply n/12 of the
+    viewport. Below 46rem every tile drops to span 6, which is the 50vw tail.
+    """
+    def fix(m):
+        span = int(m.group('span'))
+        desktop = round(span / 12 * 100, 1)
+        sizes = f'(min-width: 46rem) {desktop}vw, 50vw'
+        body = re.sub(r'sizes="[^"]*"', f'sizes="{sizes}"', m.group(0))
+        return body
+
+    return re.sub(
+        r'<div class="slot[^"]*\bsp-(?P<span>\d+)\b[^"]*"[^>]*>\s*<picture>.*?</picture>',
+        fix, html, flags=re.S)
 
 
 def main():

@@ -11,3 +11,6 @@ old/
 
 # Local editor / tool state
 .claude/
+
+# Compiled by build-videos.sh from tools/grabframe.swift; rebuilt on demand.
+tools/.grabframe

@@ -5,20 +5,23 @@
 #   assets/video/source/*.mp4|.mov          masters (never served, gitignored)
 #         |
 #         v
-#   assets/video/hero-loop.mp4              silent background loop
-#   assets/video/grade-clip.mp4             colour-grading showcase
-#   assets/video/proposal-save-the-date.mp4 full-length proposal film
+#   assets/video/*.mp4                      what the pages play
 #   assets/video/posters/*.jpg              a still for each of them
 #
-# Every master is 4K HEVC with its moov atom at the end of the file. That is
-# unservable three times over: HEVC playback in Chrome and Firefox depends on
-# the machine's hardware, 4K at ~20 Mbps is far too heavy to autoplay, and a
-# trailing moov means the browser must fetch almost the whole file before it
-# can paint a frame.
+# Every master is 4K or 1080p with its moov atom at the end. That is unservable
+# three times over: HEVC playback in Chrome and Firefox depends on the machine's
+# hardware, 4K at ~20 Mbps is far too heavy to autoplay, and a trailing moov
+# means the browser must fetch almost the whole file before it can paint.
 #
-# This uses avconvert, which ships with macOS — no Homebrew, no ffmpeg. Its
-# presets emit H.264 (avc1) in an MP4 with fast-start on by default, which is
-# exactly the three things that were wrong. Re-run it after replacing a master.
+# avconvert ships with macOS, so there is no Homebrew and no ffmpeg here. Its
+# presets emit H.264 in an MP4 with fast-start on by default.
+#
+# Posters are pulled at a chosen second rather than frame zero, because a first
+# frame is usually a fade-in and because a poster that repeats a photograph
+# already on the page makes the section look duplicated. The timestamps below
+# were picked against the photo set: the proposal film opens on its title card,
+# and the grading clip is taken while the shot is still ungraded, so neither
+# echoes a still that sits nearby.
 #
 #   ./build-videos.sh
 #
@@ -28,22 +31,30 @@ cd "$(dirname "$0")"
 SRC=assets/video/source
 OUT=assets/video
 POSTERS=$OUT/posters
-mkdir -p "$POSTERS"
+GRAB=tools/.grabframe
 
+mkdir -p "$POSTERS"
 command -v avconvert >/dev/null || { echo "avconvert not found (macOS only)"; exit 1; }
 
-# name | master | preset | start | duration ("" = to end)
-# The hero is trimmed: it loops forever, so only the strongest few seconds earn
-# their bytes on first paint.
+# tiny AVFoundation helper: a frame at an exact timestamp, no re-encode
+if [ ! -x "$GRAB" ] || [ tools/grabframe.swift -nt "$GRAB" ]; then
+  echo "==> building tools/grabframe"
+  swiftc -O -o "$GRAB" tools/grabframe.swift 2>/dev/null
+fi
+
+# name | master | preset | start | duration ("" = to end) | poster second
 JOBS=(
-  "hero-loop|hero clip cropped.mp4|Preset1920x1080|0|8"
-  "grade-clip|grade fading clip.mp4|Preset1920x1080|0|"
-  "proposal-save-the-date|save the date.mov|Preset1280x720|0|"   # 45s: 1080p put it over GitHub's 50MB advisory
+  "hero-loop|hero clip.mp4|Preset1920x1080|0|8|2"
+  "proposal-film|save the date.mov|Preset1280x720|0||3"
+  "grade-clip|grade fading clip.mp4|Preset1920x1080|0||1"
+  "event-resort|event 5.mp4|Preset1280x720|0||5.8"
+  "event-market|evet 3.mp4|Preset1920x1080|0||1.7"
+  "promo-film|event longer 1.mp4|Preset1280x720|0||4.3"
 )
 
 for job in "${JOBS[@]}"; do
-  IFS='|' read -r name master preset start dur <<<"$job"
-  [ -f "$SRC/$master" ] || { echo "SKIP $name — no master at $SRC/$master"; continue; }
+  IFS='|' read -r name master preset start dur pt <<<"$job"
+  [ -f "$SRC/$master" ] || { echo "SKIP $name - no master at $SRC/$master"; continue; }
 
   args=(--source "$SRC/$master" --output "$OUT/$name.mp4" --preset "$preset" --replace)
   [ -n "$start" ] && args+=(--start "$start")
@@ -53,16 +64,8 @@ for job in "${JOBS[@]}"; do
   avconvert "${args[@]}" >/dev/null 2>&1
   printf '    %s\n' "$(ls -lh "$OUT/$name.mp4" | awk '{print $5}')"
 
-  # Poster: QuickLook renders a frame without needing a video decoder on the
-  # command line. The <video> shows it while the file buffers.
-  rm -f "$POSTERS/$name.png" "$POSTERS/$name.jpg"
-  qlmanage -t -s 1600 -o "$POSTERS" "$OUT/$name.mp4" >/dev/null 2>&1 || true
-  if [ -f "$POSTERS/$name.mp4.png" ]; then
-    sips -s format jpeg -s formatOptions 82 "$POSTERS/$name.mp4.png" \
-         --out "$POSTERS/$name.jpg" >/dev/null 2>&1 || true
-    rm -f "$POSTERS/$name.mp4.png"
-    echo "    poster -> $POSTERS/$name.jpg"
-  fi
+  rm -f "$POSTERS/$name.jpg"
+  "$GRAB" "$OUT/$name.mp4" "$pt" "$POSTERS/$name.jpg" | sed "s|^|    poster @${pt}s  |"
 done
 
 echo
