@@ -90,6 +90,15 @@ def head(html, lang, strings):
     html = re.sub(r'(<meta property="og:locale:alternate" content=")[^"]*(")',
                   rf'\g<1>{"en_GB" if lang == "he" else "he_IL"}\g<2>', html)
 
+    # og:url and canonical must name the page itself, and og:image must be an
+    # absolute URL: a link previewer fetches the page from its own server, so a
+    # relative path has nothing to resolve against. The Hebrew page also sits a
+    # directory deeper, where "assets/..." would resolve to /he/assets/.
+    site = 'https://lottemschef.github.io/Lottem-portfolio/'
+    page_url = site + ('he/' if lang == 'he' else '')
+    html = re.sub(r'(<meta property="og:url" content=")[^"]*(")', rf'\g<1>{page_url}\g<2>', html)
+    html = re.sub(r'(<link rel="canonical" href=")[^"]*(")', rf'\g<1>{page_url}\g<2>', html)
+
     prefix = '../' if lang == 'he' else ''
     alts = (f'  <link rel="alternate" hreflang="en" href="{prefix}">\n'
             f'  <link rel="alternate" hreflang="he" href="{prefix}he/">\n'

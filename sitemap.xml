@@ -2,18 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="/"/>
-    <xhtml:link rel="alternate" hreflang="he" href="/he/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="/"/>
+    <loc>https://lottemschef.github.io/Lottem-portfolio/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://lottemschef.github.io/Lottem-portfolio/"/>
+    <xhtml:link rel="alternate" hreflang="he" href="https://lottemschef.github.io/Lottem-portfolio/he/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://lottemschef.github.io/Lottem-portfolio/"/>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>/he/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="/"/>
-    <xhtml:link rel="alternate" hreflang="he" href="/he/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="/"/>
+    <loc>https://lottemschef.github.io/Lottem-portfolio/he/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://lottemschef.github.io/Lottem-portfolio/"/>
+    <xhtml:link rel="alternate" hreflang="he" href="https://lottemschef.github.io/Lottem-portfolio/he/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://lottemschef.github.io/Lottem-portfolio/"/>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
