@@ -39,7 +39,19 @@
   <meta property="og:type" content="profile">
   <meta property="og:title" content="">
   <meta property="og:description" content="">
-  <meta property="og:image" content="https://lottemschef.github.io/Lottem-portfolio/assets/og-image.jpg">
+  <!-- The picture a link preview shows. Its own file rather than the shared
+       assets/og-image.jpg, which version 1 at the root still points at: this
+       changes the card for the version 2 links without touching the old site's.
+
+       Cropped from the closing portrait to 1.91:1, which is the shape that
+       makes WhatsApp draw the large banner card. Anything nearer square and it
+       falls back to a small thumbnail beside the text. The width and height
+       below are declared so a previewer can lay the card out before it has
+       finished fetching the image. -->
+  <meta property="og:image" content="https://lottemschef.github.io/Lottem-portfolio/assets/og-portrait.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="" data-i18n-attr="content:alt.portrait">
   <meta property="og:locale" content="en_GB">
   <meta property="og:locale:alternate" content="he_IL">
   <meta property="og:url" content="">
@@ -64,7 +76,7 @@
     "address": { "@type": "PostalAddress", "addressCountry": "IL" },
     "email": "lottem.schef@gmail.com",
     "telephone": "+972-54-225-6566",
-    "image": "https://lottemschef.github.io/Lottem-portfolio/assets/og-image.jpg",
+    "image": "https://lottemschef.github.io/Lottem-portfolio/assets/og-portrait.jpg",
     "sameAs": ["https://www.instagram.com/lotsdronephotography/"],
     "knowsLanguage": ["he", "en"],
     "founder": {
