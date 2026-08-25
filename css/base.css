@@ -1,6 +1,11 @@
 /* ==========================================================================
    base.css — reset, design tokens, typography
-   Palette sampled from the reference PDF. See PLAN.md §2.
+   --------------------------------------------------------------------------
+   Version 2. The palette is carried over from version 1 unchanged — copper on
+   black and cream is the site's identity and there was no reason to touch it.
+   What changed is the rhythm: one spacing scale, declared here, that every
+   other rule reads from. Version 1 invented a clamp() at each call site, which
+   is how buttons ended up sitting against the paragraph above them.
    ========================================================================== */
 
 /* ---------- reset ---------- */
@@ -9,6 +14,9 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* Anchors land under nothing, but a little air above the heading you jumped
+     to reads far better than the heading pinned to the top edge. */
+  scroll-padding-block-start: var(--sp-6);
 }
 
 body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ul, ol {
@@ -18,40 +26,34 @@ body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ul, ol {
 
 ul[role="list"], ol[role="list"] { list-style: none; }
 
-img, picture, video, canvas, svg {
-  display: block;
-  max-width: 100%;
-}
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
 
 button, input, select, textarea { font: inherit; color: inherit; }
-
-button {
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
+button { background: none; border: 0; cursor: pointer; }
 a { color: inherit; text-decoration: none; }
 
-/* ---------- tokens ---------- */
+
+/* ==========================================================================
+   tokens
+   ========================================================================== */
 :root {
-  /* grounds — sampled from the reference, do not adjust by eye */
-  --bg-dark:   #000000;
-  --bg-light:  #F7F2E6;
-  --bg-mute:   #8A877F;
+  /* ---- grounds ---- */
+  --bg-dark:  #000000;
+  --bg-light: #F7F2E6;
+  --bg-mute:  #12100E;   /* v1's #8A877F grey put copper at 1.43:1 on it; this
+                            is a warm near-black instead, which reads as a
+                            separate band and still carries the accent. */
 
-  /* Cinematic copper. Measured, not eyeballed: 4.08:1 on black and 4.61:1 on
-     the cream. That clears AA for large text on either ground and clears AA
-     for body text on the cream, but it lands under 4.5:1 for small text on
-     black — hence --accent-lift below, which the micro-type components use so
-     a label stays readable without moving the brand colour. */
+  /* ---- copper ----
+     Measured, not eyeballed: 4.08:1 on black, 4.61:1 on the cream. That clears
+     AA for large text on either ground and for body text on the cream, but it
+     falls under 4.5:1 for small text on black — which is what --accent-lift is
+     for. Micro-type components use the lift; nothing else does. */
   --accent:      #ad550c;
-  --accent-deep: #8A440A;   /* the same hue, deeper, for the cream ground */
-  --accent-lift: #D9701A;   /* the same hue, lifted, for small text on black */
+  --accent-deep: #8A440A;
+  --accent-lift: #D9701A;
+  --accent-ground: var(--accent);
 
-  /* The halo belongs to hover, not to rest. Three layers: a tight core, a
-     bloom, a wide wash. Copper needs a touch more opacity than the old amber
-     to read at all against black, since the hue itself is darker. */
   --glow:
     0 0 8px  rgba(173, 85, 12, .78),
     0 0 26px rgba(173, 85, 12, .56),
@@ -61,225 +63,260 @@ a { color: inherit; text-decoration: none; }
     0 0 16px rgba(173, 85, 12, .50),
     0 0 40px rgba(173, 85, 12, .28);
 
-  /* The same three layers at zero alpha. A shadow cannot animate out of
-     `none`, and two shadow lists only interpolate cleanly when they have the
-     same number of layers — this is the resting value that makes the halo
-     fade up smoothly instead of snapping on at full strength. */
-  --glow-off:
-    0 0 5px  rgba(173, 85, 12, 0),
-    0 0 16px rgba(173, 85, 12, 0),
-    0 0 40px rgba(173, 85, 12, 0);
-
-  /* Components read this so they take the right depth for whatever they
-     happen to be sitting on. */
-  --accent-ground: var(--accent);
-
-  /* Typefaces — self-hosted variable fonts, see css/fonts.css.
-     One display family for everything, as in the reference deck. */
+  /* ---- typefaces — self-hosted variable fonts, see css/fonts.css ---- */
   --f-display: "Rubik", system-ui, -apple-system, sans-serif;
   --f-body:    "Assistant", system-ui, -apple-system, sans-serif;
 
-  /* Type scale — fluid between 375px and 1600px viewports. The desktop end
-     is set from the reference deck, measured as a share of its 1400px width. */
-  --t-micro:   clamp(.66rem, .64rem + .08vw, .74rem);
-  --t-small:   clamp(.78rem, .75rem + .14vw, .90rem);
-  --t-body:    clamp(.92rem, .89rem + .16vw, 1.04rem);
-  --t-lead:    clamp(.96rem, .92rem + .22vw, 1.12rem);
-  --t-heading: clamp(1.25rem, 1.05rem + .85vw, 2.05rem);
-  --t-sub:     clamp(1.15rem, .95rem + .85vw, 1.85rem);
-  --t-h2:      clamp(1.35rem, 1.10rem + 1.05vw, 2.15rem);
+  /* ---- type scale — fluid between 375px and 1600px ---- */
+  --t-micro: clamp(.68rem, .655rem + .105vw, .78rem);
+  --t-small: clamp(.8rem, .77rem + .13vw, .92rem);
+  --t-body:  clamp(.95rem, .92rem + .16vw, 1.08rem);
+  --t-lead:  clamp(1.05rem, .99rem + .28vw, 1.3rem);
+  --t-sub:   clamp(1.5rem, 1.2rem + 1.3vw, 2.6rem);
+  --t-mega:  clamp(2.9rem, 1.4rem + 6.6vw, 8rem);
 
-  /* Rhythm — the reference keeps a 5.7% side margin and hairline gutters
-     between mosaic tiles (roughly 0.6% of the page width). */
-  --pad-x:     clamp(1.05rem, .40rem + 2.90vw, 3.6rem);
-  --section-y: clamp(1.9rem, 1.1rem + 3.3vw, 4.3rem);
-  --gutter:    clamp(.25rem, .12rem + .55vw, .6rem);
+  /* ==== the spacing scale ====
+     Every margin and every pad on this site comes from this ladder. Each step
+     is roughly 1.4× the one below it, so two adjacent steps are always clearly
+     different — which is what makes the hierarchy legible rather than merely
+     present. Nothing outside this block should invent a length. */
+  --sp-1: .35rem;
+  --sp-2: .6rem;
+  --sp-3: .9rem;
+  --sp-4: 1.35rem;
+  --sp-5: 2rem;
+  --sp-6: 2.85rem;
+  --sp-7: 4rem;
+  --sp-8: 5.5rem;
+  --sp-9: 7.5rem;
 
-  /* Motion. One easing for everything so the page moves with one hand, and a
-     short scale of durations rather than a number invented at each call site. */
-  --ease:      cubic-bezier(.22, .61, .36, 1);
-  --ease-out:  cubic-bezier(.16, 1, .3, 1);   /* longer tail, for entrances */
-  --dur-xs:    .18s;   /* state flicks — hover, focus */
-  --dur:       .45s;   /* the default */
-  --dur-slow:  .70s;   /* image zooms */
-  --dur-enter: .85s;   /* something arriving on screen */
+  /* Fluid rhythm, built from the same ladder at each end. */
+  --section-y: clamp(var(--sp-8), 11vw, 10rem);   /* between sections */
+  --block-y:   clamp(var(--sp-6), 6.5vw, 5.5rem); /* between blocks inside one */
+  --gutter:    clamp(var(--sp-3), 2.2vw, 2rem);   /* between grid cells */
+
+  /* ==== the page shell ====
+     Generous margins are the whole brief, so --pad-x is deliberately large and
+     grows further once the side rail appears — see the 82rem query below,
+     where the padding is what guarantees the rail can never reach the text. */
+  --shell:  84rem;
+  --pad-x:  clamp(1.5rem, 6vw, 5rem);
+  --measure: 62ch;          /* comfortable reading width for running text */
+
+  /* ---- side rail ----
+     Collapsed to its markers at this size, so it takes little room; the
+     padding above still clears it at every width down to 60rem, where the
+     rail gives way to the menu button entirely. */
+  --rail-inset: var(--sp-3);
+
+  /* Markers only at this size, so the rail is exactly one marker wide — and
+     this has to be the marker's own box, 2.2rem, not the shorter line it draws
+     at rest. Same trap as the labels above: --pad-x is built from this number,
+     so anything the rail paints wider than it is spilling into space the
+     layout believes is empty. */
+  --rail-w:     2.2rem;
+
+  /* ---- motion ---- */
+  --ease:     cubic-bezier(.22, .61, .36, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur-xs:   .18s;
+  --dur:      .45s;
+  --dur-slow: .7s;
+  --dur-enter: .85s;
 }
 
-/* Per-ground foreground tokens. Every section declares its ground once and
-   the components inside read --fg / --fg-dim / --rule without knowing which. */
+/* ---- the two sizes at which the rail is on screen ----
+
+   Wherever the rail exists, the page's side margin is what keeps it off the
+   text — and the margin is not a number picked to look about right. It is the
+   rail's own footprint plus a gutter, written as exactly that sum. Hand-tuned,
+   this looked fine at one width and left two millimetres between a nav label
+   and a heading at another; the arithmetic only has to be wrong once. Widen
+   the rail, or move it further from the edge, and the margin follows.
+
+   Below 60rem neither rule applies: the rail is gone, the menu button has
+   taken its place, and the margin is free to be as tight as a phone wants. */
+@media (min-width: 60rem) {
+  :root {
+    --rail-gap: var(--sp-4);
+    --pad-x: clamp(
+      calc(var(--rail-inset) + var(--rail-w) + var(--rail-gap)),
+      6vw,
+      5rem);
+  }
+}
+
+/* ---- labels on ----
+
+   --rail-w has one job: to be the widest the rail's contents can ever draw. Get
+   it wrong and every guarantee above collapses quietly, because --pad-x is
+   built from it while the labels are `white-space: nowrap` and will simply
+   overflow a box that is too small for them. That is exactly what happened at
+   6.5rem: the box measured 104px and reported a comfortable 46px of clearance,
+   while "VIDEOGRAPHY" drew 110px inside it, spilled 39px past the edge the
+   measurement trusted, and left 8px to the photographs. The declared box and
+   the painted text have to agree, or the arithmetic is measuring nothing.
+
+   So it is stated per language, because the words differ. English needs room
+   for VIDEOGRAPHY, the longest of the six; Hebrew's longest is מוזיקה חיה,
+   which is barely more than half as wide. Each is the mark's own 2.2rem, plus
+   the --sp-3 between mark and label, plus the label, plus a little headroom for
+   the fallback face before the webfont lands.
+
+   If a section is ever renamed, this is the number to check. */
+@media (min-width: 82rem) {
+  :root {
+    --rail-w: 7.5rem;                        /* fits מוזיקה חיה */
+    --rail-inset: var(--sp-4);
+    --rail-gap: var(--sp-5);
+    --pad-x: clamp(
+      calc(var(--rail-inset) + var(--rail-w) + var(--rail-gap)),
+      8vw,
+      15rem);
+  }
+
+  /* The English labels are the long ones, so English is where the extra margin
+     is spent. --pad-x is a calc over --rail-w, and custom properties resolve
+     where they are used, so raising the width here widens the page margin with
+     it and nothing else needs saying. Hebrew keeps the tighter figure above. */
+  :root[lang="en"] { --rail-w: 10.25rem; }   /* fits VIDEOGRAPHY */
+}
+
+/* Per-ground foreground tokens. A section declares its ground once and every
+   component inside reads --fg / --fg-dim / --rule without knowing which. */
 .on-dark {
-  --accent-ground: var(--accent);
   --bg:     var(--bg-dark);
   --fg:     #F7F2E6;
   --fg-dim: rgba(247, 242, 230, .64);
-  --rule:   rgba(247, 242, 230, .18);
+  --rule:   rgba(247, 242, 230, .16);
+  --accent-ground: var(--accent);
 }
 
 .on-light {
-  /* #ad550c is 4.61:1 on the cream, so the brand copper carries the headings
-     here directly rather than dropping to the deeper tint. */
-  --accent-ground: var(--accent);
   --bg:     var(--bg-light);
   --fg:     #0A0A0A;
-  --fg-dim: rgba(10, 10, 10, .60);
+  --fg-dim: rgba(10, 10, 10, .62);
   --rule:   rgba(10, 10, 10, .16);
+  --accent-ground: var(--accent);
 }
 
 .on-mute {
-  /* NOTE: copper on this grey is only 1.43:1. The ground is the problem, not
-     the hue — see the promo band. Kept on the brand colour for consistency. */
-  --accent-ground: var(--accent);
   --bg:     var(--bg-mute);
-  --fg:     #0A0A0A;
-  --fg-dim: rgba(10, 10, 10, .62);
-  --rule:   rgba(10, 10, 10, .18);
+  --fg:     #F7F2E6;
+  --fg-dim: rgba(247, 242, 230, .6);
+  --rule:   rgba(247, 242, 230, .14);
+  --accent-ground: var(--accent-lift);
 }
 
-/* ---------- base typography ---------- */
-/* Nothing on the page is meant to be dragged over and highlighted — it reads
-   as a piece of work, not a document. Controls keep their own behaviour, and
-   the contact details stay selectable so an address can still be copied. */
+
+/* ==========================================================================
+   base typography
+   ========================================================================== */
 body {
-  -webkit-user-select: none;
-  user-select: none;
   background: var(--bg-dark);
   color: #F7F2E6;
   font-family: var(--f-body);
   font-size: var(--t-body);
-  line-height: 1.6;
+  line-height: 1.65;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* Latin runs inside Hebrew text keep their own direction so punctuation,
-   slashes and numerals don't get reordered by the bidi algorithm. */
-.lat {
-  direction: ltr;
-  unicode-bidi: isolate;
-}
-
-/* Numerals that line up in columns */
+/* Latin runs inside Hebrew keep their own direction, so slashes, numerals and
+   punctuation are not reordered by the bidi algorithm. */
+.lat { direction: ltr; unicode-bidi: isolate; }
 .num { font-variant-numeric: tabular-nums; }
 
-h1, h2, h3 {
-  font-weight: 900;
-  line-height: 1;
-  text-wrap: balance;
-}
+h1, h2, h3 { font-weight: 800; line-height: 1.05; text-wrap: balance; }
 
-/* ---------- display headings ----------
-   Two behaviours, matching the reference. The banner headings (PORTFOLIO,
-   WORK WITH ME!) are set flush to both edges of their column — .mega--fill,
-   sized by js/ui.js, because CSS cannot fit text to a box. The section
-   headings (PHOTOGRAPHY, VIDEOGRAPHY) sit at a fixed display size instead:
-   fitting them too would blow up short words like "צילום" to absurd sizes. */
+/* ---------- display type ---------- */
+
+/* The one enormous word per screen. Version 1 measured these in JavaScript to
+   set them flush to the column; this sets them in CSS instead. Fitting text to
+   a box needs a measure-and-write on every resize, it blocked on webfont load,
+   and it produced a different size in each language for the same heading. A
+   clamp is one line, never reflows, and both languages land in the same
+   place. */
 .mega {
   font-family: var(--f-display);
   font-weight: 900;
-  font-size: clamp(1.9rem, 1.0rem + 4.2vw, 5rem);
-  line-height: .92;
-  letter-spacing: -.025em;
-  color: var(--accent-ground);
+  font-size: var(--t-mega);
+  line-height: .9;
+  letter-spacing: -.035em;
   text-transform: uppercase;
-  text-wrap: nowrap;
-  transition: text-shadow .45s var(--ease), color .45s var(--ease);
+  color: var(--accent-ground);
+  transition: text-shadow var(--dur) var(--ease);
 }
+
+/* Hebrew has no uppercase to reach for, so the weight carries it alone. */
+:root[lang="he"] .mega { text-transform: none; letter-spacing: -.02em; }
 
 /* The halo is a reward for looking closely, not the resting state. */
 @media (hover: hover) {
   .mega:hover { text-shadow: var(--glow); }
 }
 
-/* Pre-script fallback for the fitted headings — close enough that nothing
-   jumps visibly, and the only size if scripting is off. */
-.mega--fill { font-size: clamp(2rem, 9vw, 7.5rem); }
-
-/* The Hebrew has no uppercase to reach for, so it carries the weight alone. */
-:root[lang="he"] .mega { text-transform: none; letter-spacing: -.03em; }
-
-/* Section subheads — "Landscape Photography", "Video Edit / Color Grading".
-   Two short lines in the reference, not one long one. */
+/* Category headings — "Marriage proposals", "Edit & colour grading" */
 .subhead {
   font-family: var(--f-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: var(--t-sub);
-  line-height: 1.05;
-  color: var(--accent-ground);
+  line-height: 1.1;
   letter-spacing: -.02em;
-  max-width: 12ch;
-  text-wrap: balance;
-  transition: text-shadow .45s var(--ease);
-}
-
-@media (hover: hover) {
-  .subhead:hover { text-shadow: var(--glow-sm); }
-}
-
-/* "My Works." — the white counterweight to the red headings */
-.works-mark {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-h2);
-  line-height: 1;
-  color: var(--fg);
-  letter-spacing: -.03em;
-  max-width: 6ch;
-  text-wrap: balance;
-}
-
-/* Block headings on a light or dark ground — "My Profile", "Education" */
-.heading {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-heading);
-  line-height: 1.05;
-  letter-spacing: -.03em;
   color: var(--accent-ground);
+  text-wrap: balance;
+  max-width: 18ch;
 }
 
+/* Small all-caps label above a heading — the section's number and name */
+.eyebrow {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* The counter is one left-to-right run, .lat, carrying both halves. Splitting
+   it across two isolated spans is what reordered it to "/ 06 02" on the Hebrew
+   page: each span was its own bidi island, so the paragraph's RTL direction
+   laid the two islands out right to left. Inside a single run there is nothing
+   left for the algorithm to swap. */
+.eyebrow__count { white-space: nowrap; }
+
+.eyebrow__num {
+  color: var(--accent-lift);
+  margin-inline-end: var(--sp-2);
+}
+
+/* The opening line under a section heading */
 .lede {
   font-size: var(--t-lead);
   line-height: 1.5;
+  max-width: var(--measure);
+  color: var(--fg);
+  text-wrap: pretty;
 }
 
-/* ---------- scroll reveal ----------
-   A short lift as each block enters the frame. js/ui.js adds .is-in; the
-   no-script and reduced-motion paths leave everything visible from the start,
-   so nothing is ever hidden behind an effect that might not run. */
-/* Hidden only once the script has confirmed it is able to reveal things
-   again. Without the flag the content is simply visible — so a failed script,
-   a blocked file or a browser that suspends observers can never leave the
-   page blank. This session proved the failure mode is not hypothetical. */
-.js-reveal .reveal {
-  opacity: 0;
-  transform: translateY(1.4rem);
-  transition: opacity .7s var(--ease), transform .7s var(--ease);
+/* Running text — the paragraph beside or beneath a piece of work */
+.prose {
+  max-width: var(--measure);
+  color: var(--fg-dim);
+  text-wrap: pretty;
 }
 
-.js-reveal .reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
+.prose + .prose { margin-block-start: var(--sp-4); }
 
-/* Tiles in a row come in one after the next rather than as a block */
-.js-reveal .reveal[style*="--i"] { transition-delay: calc(var(--i) * 55ms); }
 
-@media (prefers-reduced-motion: reduce) {
-  .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
-}
-
-/* The one place selecting text is genuinely useful */
-.contact__v,
-input, textarea {
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-/* ---------- accessibility ---------- */
+/* ==========================================================================
+   accessibility
+   ========================================================================== */
 :focus-visible {
-  outline: 2px solid var(--accent-ground);
+  outline: 2px solid var(--accent-lift);
   outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .visually-hidden {
@@ -292,103 +329,54 @@ input, textarea {
 }
 
 .skip-link {
-  position: absolute;
-  inset-inline-start: var(--pad-x);
+  position: fixed;
+  inset-inline-start: var(--sp-4);
   top: -100%;
-  z-index: 100;
+  z-index: 200;
   background: var(--accent);
-  color: #FFF7F0;   /* copper is dark: light type is 5.15:1, near-black 3.68:1 */
-  padding: .75rem 1rem;   /* 44px tall once focused */
+  color: #FFF7F0;        /* copper is dark: light type is 5.15:1 on it */
+  padding: var(--sp-3) var(--sp-4);
   font-weight: 700;
+  transition: top var(--dur-xs) var(--ease);
 }
-.skip-link:focus { top: .75rem; }
+.skip-link:focus { top: var(--sp-3); }
+
+
+/* ==========================================================================
+   scroll reveal
+   --------------------------------------------------------------------------
+   Blocks lift into place as they enter the frame. Everything is visible in CSS
+   terms unless .js-reveal is set, and js/ui.js only sets it once it knows it
+   can take the state off again — so a blocked script or a suspended observer
+   can never leave the page blank. That failure mode is not hypothetical; it
+   happened during version 1.
+   ========================================================================== */
+.js-reveal .reveal {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity var(--reveal-dur, .6s) var(--ease-out),
+    transform var(--reveal-dur, .6s) var(--ease-out);
+}
+
+.js-reveal .reveal.is-in { opacity: 1; transform: none; }
+
+/* Cells in a row arrive one after the next rather than as a slab */
+.js-reveal .reveal[style*="--i"] { transition-delay: calc(var(--i) * 60ms); }
+
+/* Timing by what the thing is. A heading should land quickly; a wall of
+   photographs should flow. One duration for both read as a mechanical sweep. */
+.js-reveal .subhead.reveal,
+.js-reveal .eyebrow.reveal    { --reveal-dur: .42s; transform: translateY(.6rem); }
+.js-reveal .lede.reveal       { --reveal-dur: .55s; }
+.js-reveal .frame.reveal      { --reveal-dur: .8s; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
   *, *::before, *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
 }
-
-/* Short line under a section heading, setting up what follows */
-.section__lede {
-  max-width: 52ch;
-  font-size: var(--t-lead);
-  line-height: 1.5;
-  color: var(--fg-dim);
-  margin-top: clamp(.5rem, 1.5vw, 1rem);
-}
-
-/* ==========================================================================
-   Opening sequence — first paint only
-   ==========================================================================
-   The page announces itself once: the bar, then the name, then the title with
-   a bloom of the halo that settles back to rest, then the photograph. It does
-   not repeat on a language switch — the curtain owns that moment.
-
-   Scoped to .js-intro, which the script only adds once it knows it can take
-   the sequence off again. No script, no hiding. */
-
-.js-intro .nav,
-.js-intro .topbar,
-.js-intro .hero .mega,
-.js-intro .slot--hero { opacity: 0; }
-
-.js-intro.is-ready .nav {
-  animation: intro-fade var(--dur-enter) var(--ease-out) .05s both;
-}
-.js-intro.is-ready .topbar {
-  animation: intro-fade var(--dur-enter) var(--ease-out) .18s both;
-}
-.js-intro.is-ready .hero .mega {
-  animation: intro-title 1.1s var(--ease-out) .28s both;
-}
-.js-intro.is-ready .slot--hero {
-  animation: intro-rise 1s var(--ease-out) .5s both;
-}
-
-@keyframes intro-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes intro-rise {
-  from { opacity: 0; transform: translateY(1.2rem) scale(1.02); }
-  to   { opacity: 1; transform: none; }
-}
-
-/* The halo blooms as the title lands, then fades — so the glow is introduced
-   once and afterwards belongs to hover, exactly as it does everywhere else. */
-@keyframes intro-title {
-  0%   { opacity: 0; transform: translateY(.6rem); text-shadow: none; }
-  45%  { opacity: 1; transform: none; text-shadow: var(--glow); }
-  100% { opacity: 1; transform: none; text-shadow: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .js-intro .nav,
-  .js-intro .topbar,
-  .js-intro .hero .mega,
-  .js-intro .slot--hero { opacity: 1; animation: none; }
-}
-
-/* ---------- reveal timing by what the thing is ----------
-   A heading should arrive quickly; a grid of photographs should flow. One
-   duration for all of it read as a single mechanical sweep. */
-.js-reveal .reveal { transition-duration: var(--reveal-dur, .6s); }
-
-.js-reveal .subhead.reveal,
-.js-reveal .works-head.reveal   { --reveal-dur: .42s; }
-.js-reveal .section__lede.reveal,
-.js-reveal .pair-meta.reveal    { --reveal-dur: .55s; }
-.js-reveal .slot.reveal         { --reveal-dur: .8s; }
-.js-reveal .pair.reveal,
-.js-reveal .player.reveal       { --reveal-dur: .9s; }
-
-/* Headings lift less than pictures — the shorter the travel, the crisper */
-.js-reveal .subhead.reveal,
-.js-reveal .works-head.reveal { transform: translateY(.7rem); }
-.js-reveal .subhead.reveal.is-in,
-.js-reveal .works-head.reveal.is-in { transform: none; }

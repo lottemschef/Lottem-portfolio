@@ -1,558 +1,677 @@
 /* ==========================================================================
-   components.css — language switch, image slots, meta rows, credentials
+   components.css — the side rail, controls, media, and the viewer
    ========================================================================== */
 
-/* ---------- language curtain ----------
-   Switching language flips the writing direction, swaps the typeface metrics
-   and re-fits every mega heading. Doing that in the open looks like a glitch;
-   behind a black curtain it reads as a cut. */
-.curtain {
+/* ==========================================================================
+   THE SIDE RAIL
+   --------------------------------------------------------------------------
+   The brief: a side navigation that is not there at the top of the page and
+   arrives once the visitor starts to scroll.
+
+   It is fixed, vertically centred, and lives in the page's own side margin —
+   not in the viewport's. .rail__inner is centred to the same --shell as .wrap,
+   so on a wide screen the rail sits exactly where the page's left margin is
+   rather than drifting off toward the window edge.
+
+   That it cannot reach the text is a fact of the numbers, not a hope: the rail
+   ends --rail-inset + --rail-w from the shell's edge, and --pad-x is set no
+   smaller than that in the same breakpoint. See base.css, the 82rem query.
+
+   Hidden means hidden. opacity alone would leave six links in the tab order
+   and in the accessibility tree while nothing is on screen, so visibility goes
+   with it and the rail is genuinely absent until it is shown.
+   ========================================================================== */
+.rail {
   position: fixed;
   inset: 0;
-  z-index: 200;
-  background: var(--bg-dark);
-  display: grid;
-  place-items: center;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+
+  --rail-slide: -.9rem;
+  --rail-fg: rgba(247, 242, 230, .72);
+  --rail-fg-strong: #F7F2E6;
+
   opacity: 0;
   visibility: hidden;
-  transition: opacity 200ms var(--ease), visibility 0s linear 200ms;
+  transform: translateX(var(--rail-slide));
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
 }
 
-.curtain.is-on {
+[dir="rtl"] .rail { --rail-slide: .9rem; }
+
+.rail.is-shown {
   opacity: 1;
   visibility: visible;
-  transition: opacity 180ms var(--ease), visibility 0s;
+  transform: none;
+  transition-delay: 0s;
 }
 
-.curtain__inner,
-.curtain > * { pointer-events: none; }
-
-/* A bare line on black reads as "the screen went off". The name holds the
-   moment instead, and the line becomes the progress underneath it. */
-.curtain__word {
-  margin: 0 0 1rem;
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: clamp(.8rem, 3.2vw, 1.05rem);
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--accent-ground);
-  text-shadow: var(--glow-sm);
-  text-align: center;
-  opacity: 0;
-  transition: opacity 260ms var(--ease) 80ms;
+/* The rail floats over whichever section is behind it, and those alternate
+   between black and cream. js/ui.js reports the ground; the rail restates its
+   own colours rather than inheriting, because it is fixed and has no section
+   of its own to read from. */
+.rail[data-ground="light"] {
+  --rail-fg: rgba(10, 10, 10, .68);
+  --rail-fg-strong: #0A0A0A;
 }
 
-.curtain.is-on .curtain__word { opacity: 1; }
-
-:root[lang="he"] .curtain__word { letter-spacing: .06em; text-transform: none; }
-
-.curtain__mark {
-  width: clamp(4rem, 16vw, 9rem);
-  height: 2px;
-  background: var(--accent-ground);
-  box-shadow: var(--glow);
-  transform: scaleX(0);
-  transform-origin: center;
+.rail__inner {
+  width: min(100%, var(--shell));
+  margin-inline: auto;
+  padding-inline: var(--rail-inset);
 }
 
-.curtain.is-on .curtain__mark {
-  animation: curtain-sweep 620ms var(--ease) forwards;
+.rail__nav {
+  pointer-events: auto;
+  display: grid;
+  gap: var(--sp-3);
+  width: var(--rail-w);
 }
 
-@keyframes curtain-sweep {
-  from { transform: scaleX(0); opacity: .3; }
-  60%  { transform: scaleX(1); opacity: 1; }
-  to   { transform: scaleX(1); opacity: 1; }
-}
-
-/* With reduced motion the curtain never appears — the swap is instant. */
-@media (prefers-reduced-motion: reduce) {
-  .curtain { display: none; }
-}
-
-/* ---------- language switch ---------- */
-.lang {
-  display: inline-flex;
-  align-items: stretch;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  overflow: hidden;
-  direction: ltr;
-}
-
-/* Sized to the 44px minimum touch target — this is the only global control
-   on the page, and on a phone the old 38x28 box was easy to miss. */
-.lang__btn {
-  display: inline-flex;
+.rail__link {
+  position: relative;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  min-width: 2.75rem;
+  gap: var(--sp-3);
+  /* 44px of target for a link whose visible mark is 2px tall */
   min-height: 2.75rem;
+  color: var(--rail-fg);
+  transition: color var(--dur-xs) var(--ease);
+}
+
+/* The marker. A line rather than a dot: it grows toward the label as the
+   section becomes current, which reads as a position on a track.
+
+   It grows by transform, inside a box that never changes size. Animating the
+   width instead is the obvious way and it moved the text: the link is a flex
+   row, so every millimetre the marker gained pushed the label the same distance
+   to the right — 1.1rem of it on the current item, more again on hover. On the
+   long labels that was enough to carry the last letters over the photographs
+   beside them, which read as the type growing on hover when in fact the type
+   never changed size at all. A scaled line reserves its full length from the
+   start and the label cannot be moved by it. */
+.rail__mark {
+  flex: none;
+  width: 2.2rem;              /* the longest the line ever draws */
+  height: 2px;
+  background: currentColor;
+  opacity: .5;
+
+  /* .5 of 2.2rem is the 1.1rem resting line the width version drew */
+  transform: scaleX(.5);
+  transform-origin: left center;
+
+  transition:
+    transform var(--dur) var(--ease),
+    opacity var(--dur-xs) var(--ease),
+    background-color var(--dur-xs) var(--ease);
+}
+
+/* Physical, because the rail is mirrored: the line has to grow away from the
+   page edge it sits against, which is the right-hand one in Hebrew. */
+[dir="rtl"] .rail__mark { transform-origin: right center; }
+
+.rail__label {
   font-family: var(--f-display);
-  font-weight: 800;
+  font-weight: 500;
   font-size: var(--t-micro);
-  letter-spacing: .1em;
-  padding-inline: .7rem;
-  color: var(--fg-dim);
-  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease),
-              box-shadow .5s var(--ease-out);
-}
-
-.lang__btn:hover { color: var(--fg); }
-
-/* The current language is a plain span, not a link — there is nowhere for it
-   to go. It is marked with aria-current rather than aria-pressed now that the
-   control navigates instead of toggling. */
-.lang__btn.is-current {
-  box-shadow: var(--glow-off);
-  background: var(--accent-ground);
-  color: #FFF7F0;          /* copper is dark — light type reads, near-black does not */
-  cursor: default;
-}
-
-/* ---------- image slot ----------
-   Placeholder while the real photographs are pending. The aspect ratio is
-   locked here, so dropping the real files in will not shift the layout.
-   See PHOTOS.md for the slot inventory. */
-.slot {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: var(--ar, 3 / 2);
-  background: var(--slot-bg, #171614);
-  display: grid;
-  place-items: center;
-  isolation: isolate;
-}
-
-/* <picture> is a wrapper, never a box. Scoping this to .slot once let a
-   poster inside a player frame lay itself out as a block, cover the play
-   button and make the reels unclickable. */
-picture { display: contents; }
-
-/* The frame owns the box; the photograph fills it and is cropped by it.
-   Laying the image out absolutely rather than as a grid item is what makes
-   that unconditional: as a centred grid item its height:100% was resolving
-   short inside the mosaic rows, leaving a strip of slot ground showing along
-   the bottom of every narrow tile. Pinned to the edges there is nothing left
-   for a percentage to get wrong, so the ground can never show through. */
-.slot img,
-.slot video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: var(--focus, 50% 50%);
-  transition: transform var(--dur-slow) var(--ease);
-}
-
-/* The cinematic hover: a slight push in, clipped by the slot. */
-@media (hover: hover) {
-  .slot:hover img,
-  a:hover > .slot img { transform: scale(1.045); }
-}
-
-/* ---------- hero film ----------
-   The opening is a full-viewport silent loop, not a banded image. The slot
-   drops its aspect-ratio lock here and takes its height from the viewport
-   instead, so the film always fills the screen and is cropped by it rather
-   than letterboxed into a strip. 100svh, not 100vh: on a phone the dynamic
-   browser chrome makes 100vh taller than what you can actually see, which
-   pushes the section under the address bar. */
-.slot--hero {
-  aspect-ratio: auto;
-  width: 100vw;
-  max-width: 100%;   /* 100vw counts the scrollbar; this stops it overflowing */
-
-  /* Exactly one screen, never more. An earlier build held the box at 16:9 or
-     taller so the graded top and bottom could never be trimmed, but that made
-     the hero overrun the fold on any screen wider than 16:9. Filling the
-     viewport wins: on a wide screen the crop is now taken off the top and
-     bottom instead of the sides. The framing is centred, so it trims evenly. */
-  height: 100svh;
-  max-height: 100svh;
-  background: #000;
-}
-
-@supports not (height: 100svh) {
-  .slot--hero { height: 100vh; }
-}
-
-.slot--hero .hero-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Dead centre, both axes. The old build biased the phone crop upward; that
-     would fight the centring set in the grade, so it is gone. */
-  object-position: center center;
-  background: #000;
-  border: 0;
-  pointer-events: none;   /* the hero is decoration, never a control */
-  z-index: 1;
-}
-
-@media (max-width: 40rem) {
-  /* A phone screen is tall and narrow; a touch under full height leaves a
-     hint of the next section showing, which reads as "keep going". */
-  .slot--hero { height: 88svh; max-height: 88svh; }
-}
-
-/* A frame with nothing in it takes no space at all. The placeholder skin
-   below is what used to paint the grey striped boxes; collapsing the element
-   instead means the grid re-flows around what actually loaded rather than
-   reserving a cell for something that is not there. Grids are auto-placed,
-   so removing an item closes the gap on its own. */
-.slot:not(:has(img)):not(:has(video)) { display: none; }
-
-/* Placeholder skin — retained for the build pipeline's own preview only */
-.slot:not(:has(img))::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(135deg,
-      rgba(247, 242, 230, .045) 0 10px,
-      transparent 10px 20px);
-  border: 1px dashed rgba(247, 242, 230, .22);
-}
-
-.slot__tag {
-  position: relative;
-  z-index: 1;
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-micro);
-  letter-spacing: .09em;
+  letter-spacing: .16em;
   text-transform: uppercase;
-  color: rgba(247, 242, 230, .55);
-  direction: ltr;
-  text-align: center;
-  padding: .4rem .6rem;
-  line-height: 1.4;
-}
-
-.slot__tag b {
-  display: block;
-  color: var(--accent-ground);
-  font-weight: 800;
-}
-
-/* Placeholders on the cream ground need the opposite treatment */
-.on-light .slot { --slot-bg: #E7E0CE; }
-.on-light .slot:not(:has(img))::before {
-  background:
-    repeating-linear-gradient(135deg,
-      rgba(10, 10, 10, .05) 0 10px,
-      transparent 10px 20px);
-  border-color: rgba(10, 10, 10, .22);
-}
-.on-light .slot__tag { color: rgba(10, 10, 10, .55); }
-
-.on-mute .slot { --slot-bg: #6E6B64; }
-
-/* Rounded frames — the video stills grid */
-.is-rounded .slot { border-radius: clamp(.4rem, 1vw, .75rem); }
-
-/* ---------- Location / Year meta rows ----------
-   The value column starts a little under halfway across, as in the reference,
-   rather than trailing directly after the label. */
-.meta {
-  display: grid;
-  grid-template-columns: minmax(0, 45%) minmax(0, 1fr);
-  gap: .12rem 0;
-  margin-top: clamp(.7rem, 1.8vw, 1.1rem);
-  font-size: var(--t-small);
-}
-
-.meta__k {
-  font-weight: 700;
-  font-style: italic;
-  color: var(--fg);
-}
-
-.meta__v {
-  font-style: italic;
-  color: var(--fg-dim);
-  /* Physical, not logical, and deliberately so. The year is marked .lat, which
-     sets direction: ltr to stop the bidi algorithm reordering numerals inside
-     Hebrew. `start` is resolved from each value's own direction, so on the
-     Hebrew page the place name hugged the right of its box and the year the
-     left of the same box: one column, two opposite edges. Pinning both to the
-     left makes them line up whatever the direction. English is unaffected —
-     `start` already resolved to left there. */
-  text-align: left;
-}
-
-.story {
-  margin-top: clamp(1rem, 2.5vw, 1.6rem);
-  max-width: 52ch;
-  color: var(--fg);
-}
-
-/* Under the portrait frame the paragraph is justified to the frame's width */
-.story--justify {
-  margin-top: clamp(.7rem, 1.6vw, 1.1rem);
-  max-width: none;
-  font-size: var(--t-small);
-}
-
-/* ---------- the red name over the portrait ----------
-   In the reference this sits on the foot of the photograph and breaks past
-   its edge into the ground beside it. */
-/* Sized against the portrait itself, not the viewport: in the reference the
-   name runs at roughly 17% of the photograph's width whatever its size. */
-.split__portrait { container-type: inline-size; }
-
-.nameplate {
-  position: absolute;
-  inset-block-end: 3cqi;
-  inset-inline-start: 4cqi;
-  z-index: 3;
-  margin: 0;
-  font-family: var(--f-display);
-  font-weight: 900;
-  font-size: 12cqi;
-  line-height: .88;
-  letter-spacing: -.035em;
-  text-transform: uppercase;
-  color: var(--accent-ground);
-  /* a dark shadow for legibility over a photograph — the amber halo is hover */
-  text-shadow: 0 2px 18px rgba(0, 0, 0, .7);
-  max-width: 7ch;
-  transition: text-shadow .45s var(--ease);
-  pointer-events: none;
-  /* Safety net: a surname longer than its box breaks rather than spilling
-     off the page. "Schefenbauer" is four letters longer than the reference's. */
-  overflow-wrap: break-word;
-}
-
-/* Stacked layout gives the portrait the full page width, so the name needs
-   to come down a step to stay inside it. */
-@media (max-width: 52rem) {
-  .nameplate { font-size: 10cqi; inset-inline-start: 3cqi; }
-}
-
-@media (hover: hover) {
-  .split__portrait:hover .nameplate { text-shadow: var(--glow), 0 2px 18px rgba(0, 0, 0, .7); }
-}
-
-:root[lang="he"] .nameplate { text-transform: none; }
-
-/* ---------- credentials: licence / skills / expertise ---------- */
-.cred__section {
-  border-block-end: 1px solid var(--rule);
-  padding-block-end: .5rem;
-  margin-block-end: clamp(1.1rem, 2.5vw, 1.75rem);
-}
-
-.cred__group { border-inline-start: 2px solid var(--accent-ground); padding-inline-start: clamp(.85rem, 2vw, 1.35rem); }
-
-.cred__title {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: clamp(1.05rem, .95rem + .55vw, 1.55rem);
-  letter-spacing: -.02em;
-  color: var(--accent-ground);
-  margin-bottom: .5rem;
-}
-
-.cred__list { list-style: none; display: grid; gap: .1rem; }
-.cred__list li { color: var(--fg); }
-
-.cred__lede { color: var(--fg); font-weight: 600; }
-.cred__note { color: var(--fg-dim); font-size: var(--t-small); margin-top: .15rem; }
-
-/* ---------- contact table ----------
-   Occupies the inner half of the page in the reference, with the label at the
-   start of the row and the value pushed to the far end against it. */
-.contact { display: grid; }   /* the measure belongs to .contact-col */
-
-.contact__row {
-  display: grid;
-  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
-  gap: .35rem 1.5rem;
-  padding-block: clamp(.7rem, 1.8vw, 1.05rem);
-  border-top: 1px solid var(--rule);
-  align-items: baseline;
-}
-.contact__row:last-child { border-bottom: 1px solid var(--rule); }
-
-/* On a phone the label sits above its value instead of beside it — a 12rem
-   label column plus a full e-mail address does not fit on 375px. */
-@media (max-width: 34rem) {
-  .contact__row { grid-template-columns: minmax(0, 1fr); gap: .15rem; }
-}
-
-.contact__k {
-  font-family: var(--f-display);
-  font-weight: 700;
-  font-size: var(--t-body);
-  letter-spacing: -.01em;
-  color: var(--fg);
+  line-height: 1.2;
   white-space: nowrap;
 }
 
-/* Grid items are blockified, so without justify-self the value would stretch
-   across its column and — being a Latin run — sit at the far left of it. */
-.contact__v {
-  position: relative;
-  justify-self: end;
-  text-align: end;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  color: var(--fg);
-  transition: color var(--dur) var(--ease),
-              text-shadow .5s var(--ease-out);
+:root[lang="he"] .rail__label { text-transform: none; letter-spacing: .06em; }
+
+.rail__link:hover,
+.rail__link:focus-visible { color: var(--rail-fg-strong); }
+
+/* Hover changes the colour of the text and the length of the line. It does not
+   touch the type: no scale, no weight, no size, nothing that alters how much
+   room a label needs, so a label can never grow into the photographs beside
+   it. Both fractions below are of the marker's fixed 2.2rem box. */
+.rail__link:hover .rail__mark,
+.rail__link:focus-visible .rail__mark { transform: scaleX(.773); opacity: 1; }
+
+.rail__link.is-current { color: var(--rail-fg-strong); }
+.rail__link.is-current .rail__mark {
+  transform: scaleX(1);
+  opacity: 1;
+  background: var(--accent-lift);
 }
 
-/* underline that draws in from the reading edge */
-.contact__v::after {
+/* ---------- below 82rem: markers only ----------
+   There is not enough side margin here for labels to sit beside the text
+   without one reaching the other, so the rail collapses to its markers and the
+   label appears as a chip on hover or keyboard focus. Transient, so it may
+   overlap the page; permanent, it could not. */
+@media (max-width: 81.999rem) {
+  .rail__label {
+    position: absolute;
+    inset-inline-start: calc(1.1rem + var(--sp-3));
+    top: 50%;
+    transform: translateY(-50%) translateX(calc(var(--rail-slide) * .5));
+    padding: var(--sp-2) var(--sp-3);
+    background: #0A0A0A;
+    color: #F7F2E6;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-xs) var(--ease), transform var(--dur-xs) var(--ease);
+  }
+
+  .rail__link:hover .rail__label,
+  .rail__link:focus-visible .rail__label {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+/* Below 60rem the rail gives way to the menu button and its overlay. */
+@media (max-width: 59.999rem) {
+  .rail { display: none; }
+}
+
+/* The language control at the foot of the rail. At the top of the page the
+   hero carries its own copy of this — so the language is always reachable even
+   though the rail is not. */
+.rail__foot {
+  pointer-events: auto;
+  margin-block-start: var(--sp-6);
+  padding-block-start: var(--sp-4);
+  border-block-start: 1px solid currentColor;
+  width: 3.4rem;
+  color: var(--rail-fg);
+  opacity: .55;
+}
+
+.rail__foot .lang { color: var(--rail-fg-strong); }
+
+
+/* ==========================================================================
+   MENU BUTTON + OVERLAY — the rail's form below 60rem
+   --------------------------------------------------------------------------
+   Same rule as the rail: absent at the top of the page, arrives on scroll.
+   ========================================================================== */
+.menubtn {
+  position: fixed;
+  z-index: 80;
+  inset-block-start: var(--sp-4);
+  inset-inline-end: var(--sp-4);
+
+  /* 52px, not the 48 it wants to look like, because of the scale below. The
+     button grows from .85 as it arrives, and 48 x .85 is 40.8 — under the 44px
+     minimum for the whole of the half second it is fading in, which is exactly
+     when a thumb already on its way is most likely to land. At 52 the smallest
+     it ever gets is 44.2, so the target is legal at every frame of the
+     entrance rather than only once it has settled. */
+  width: 3.25rem;
+  height: 3.25rem;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, .72);
+  color: #F7F2E6;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(247, 242, 230, .18);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(.85);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+
+.menubtn.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+@media (min-width: 60rem) { .menubtn { display: none; } }
+
+.menubtn__bars { position: relative; width: 1.15rem; height: 2px; }
+.menubtn__bars,
+.menubtn__bars::before,
+.menubtn__bars::after {
+  background: currentColor;
+  transition: transform var(--dur-xs) var(--ease), opacity var(--dur-xs) var(--ease);
+}
+.menubtn__bars::before,
+.menubtn__bars::after {
   content: "";
   position: absolute;
-  inset-inline-start: 0;
-  bottom: -.12em;
-  width: 100%;
-  height: 1.5px;
-  background: var(--accent-ground);
-  transform: scaleX(0);
-  /* transform-origin takes no logical keywords, so the side is set per language */
-  transform-origin: left;
-  transition: transform var(--dur) var(--ease);
+  inset-inline: 0;
+  height: 2px;
 }
+.menubtn__bars::before { top: -.42rem; }
+.menubtn__bars::after  { top:  .42rem; }
 
-:root[lang="he"] .contact__v::after { transform-origin: right; }
+.menubtn[aria-expanded="true"] .menubtn__bars { background: transparent; }
+.menubtn[aria-expanded="true"] .menubtn__bars::before { transform: translateY(.42rem) rotate(45deg); }
+.menubtn[aria-expanded="true"] .menubtn__bars::after  { transform: translateY(-.42rem) rotate(-45deg); }
 
-/* The reference underlines the Instagram handle even at rest, marking it as
-   the one row that leads somewhere rather than just stating a detail. */
-.contact__v.is-linked { text-decoration: underline; text-underline-offset: .2em; }
-a:hover .contact__v.is-linked,
-a:focus-visible .contact__v.is-linked { text-decoration: none; }
-
-a:hover .contact__v,
-a:focus-visible .contact__v { color: var(--accent-ground); }
-
-a:hover .contact__v::after,
-a:focus-visible .contact__v::after { transform: scaleX(1); }
-
-/* ---------- before / after comparison ----------
-   The reference deck could only show two stills side by side. Here the same
-   frame exists graded and flat, so the two can be laid over each other and
-   the seam dragged — which is what the section is actually about. */
-.compare {
-  position: relative;
-  margin: 0;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  direction: ltr;          /* a wipe is not a reading direction */
-  isolation: isolate;
-  cursor: ew-resize;
-  /* The figure handles the drag itself (see initCompare). pan-y leaves
-     vertical scrolling to the page and lets every horizontal gesture reach
-     the handler, which is what the wipe needs and what a phone was failing
-     to deliver while the native range owned the gesture. */
-  touch-action: pan-y;
-}
-
-.compare__img {
-  position: absolute;
+/* ---------- the overlay ---------- */
+.menu {
+  position: fixed;
   inset: 0;
+  z-index: 70;
+  /* Opaque, not 96% black. The overlay opens over whichever section you were
+     reading, and half of those are the cream ground — through which even four
+     per cent leaves a legible ghost of the page behind the navigation. */
+  background: #050505;
+  display: grid;
+  gap: var(--sp-5);
+  padding: var(--sp-8) var(--pad-x);
+  opacity: 0;
+
+  /* Centred, but never at the cost of reaching something. On a short screen —
+     a phone held sideways is the usual one — six large links and the language
+     control are taller than the viewport, and plain `center` overflows equally
+     in both directions with the top half unreachable by any scroll. `safe`
+     gives up centring exactly when centring would hide something; browsers
+     without it fall back to the line above. */
+  align-content: center;
+  align-content: safe center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+
+  /* Click-through until it is actually open. It is invisible for the whole
+     fade either way, and without this it went on swallowing every tap on the
+     page for the length of the transition after being dismissed. */
+  pointer-events: none;
+
+  transition: opacity var(--dur) var(--ease);
+}
+
+.menu[hidden] { display: none; }
+
+.menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  min-height: 2.75rem;   /* 44px of target even if the type ever shrinks */
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 9vw, 2.6rem);
+  line-height: 1.1;
+  color: #F7F2E6;
+  padding-block: var(--sp-2);
+}
+
+.menu__num {
+  font-size: var(--t-micro);
+  letter-spacing: .18em;
+  color: var(--accent-lift);
+}
+
+.menu__link.is-current { color: var(--accent-lift); }
+
+.menu__foot {
+  margin-block-start: var(--sp-5);
+  padding-block-start: var(--sp-5);
+  border-block-start: 1px solid rgba(247, 242, 230, .18);
+}
+
+
+/* ==========================================================================
+   LANGUAGE SWITCH
+   ========================================================================== */
+.lang {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+/* 44px of touch target on the smallest control on the site */
+.lang__btn {
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-micro);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: currentColor;
+  opacity: .6;
+  transition: opacity var(--dur-xs) var(--ease);
+}
+
+.lang__btn:hover { opacity: 1; }
+
+/* The current language is a span, not a link — there is nowhere for it to go */
+.lang__btn.is-current {
+  opacity: 1;
+  color: var(--accent-lift);
+  cursor: default;
+}
+
+/* ---------- the curtain over a language swap ---------- */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  gap: var(--sp-4);
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .19s var(--ease);
+}
+
+.curtain.is-on { opacity: 1; }
+
+.curtain__word {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: var(--t-small);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
+}
+
+@media (prefers-reduced-motion: reduce) { .curtain { display: none; } }
+
+
+/* ==========================================================================
+   BUTTONS
+   --------------------------------------------------------------------------
+   The brief is explicit: a button never sits against the text above it. Three
+   rules enforce that, and none of them can be forgotten at a call site.
+
+     · the button carries its own padding — --sp-5 across, --sp-3 down, and a
+       floor of 3.25rem so it is a comfortable target as well as a comfortable
+       shape;
+     · .actions is the only correct wrapper for one, and it opens with --sp-7
+       of space — four rem, a clear step above anything the text itself uses;
+     · and the safety net at the bottom of this block catches a button dropped
+       straight after a paragraph without one.
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  min-height: 3.25rem;
+  padding-block: var(--sp-3);
+  padding-inline: var(--sp-5);
+  border-radius: 999px;
+  border: 1px solid transparent;
+
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-small);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+
+  transition:
+    background-color var(--dur-xs) var(--ease),
+    border-color var(--dur-xs) var(--ease),
+    color var(--dur-xs) var(--ease),
+    transform var(--dur-xs) var(--ease);
+}
+
+:root[lang="he"] .btn { text-transform: none; letter-spacing: .02em; }
+
+.btn__icon { flex: none; width: 1.15rem; height: 1.15rem; }
+
+.btn--solid {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #FFF7F0;              /* 5.15:1 on the copper */
+}
+.btn--solid:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+
+.btn--ghost {
+  border-color: var(--rule);
+  color: var(--fg);
+}
+.btn--ghost:hover { border-color: var(--accent-ground); color: var(--accent-ground); }
+
+@media (hover: hover) {
+  .btn:hover { transform: translateY(-2px); }
+}
+
+/* The wrapper. Gap handles the space between buttons, so no button needs — or
+   should have — a margin of its own. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-block-start: var(--sp-7);
+}
+
+.actions .btn { margin: 0; }
+
+/* The safety net. If a button ever lands directly after running text without
+   its wrapper, it still gets the full step of air. */
+:is(p, ul, ol, dl, h1, h2, h3, .lede, .prose, .meta) + :is(.btn, .actions) {
+  margin-block-start: var(--sp-7);
+}
+
+.btn + .btn { margin-inline-start: var(--sp-4); }
+.actions .btn + .btn { margin-inline-start: 0; }
+
+
+/* ==========================================================================
+   HERO
+   --------------------------------------------------------------------------
+   The one place on the site where a picture is deliberately cropped: this is a
+   background film filling the window, not a photograph being exhibited. Every
+   frame in the galleries below is shown whole — see layout.css.
+   ========================================================================== */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  background: #000;
+  overflow: hidden;
+}
+
+.hero__media { position: absolute; inset: 0; }
+
+.hero__media video,
+.hero__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.compare__img--top { clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0); }
-
-.compare__seam {
-  position: absolute;
-  inset-block: 0;
-  left: var(--pos, 50%);
-  width: 2px;
-  margin-left: -1px;
-  background: #F7F2E6;
-  box-shadow: 0 0 12px rgba(0, 0, 0, .55);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.compare__seam::after {
+/* The scrim. Weighted to the bottom, because that is where the title, the
+   role line and the opening sentence all sit — and the film behind them is a
+   copper sunset, i.e. very close in hue and value to the copper the title is
+   set in. The middle stays light so the photograph is still the subject; the
+   picture is dark enough by 70% down that the type holds whatever frame the
+   loop happens to be on. */
+.hero__media::after {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: clamp(2rem, 4vw, 2.9rem);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #F7F2E6;
-  box-shadow: 0 2px 14px rgba(0, 0, 0, .45);
-  transition: box-shadow .5s var(--ease-out);
-}
-
-.compare__badge {
-  position: absolute;
-  bottom: .6rem;
-  z-index: 2;
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-micro);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: #F7F2E6;
-  background: rgba(0, 0, 0, .55);
-  padding: .25rem .55rem;
-  border-radius: .2rem;
-  pointer-events: none;
-}
-.compare__badge--before { left: .6rem; }
-.compare__badge--after  { right: .6rem; }
-
-/* The range input is the control: it carries keyboard and touch support for
-   free. It is stretched over the figure and made invisible but not hidden. */
-.compare__range {
-  position: absolute;
   inset: 0;
-  z-index: 3;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, .62) 0%,
+    rgba(0, 0, 0, .20) 26%,
+    rgba(0, 0, 0, .34) 50%,
+    rgba(0, 0, 0, .70) 74%,
+    rgba(0, 0, 0, .88) 100%);
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--sp-5);
+  padding-block: var(--sp-4) var(--sp-6);
+}
+
+.hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  color: #F7F2E6;
+}
+
+.hero__name,
+.hero__year {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+:root[lang="he"] .hero__name { letter-spacing: .08em; }
+
+.hero__title {
+  align-self: end;
+  display: grid;
+  gap: var(--sp-4);
+  max-width: 46rem;
+}
+
+.hero__role {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-small);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
+}
+
+.hero .lede { color: rgba(247, 242, 230, .82); }
+
+.hero__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+/* The scroll cue. It is the only thing on the first screen that says the page
+   continues, since the navigation deliberately is not there yet. */
+.hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(247, 242, 230, .75);
+  padding-block: var(--sp-2);
+  transition: color var(--dur-xs) var(--ease);
+}
+
+.hero__scroll:hover { color: #F7F2E6; }
+
+.hero__scroll::after {
+  content: "";
+  width: 1px;
+  height: 2.6rem;
+  background: linear-gradient(to bottom, currentColor, transparent);
+  animation: cue 2.4s var(--ease) infinite;
+  transform-origin: top;
+}
+
+@keyframes cue {
+  0%, 100% { transform: scaleY(.45); opacity: .5; }
+  50%      { transform: scaleY(1);   opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll::after { animation: none; transform: none; }
+}
+
+/* The cue and the hero's own language switch belong to the first screen only.
+   They fade as the rail takes over, so the two never both ask for attention. */
+.hero__scroll,
+.hero__lang { transition: opacity var(--dur) var(--ease); }
+.is-scrolled .hero__scroll,
+.is-scrolled .hero__lang { opacity: 0; pointer-events: none; }
+
+
+/* ==========================================================================
+   REELS — a film that behaves like a photograph
+   --------------------------------------------------------------------------
+   No controls, no play button, no furniture of any kind: it starts itself,
+   runs silently and loops, and the only thing on screen is the picture. The
+   attributes in the markup are what make that work with no script at all —
+   `muted` and `playsinline` are the two the autoplay policy actually checks.
+
+   preload="none" is the counterweight. Four of these sit in the Events section
+   and together they are a great deal of video to fetch on first paint, so the
+   file is not touched until js/ui.js sees the reel come into view. With the
+   script off the browser falls back to its own autoplay behaviour, which is
+   the correct outcome either way.
+   ========================================================================== */
+.reel { background: #000; }
+
+.reel__video {
+  display: block;
   width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: ew-resize;
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  /* Kept for keyboard and assistive tech, but it no longer receives pointers:
-     stretched over the whole figure it was intercepting every touch, and its
-     native drag behaviour is exactly what was unreliable on a phone. Tab still
-     reaches it and the focus ring below still shows. */
-  pointer-events: none;
+  height: auto;
+  background: #000;
 }
-.compare__range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 3rem; height: 100%;
+
+/* Someone who asked for less motion keeps the poster frame instead: js/ui.js
+   pauses rather than removes, so the reel is still a photograph. */
+
+/* ---------- the Videography banner ----------
+   A full-bleed film where a full-bleed photograph used to be. It keeps the
+   picture's styling exactly: the width of the page, its own proportions, and
+   the frame's corner and clipping, so the section's rhythm is unchanged by the
+   swap.
+
+   object-fit: cover is set as asked. With height: auto the box already takes
+   the film's own proportions, so there is nothing for it to crop today — it is
+   what would fill the frame if this banner is ever given a fixed height, and
+   until then it guarantees the film can never sit letterboxed inside it. */
+.banner .reel__video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: inherit;
 }
-.compare__range::-moz-range-thumb { width: 3rem; height: 100%; border: 0; opacity: 0; }
-.compare__range:focus-visible { outline: 2px solid var(--accent-ground); outline-offset: 3px; }
 
-/* ---------- video player ---------- */
-.player { width: 100%; max-width: 68rem; }
 
-/* The social reel was shot vertically, so its player is vertical too —
-   letterboxing a 9:16 clip into a 16:9 frame would waste most of it. */
-.player--upright { max-width: min(24rem, 78vw); }
-.player--upright .player__frame { aspect-ratio: 9 / 16; }
+
+/* ==========================================================================
+   VIDEO PLAYERS
+   --------------------------------------------------------------------------
+   Nothing downloads until it is wanted: the frame shows a poster and the
+   <video> is created on first play, or when the reel scrolls into view.
+   ========================================================================== */
+.player { width: 100%; margin: 0; }
 
 .player__frame {
   position: relative;
-  aspect-ratio: 16 / 9;
-  border-radius: clamp(.5rem, 1.5vw, 1.1rem);
+  aspect-ratio: 16 / 9;   /* the files' own ratio — nothing is cut */
   overflow: hidden;
-  background: #0B0B0B;
-  display: grid;
-  place-items: center;
+  background: #000;
+  border-radius: 2px;
 }
 
 .player__poster,
@@ -561,920 +680,446 @@ a:focus-visible .contact__v::after { transform: scaleX(1); }
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.player__frame video { object-fit: contain; background: #000; z-index: 3; }
+.player__frame video { z-index: 3; background: #000; }
 
-/* A veil so the white button holds against a bright frame */
+/* A veil so the play control holds against a bright frame */
 .player__frame::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, .28);
+  z-index: 2;
+  background: rgba(0, 0, 0, .22);
   transition: background var(--dur) var(--ease);
-  z-index: 1;
 }
+
 .player.is-playing .player__frame::after { display: none; }
+
 @media (hover: hover) {
-  .player:hover .player__frame::after { background: rgba(0, 0, 0, .16); }
+  .player__frame:hover::after { background: rgba(0, 0, 0, .34); }
 }
 
 .player__play {
-  position: relative;
-  z-index: 2;
-  width: clamp(3.25rem, 8vw, 5.5rem);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #FFF;
+  position: absolute;
+  z-index: 4;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  width: 4.5rem;
+  height: 4.5rem;
   display: grid;
   place-items: center;
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .5);
+  background: rgba(10, 10, 10, .45);
+  backdrop-filter: blur(6px);
+  transition: background var(--dur-xs) var(--ease), transform var(--dur-xs) var(--ease);
 }
+
+[dir="rtl"] .player__play { transform: translate(50%, -50%); }
 
 /* Physical properties on purpose: playback direction is not reading
-   direction. A play button points right in Hebrew exactly as it does in
-   English, so this arrow must not flip with dir="rtl". */
+   direction, so the triangle points the same way in both languages. */
 .player__play::before {
   content: "";
-  width: 0; height: 0;
-  border-left: .95em solid #0B0B0B;
-  border-top: .58em solid transparent;
-  border-bottom: .58em solid transparent;
-  margin-left: .22em;
-  font-size: clamp(1rem, 2.4vw, 1.6rem);
-}
-
-/* The brief asks the play control to invite the click. Hover carries that on
-   a desktop, but a phone has no hover at all — so the button also breathes on
-   its own, a slow halo that expands and fades. */
-.player__play::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, .8);
-  animation: play-pulse 2.6s var(--ease) infinite;
-}
-
-@keyframes play-pulse {
-  0%   { transform: scale(1);    opacity: .55; }
-  70%  { transform: scale(1.55); opacity: 0; }
-  100% { transform: scale(1.55); opacity: 0; }
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: .55rem 0 .55rem .95rem;
+  border-color: transparent transparent transparent #F7F2E6;
+  margin-left: .22rem;
 }
 
 @media (hover: hover) {
-  .player:hover .player__play {
-    transform: scale(1.09);
-    box-shadow: 0 0 0 .55rem rgba(255, 255, 255, .16), 0 0 40px rgba(255, 255, 255, .35);
-  }
+  .player__play:hover { background: var(--accent); border-color: var(--accent); }
+  .player__frame:hover .player__play { transform: translate(-50%, -50%) scale(1.06); }
+  [dir="rtl"] .player__frame:hover .player__play { transform: translate(50%, -50%) scale(1.06); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .player__play::after { animation: none; opacity: 0; }
-}
-
-/* ---------- a reel that failed to load ---------- */
+/* A reel that will not load should say so rather than sit there black */
 .player__error {
   position: absolute;
-  inset: auto 0 0 0;
-  z-index: 4;
-  margin: 0;
-  padding: .6rem 1rem;
-  background: rgba(0, 0, 0, .8);
-  color: #F7F2E6;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5);
+  text-align: center;
   font-size: var(--t-small);
-  text-align: center;
+  color: rgba(247, 242, 230, .78);
+  background: #0A0A0A;
 }
 
-/* The reference sets these labels in the accent red on the taupe band, which
-   measures 1.47:1 — unreadable, and these labels are the only thing naming
-   each reel. No red near #D1250C clears 3:1 on a mid grey: the band would have
-   to go near-white or near-black to make it work. So the label takes the ink
-   colour (5.5:1) and the red stays on the underline beneath it.
-   To restore the reference exactly: colour -> var(--accent-ground). */
-.player__label {
-  margin-top: clamp(.75rem, 2vw, 1.15rem);
-  text-align: center;
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: clamp(1.05rem, .9rem + .8vw, 1.7rem);
-  color: var(--fg);
-}
+/* A film with its own controls, played on purpose rather than in passing */
+.filmshow { margin: 0; }
 
-.player__label::after {
-  content: "";
-  display: block;
-  width: 2.5rem;
-  height: 3px;
-  margin: .5rem auto 0;
-  background: var(--accent-ground);
-  box-shadow: var(--glow-sm);
+.filmshow video {
+  width: 100%;
+  height: auto;
+  background: #000;
+  border-radius: 2px;
 }
 
 
 /* ==========================================================================
-   Sticky controls — the standing WhatsApp call to action and back-to-top
+   BEFORE / AFTER GRADING WIPE
    ========================================================================== */
+.compare {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  touch-action: pan-y;     /* the page still scrolls through the figure */
+  direction: ltr;          /* a wipe reveals left to right in both languages */
+  cursor: ew-resize;
+  background: #000;
+}
 
+.compare picture { display: block; }
+
+/* contain rather than the default fill: the two frames of a wipe share one
+   ratio today, so the two render identically — but a replacement pair that
+   does not share one would be stretched rather than fitted, and the whole
+   point of the comparison is that only the grade differs. */
+.compare__img { width: 100%; height: auto; display: block; object-fit: contain; }
+
+/* The second picture is stacked exactly over the first and clipped */
+.compare picture:nth-of-type(2) {
+  position: absolute;
+  inset: 0;
+}
+
+.compare__img--top {
+  height: 100%;
+  object-fit: cover;
+  clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
+}
+
+.compare__seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos, 50%);
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(247, 242, 230, .9);
+  pointer-events: none;
+}
+
+.compare__seam::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 2px solid rgba(247, 242, 230, .9);
+  background: rgba(10, 10, 10, .35);
+  backdrop-filter: blur(4px);
+}
+
+/* The before / after labels are no longer drawn: the brief is that no
+   typography sits on a photograph, and these sat on one. They stay in the
+   markup because the wipe still has to describe itself to a screen reader,
+   which cannot infer "this half is ungraded" from a seam and a drag handle.
+   To put them back on screen, delete this rule. */
+.compare__badge {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+
+/* The input is the control a keyboard and a screen reader drive; the pointer
+   is handled in js/ui.js, because on a phone the browser keeps a horizontal
+   drag for itself while it decides whether it was meant to be a scroll. */
+.compare__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+}
+
+.compare__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 3rem; height: 100%;
+}
+.compare__range::-moz-range-thumb { width: 3rem; height: 100%; border: 0; opacity: 0; }
+.compare__range:focus-visible { outline: 2px solid var(--accent-lift); outline-offset: 3px; }
+
+
+/* ==========================================================================
+   CONTACT
+   ========================================================================== */
+.contact { display: grid; }
+
+.contact__row {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  align-items: baseline;
+  padding-block: var(--sp-4);
+  border-block-start: 1px solid var(--rule);
+  transition: color var(--dur-xs) var(--ease);
+}
+
+.contact__row:last-child { border-block-end: 1px solid var(--rule); }
+.contact__row:hover { color: var(--accent-ground); }
+
+@media (max-width: 34rem) {
+  .contact__row { grid-template-columns: minmax(0, 1fr); gap: var(--sp-1); }
+}
+
+.contact__k {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+:root[lang="he"] .contact__k { letter-spacing: .04em; }
+
+.contact__v {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  /* the one place on the site where selecting text is genuinely useful */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.contact__cta {
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: var(--t-mega);
+  line-height: .9;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  color: var(--accent-ground);
+}
+
+:root[lang="he"] .contact__cta { text-transform: none; letter-spacing: -.02em; }
+
+
+/* ==========================================================================
+   STICKY DOCK — WhatsApp, and back to top
+   --------------------------------------------------------------------------
+   The pill is the standing call to action. Like the rail it is absent at the
+   top of the page, and it folds away again over the contact section, where the
+   same invitation is already on the page in full.
+   ========================================================================== */
 .dock {
   position: fixed;
-  inset-block-end: clamp(1rem, 3vw, 1.75rem);
-  inset-inline-end: clamp(1rem, 3vw, 1.75rem);
-  z-index: 90;
+  z-index: 50;
+  inset-block-end: var(--sp-4);
+  inset-inline-end: var(--sp-4);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: .7rem;
-  pointer-events: none;   /* children re-enable it, so the gap stays clickable-through */
+  gap: var(--sp-3);
+  pointer-events: none;
 }
 
-.dock > * { pointer-events: auto; }
-
-/* ---------- WhatsApp pill ---------- */
-.dock__wa {
-  display: inline-flex;
-  align-items: center;
-  gap: .55rem;
-  min-height: 3.5rem;
-  padding-inline: 1.15rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #FFF7F0;
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-small);
-  letter-spacing: -.01em;
-  white-space: nowrap;
-  box-shadow: 0 0 22px rgba(200, 148, 70, .45), 0 6px 20px rgba(0, 0, 0, .45);
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-
-.dock__icon { width: 1.5rem; height: 1.5rem; flex: none; }
-
-@media (hover: hover) {
-  .dock__wa:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 34px rgba(200, 148, 70, .6), 0 10px 26px rgba(0, 0, 0, .5);
-  }
-}
-
-/* On a narrow screen the label would crowd the photographs it sits over */
-@media (max-width: 30rem) {
-  .dock__wa { min-width: 3.5rem; padding-inline: 0; justify-content: center; }
-  .dock__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-}
-
-/* ---------- back to top ---------- */
-.dock__top {
-  display: grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: rgba(12, 12, 12, .78);
-  border: 1px solid rgba(247, 242, 230, .28);
-  color: #F7F2E6;
-  backdrop-filter: blur(6px);
-  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease),
-              border-color var(--dur) var(--ease), opacity var(--dur) var(--ease);
-}
-
-.dock__top svg { width: 1.15rem; height: 1.15rem; }
-
-@media (hover: hover) {
-  .dock__top:hover {
-    transform: translateY(-2px);
-    background: rgba(12, 12, 12, .92);
-    border-color: var(--accent-ground);
-  }
-}
-
-/* ---------- appearing and hiding ----------
-   Both start out of the way. js/ui.js reveals them once you are far enough
-   down, and folds the pill away once the contact section is on screen —
-   the same call to action is already there in full. */
 .dock__wa,
 .dock__top {
+  pointer-events: auto;
   opacity: 0;
-  transform: translateY(.85rem) scale(.94);
   visibility: hidden;
-  transition: opacity .38s var(--ease), transform .38s var(--ease),
-              visibility 0s linear .38s, box-shadow var(--dur) var(--ease),
-              background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transform: translateY(.6rem);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
 }
 
 .dock__wa.is-shown,
 .dock__top.is-shown {
   opacity: 1;
-  transform: none;
   visibility: visible;
-  transition: opacity .38s var(--ease), transform .38s var(--ease), visibility 0s,
-              box-shadow var(--dur) var(--ease), background-color var(--dur) var(--ease),
-              border-color var(--dur) var(--ease);
+  transform: none;
+  transition-delay: 0s;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .dock__wa, .dock__top { transition: opacity .01ms, visibility .01ms; transform: none; }
-  .dock__wa.is-shown, .dock__top.is-shown { transform: none; }
+.dock__wa {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 3.25rem;
+  padding-inline: var(--sp-5);
+  border-radius: 999px;
+  background: var(--accent);
+  color: #FFF7F0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-small);
+  letter-spacing: .08em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
 }
+
+.dock__wa:hover { background: var(--accent-deep); }
+
+.dock__icon { width: 1.35rem; height: 1.35rem; flex: none; }
+
+@media (max-width: 34rem) {
+  .dock__label { display: none; }
+  .dock__wa { padding-inline: 0; width: 3.25rem; justify-content: center; }
+}
+
+.dock__top {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .22);
+  background: rgba(10, 10, 10, .7);
+  color: #F7F2E6;
+  backdrop-filter: blur(10px);
+}
+
+.dock__top svg { width: 1.1rem; height: 1.1rem; }
+.dock__top:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
+
 
 /* ==========================================================================
-   Lightbox — every photograph on the page opens full size here
+   LIGHTBOX
+   --------------------------------------------------------------------------
+   <dialog> does the heavy lifting: focus trapping, Esc, and inerting the page
+   behind all come for free.
    ========================================================================== */
-
 .lightbox {
   width: 100vw;
   max-width: 100vw;
-  height: 100dvh;
-  max-height: 100dvh;
+  height: 100svh;
+  max-height: 100svh;
   padding: 0;
   border: 0;
-  background: transparent;
-  overflow: hidden;
+  background: rgba(0, 0, 0, .96);
   color: #F7F2E6;
+  overflow: hidden;
 }
 
-.lightbox::backdrop { background: rgba(0, 0, 0, .93); }
+.lightbox::backdrop { background: rgba(0, 0, 0, .9); }
 
 .lightbox[open] {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: clamp(.25rem, 2vw, 1.5rem);
-  padding: clamp(3.5rem, 8vw, 5rem) clamp(.5rem, 3vw, 2.5rem);
+  gap: var(--sp-3);
+  padding: var(--sp-5) var(--sp-3);
 }
 
 .lightbox__figure {
   margin: 0;
+  min-inline-size: 0;
   display: grid;
-  gap: .85rem;
-  justify-items: center;
-  min-width: 0;
+  place-items: center;
 }
 
+/* The whole photograph, as large as the window allows, never cropped — inside
+   a box that does not depend on which file happens to be loaded.
+
+   That dependence was the jump. The image was sized `width: auto` under a
+   max-width and max-height, so its rendered box came from the intrinsic size of
+   whatever was decoded at that moment — and two different things are decoded in
+   the first second. Opening a photograph went 1280x853, the warm thumbnail at
+   its own natural size, then 1476x984 when the full file landed: 196px wider
+   and 131px taller, in one frame, after the picture was already on screen.
+   Moving between two photographs of different proportions moved the box again,
+   and because the figure centres it, the whole picture slid sideways.
+
+   Both axes are definite here, which is the point. Sizing the height as a
+   percentage of the figure was tried first and is not reliable: the grid row is
+   auto, so the percentage has nothing settled to resolve against, and the
+   browser fell back to the file's own ratio on some frames and honoured the
+   cell on others — 1177px of picture inside a 1016px cell, quietly cropped top
+   and bottom. Measuring against svh instead depends on the window and nothing
+   else, so the rectangle is the same before and after any load, and object-fit
+   letterboxes the picture whole inside it. The subtraction is the block padding
+   on .lightbox[open] above; change one and change the other. */
 .lightbox__img {
-  max-width: 100%;
-  max-height: calc(100dvh - 9rem);
-  width: auto;
-  height: auto;
+  inline-size: 100%;
+  block-size: calc(100svh - 2 * var(--sp-5));
   object-fit: contain;
-  border-radius: .2rem;
 }
 
-.lightbox__caption {
-  font-size: var(--t-small);
-  color: rgba(247, 242, 230, .72);
-  text-align: center;
-  max-width: 60ch;
+.lightbox__close,
+.lightbox__nav {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .22);
+  color: #F7F2E6;
+  transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease);
+}
+
+.lightbox__close:hover,
+.lightbox__nav:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
+
+.lightbox__nav svg { width: 1.15rem; height: 1.15rem; }
+
+/* ---------- the viewer on a phone ----------
+   Three columns is the wrong shape at this width. Two 3rem buttons and their
+   gaps take 173px of a 375px screen, leaving the photograph 221px to be shown
+   in — a 1400px picture drawn at 221x125, in the one view whose entire purpose
+   is looking at it properly. The buttons move over the picture instead, which
+   is what every viewer does at this size, and the frame gets the whole width.
+
+   inset-inline-start on the previous button keeps the pair mirrored the same
+   way the grid mirrors them above: start is the left in English and the right
+   in Hebrew, which is where previous belongs in each. */
+@media (max-width: 46rem) {
+  .lightbox[open] {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--sp-3);
+  }
+
+  .lightbox__nav {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(10, 10, 10, .55);
+    backdrop-filter: blur(6px);
+  }
+
+  .lightbox__nav--prev { inset-inline-start: var(--sp-3); }
+  .lightbox__nav--next { inset-inline-end: var(--sp-3); }
 }
 
 .lightbox__close {
   position: absolute;
-  inset-block-start: clamp(.75rem, 2vw, 1.35rem);
-  inset-inline-end: clamp(.75rem, 2vw, 1.35rem);
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 1.9rem;
+  inset-block-start: var(--sp-4);
+  inset-inline-end: var(--sp-4);
+  font-size: 1.4rem;
   line-height: 1;
-  color: #F7F2E6;
-  background: rgba(255, 255, 255, .08);
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  z-index: 2;
 }
 
-.lightbox__nav {
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: #F7F2E6;
-  background: rgba(255, 255, 255, .08);
-  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
-
-.lightbox__nav svg { width: 1.5rem; height: 1.5rem; }
-
-/* The arrows point along the strip, which runs in document order — so they
-   mirror with the writing direction. */
-:root[dir="rtl"] .lightbox__nav svg { transform: scaleX(-1); }
-
-@media (hover: hover) {
-  .lightbox__close:hover { background: var(--accent-ground); }
-  .lightbox__nav:hover { background: rgba(255, 255, 255, .18); transform: scale(1.06); }
-}
-
-/* On a phone the arrows overlay the edges of the frame instead of taking a
-   row of their own. Moving them below once put them in the wrong order —
-   previous ended up to the right of next — and mixed with the RTL glyph flip
-   the direction stopped making sense. Sitting on the edges they can only mean
-   one thing, and the logical properties keep "previous" at the reading start
-   in both languages. */
-@media (max-width: 34rem) {
-  .lightbox[open] { grid-template-columns: minmax(0, 1fr); }
-
-  .lightbox__nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 3;
-    background: rgba(0, 0, 0, .55);
-    backdrop-filter: blur(4px);
-  }
-  .lightbox__nav--prev { inset-inline-start: .6rem; }
-  .lightbox__nav--next { inset-inline-end: .6rem; }
-
-  @media (hover: hover) {
-    .lightbox__nav:hover { transform: translateY(-50%) scale(1.06); }
-  }
-
-  .lightbox__img { max-height: calc(100dvh - 10rem); }
-}
-
-/* A photograph that opens is worth a beat; anything more gets in the way. */
-@media (prefers-reduced-motion: no-preference) {
-  .lightbox[open] .lightbox__img { animation: lb-in .32s var(--ease) both; }
-  @keyframes lb-in {
-    from { opacity: 0; transform: scale(.985); }
-    to   { opacity: 1; transform: none; }
-  }
-}
-
-/* Anything that opens the viewer should say so on hover */
-@media (hover: hover) {
-  .slot--zoomable { cursor: zoom-in; }
-}
-
-/* The frames are reachable by keyboard, so they must be able to show focus —
-   but a mouse user should not be left with a marker on the last thing they
-   opened. :focus-visible already draws that line; this states it outright
-   because the ring is being restored programmatically when the viewer closes. */
-.slot--zoomable:focus:not(:focus-visible) { outline: none; }
-
-/* ==========================================================================
-   Sticky navigation
-   ========================================================================== */
-
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(0, 0, 0, .72);
-  backdrop-filter: blur(14px) saturate(1.3);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  border-block-end: 1px solid rgba(247, 242, 230, .12);
-  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
-}
-
-/* Once the page is moving, the bar earns a little more weight */
-.nav.is-stuck {
-  background: rgba(0, 0, 0, .9);
-  border-block-end-color: rgba(247, 242, 230, .2);
-}
-
-.nav__inner {
-  max-width: 96rem;
-  margin-inline: auto;
-  padding-inline: var(--pad-x);
-  min-height: 3.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-
-/* The opening band already carries the name, directly below the bar. So the
-   bar's own mark stays out of the way until the hero has scrolled past, and
-   only then takes over as the standing identity. */
-.nav__brand {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-micro);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: #F7F2E6;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateY(-.35rem);
-  transition: opacity .3s var(--ease), transform .3s var(--ease), color var(--dur) var(--ease);
-}
-
-.nav.is-stuck .nav__brand { opacity: 1; transform: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .nav__brand { transition: opacity .01ms; transform: none; }
-}
-
-.nav__links {
-  display: flex;
-  align-items: center;
-  gap: clamp(.9rem, 2.2vw, 2rem);
-}
-
-.nav__link {
-  position: relative;
-  font-family: var(--f-display);
-  font-weight: 700;
-  font-size: var(--t-micro);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: rgba(247, 242, 230, .68);
-  padding-block: 1.25rem;
-  white-space: nowrap;
-  transition: color var(--dur) var(--ease);
-}
-
-/* The underline is the accent doing the work, not a colour change alone */
-.nav__link::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: .85rem;
-  height: 2px;
-  background: var(--accent-ground);
-  box-shadow: var(--glow-sm);
-  transform: scaleX(0);
-  transition: transform .3s var(--ease);
-}
-
-.nav__link:hover { color: #F7F2E6; }
-.nav__link:hover::after { transform: scaleX(.4); }
-
-.nav__link.is-current { color: #F7F2E6; }
-.nav__link.is-current::after { transform: scaleX(1); }
-
-.nav__end { display: flex; align-items: center; gap: .75rem; }
-
-.nav .lang { border-color: rgba(247, 242, 230, .22); }
-.nav .lang__btn { min-height: 2.25rem; min-width: 2.4rem; color: rgba(247, 242, 230, .7); }
-
-/* The slim chip keeps the bar tight for a mouse, but on a touch screen it is
-   the only global control on the page and 36x38 is under the 44px minimum —
-   which is the very thing the base rule was sized to avoid. Coarse pointers
-   get the full target back; the bar grows by a few pixels and nothing else
-   moves, because the row is centre-aligned. */
-@media (pointer: coarse) {
-  .nav .lang__btn { min-height: 2.75rem; min-width: 2.75rem; }
-}
-.nav .lang__btn:hover { color: #F7F2E6; }
-/* This rule sits after the pressed state and matches as tightly, so without
-   restating it here the selected language keeps dim cream on copper. */
-.nav .lang__btn.is-current { color: #FFF7F0; }
-
-/* ---------- burger ---------- */
-.nav__burger {
-  display: none;
-  width: 2.75rem;
-  height: 2.75rem;
-  place-items: center;
-  gap: 5px;
-  grid-auto-flow: row;
-}
-
-.nav__burger span {
-  display: block;
-  width: 1.35rem;
-  height: 2px;
-  background: #F7F2E6;
-  transition: transform .32s var(--ease), opacity .2s var(--ease);
-}
-
-.nav__burger[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
-.nav__burger[aria-expanded="true"] span:last-child  { transform: translateY(-3.5px) rotate(-45deg); }
-
-@media (max-width: 60rem) {
-  .nav__links { display: none; }
-  .nav__burger { display: grid; }
-}
-
-/* ---------- full-screen menu ---------- */
-.menu {
-  position: fixed;
-  inset: 0;
-  z-index: 99;
-  background: rgba(0, 0, 0, .97);
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transition: opacity .28s var(--ease);
-}
-
-/* Critical: an author `display` beats the `hidden` attribute's UA rule, so
-   without this the closed menu stays laid out — a transparent sheet over the
-   whole viewport swallowing every click on the page. */
-.menu[hidden] { display: none; }
-
-.menu.is-open { opacity: 1; }
-
-.menu__links {
-  display: grid;
-  gap: clamp(1rem, 4vw, 1.9rem);
-  text-align: center;
-}
-
-.menu__link {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: clamp(1.6rem, 8vw, 2.6rem);
-  letter-spacing: -.02em;
-  color: #F7F2E6;
-  transition: color var(--dur) var(--ease);
-}
-
-.menu__link.is-current,
-.menu__link:hover {
-  color: var(--accent-lift);
-  text-shadow: var(--glow-sm);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .menu, .nav__burger span, .nav__link::after { transition: none; }
-}
-
-/* Anchored sections must clear the bar when jumped to */
-:where(#top, #events, #live-music, #architecture, #videography, #contact) {
-  scroll-margin-top: 3.75rem;
-}
-
-/* ==========================================================================
-   Scroll-driven depth on the full-bleed frames
-   ==========================================================================
-   A slow drift as the frame crosses the viewport. Driven by the scroll
-   timeline rather than a scroll handler, so it runs on the compositor and
-   costs nothing on the main thread. Browsers without it simply get a still
-   image, which is the correct fallback. */
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .slot--hero img,
-    .banner .slot img {
-      animation: drift linear both;
-      animation-timeline: view();
-      animation-range: entry 0% exit 100%;
-      will-change: transform;
-    }
-
-    @keyframes drift {
-      from { transform: scale(1.12) translateY(-4%); }
-      to   { transform: scale(1.12) translateY(4%); }
-    }
-
-    /* the hover zoom must still win over the drift */
-    .slot--hero:hover img,
-    .banner .slot:hover img { animation-play-state: paused; }
-  }
-}
-
-/* ---------- photographs arriving ----------
-   A lazy image that lands after its block has already appeared used to snap
-   in. Scoped to .js-imgfade so a missing script leaves them plainly visible. */
-/* Restating the transform here matters: `transition` is a shorthand, so
-   listing only opacity would drop the zoom the frames rely on and the hover
-   would snap instead of easing. */
-.js-imgfade .slot img {
-  opacity: 0;
-  transition: opacity .55s var(--ease-out),
-              transform var(--dur-slow) var(--ease);
-}
-
-.js-imgfade .slot img.is-loaded { opacity: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .js-imgfade .slot img { opacity: 1; transition: none; }
-}
-
-/* ==========================================================================
-   404
-   ========================================================================== */
-.notfound {
-  min-height: 100dvh;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  text-align: center;
-  gap: .9rem;
-  padding: var(--pad-x);
-  background: var(--bg-dark);
-  color: #F7F2E6;
-}
-
-.notfound__code {
-  font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(4rem, 18vw, 11rem);
-  line-height: 1;
-  letter-spacing: -.04em;
-  color: var(--accent);
-}
-
-.notfound__title {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-heading);
-  letter-spacing: -.02em;
-}
-
-.notfound__body { color: rgba(247, 242, 230, .64); max-width: 42ch; }
-
-.notfound__back {
-  margin-top: .8rem;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.9rem;
-  padding-inline: 1.4rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #FFF7F0;
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t-small);
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-
-@media (hover: hover) {
-  .notfound__back:hover { transform: translateY(-2px); box-shadow: var(--glow); }
-}
-
-/* ==========================================================================
-   SHOWCASES — the two places a single piece of work carries the section
-   ========================================================================== */
-
-/* The colour-grading pair. These are the point of the section, so they get
-   the width rather than sharing a row: one column, centred, and wide enough
-   to read as a statement without going edge to edge like a mosaic. */
-.grade-showcase {
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 3.25rem);
-  width: min(86%, 76rem);
-  margin-inline: auto;
-}
-
-@media (max-width: 46rem) {
-  /* On a phone "centred at 86%" just means starved, so it takes the column
-     and keeps only enough inset to breathe. */
-  .grade-showcase { width: 100%; }
-}
-
-.grade-showcase .compare {
-  width: 100%;
-  border-radius: clamp(.4rem, 1vw, .75rem);
-}
-
-/* Each work in this section states its own place and year directly beneath
-   itself. Held to the same measure as the frame above it so the two read as
-   one item rather than as a caption that drifted loose. */
-/* A work standing on its own in the row centres its detail under itself,
-   rather than stretching the pair of columns across the full width where a
-   single frame does not need them. Matches the reel captions below. */
-.grade-showcase__meta {
-  width: min(100%, 34rem);
-  margin-inline: auto;
-  margin-block-start: calc(-1 * clamp(.5rem, 2vw, 1.25rem));
-}
-
-/* A film given the same footprint as the wipe above it, so the two read as a
-   pair rather than as a feature and an afterthought. */
-.grade-film,
-.filmshow {
-  margin: 0;
-  display: grid;
-  justify-items: center;
-  gap: .7rem;
-}
-
-.grade-film__video {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  display: block;
-  background: #000;
-  border-radius: clamp(.4rem, 1vw, .75rem);
-  /* contain, not cover: this is a film with controls, and cropping a frame
-     the visitor is deliberately watching is worse than the letterbox that
-     never actually appears here — the clip is 16:9 and so is the box. */
-  object-fit: contain;
-}
-
-/* ---------- full-length film ----------
-   The frame follows the footage. This one is 1080x1920, so the box is 9:16
-   and the film fills it exactly; a 16:9 box would have put a black pillar
-   down each side. Capped by height as well as width so a tall film cannot
-   run past the viewport on a laptop. */
-.filmshow {
-  width: min(90%, 62rem);
-  margin-inline: auto;
-}
-
-.filmshow__video {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  background: #000;
-  border-radius: clamp(.4rem, 1vw, .75rem);
-  object-fit: contain;
-}
-
-/* Both films are 16:9. The ratio is declared on the element rather than left
-   to the file so the box is correct before a single byte of video arrives —
-   no reflow when it loads, and no letterbox if a future clip differs. */
-.filmshow__video,
-.filmshow--landscape .filmshow__video {
-  aspect-ratio: 16 / 9;
-  width: 100%;
-  height: auto;
-}
-
-@media (max-width: 46rem) {
-  .filmshow { width: 100%; }
-}
-
-.grade-film__cap,
-.filmshow__cap {
-  font-family: var(--f-display);
-  font-size: var(--t-micro);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  opacity: .62;
-  text-align: center;
-}
-
-/* ==========================================================================
-   MOBILE "SHOW MORE" — a category opens on its strongest frame
-   ==========================================================================
-   Portrait photographs are tall, and a phone showing eight of them in a row
-   turns a category into a minute of scrolling before the next one starts.
-   Collapsed, a grid shows its opening frames and nothing else; the rest is
-   still in the DOM and still crawlable, just clipped. Everything here is
-   inside the mobile query, so the desktop grids are untouched. */
-@media (max-width: 46rem) {
-  .is-collapsible {
-    position: relative;
-    overflow: hidden;
-    /* Folded means folded: on a phone the grid shows nothing at all until the
-       control is pressed. A partial first row read as photographs stacked on
-       top of one another, because every frame was a crop cut off mid-image. */
-    max-height: 0;
-    transition: max-height .55s var(--ease);
-  }
-
-  .is-collapsible.is-open { max-height: var(--full, none); }
-
-  /* Nothing peeks out any more, so there is no cut left to soften. */
-  .is-collapsible::after { content: none; }
-
-  .showmore {
-    display: block;
-    /* The bottom margin is the one that matters: with none, the control ended
-       flush against the next section's heading and the two read as one block. */
-    margin: 1rem auto clamp(2.5rem, 7vw, 4rem);
-    padding: .85rem 1.6rem;   /* clears the 44px touch minimum */
-    font-family: var(--f-display);
-    font-weight: 800;
-    font-size: var(--t-micro);
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--accent-lift);
-    background: transparent;
-    border: 1px solid currentColor;
-    border-radius: 2rem;
-    cursor: pointer;
-    box-shadow: var(--glow-off);
-    transition: background .3s var(--ease), color .3s var(--ease),
-                letter-spacing .3s var(--ease),
-                box-shadow .5s var(--ease-out);
-  }
-
-  .showmore:hover,
-  .showmore:focus-visible {
-    background: var(--accent-ground);
-    color: #FFF7F0;
-    letter-spacing: .2em;
-  }
-
-  .showmore__count { opacity: .6; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .is-collapsible { transition: none; }
-  .is-collapsible::after { transition: none; }
-}
-
-/* ==========================================================================
-   COPPER GLOW — the accent earns a halo where it marks something active
-   ==========================================================================
-   Restrained on purpose: a glow on everything is a glow on nothing. It goes
-   on the elements that signal state — the current nav item, the focused or
-   hovered control, the play affordance — and nowhere else. Every one of these
-   is a shadow, so none of them affect layout and none can shift the grid. */
-
-/* The current section in the nav, and the underline that marks it. */
-.nav__link.is-current,
-.nav__link[aria-current="page"] { text-shadow: var(--glow-sm); }
-.nav__link.is-current::after,
-.nav__link[aria-current="page"]::after { box-shadow: var(--glow-sm); }
-
-/* The language chip is a filled copper pill; the halo lifts it off the bar. */
-.lang__btn.is-current { box-shadow: var(--glow-sm); }
-
-/* Controls, on hover and on focus alike — a keyboard user should get the
-   same signal a mouse user does. */
-.showmore:hover,
-.showmore:focus-visible,
-.player__play:hover,
-.player__play:focus-visible {
-  box-shadow: var(--glow-sm);
-}
-
-/* The wipe handle sits over a photograph and needs to stay findable. */
-.compare:hover .compare__seam::after,
-.compare__range:focus-visible + .compare__seam::after,
-.compare__range:focus-visible ~ .compare__seam::after {
-  box-shadow: 0 2px 14px rgba(0, 0, 0, .45), var(--glow-sm);
-}
-
-/* Films get the halo on hover so they read as playable rather than as a
-   still. Kept on the figure, not the <video>, so native controls are clear.
-
-   The halo has to be transitioned on the resting state, not on :hover — a
-   transition declared only inside the hover rule eases the fade in and then
-   snaps on the way out. box-shadow is named explicitly rather than using
-   `all`, so nothing else on the element gets dragged into the animation.
-   The ease-out curve has a long tail, so the glow arrives gradually instead
-   of appearing the instant the pointer lands. */
-.filmshow__video {
-  box-shadow: var(--glow-off);
-  transition: box-shadow .55s var(--ease-out);
-}
-
-@media (hover: hover) {
-  .filmshow:hover .filmshow__video { box-shadow: var(--glow-sm); }
-}
-
-.filmshow__video:focus-visible {
-  outline: 2px solid var(--accent-lift);
-  outline-offset: 3px;
-  box-shadow: var(--glow-sm);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* The halo is a state signal, not decoration, so it stays — but it should
-     not animate in. */
-  .nav__link, .showmore, .player__play, .filmshow__video { transition: none; }
-}
-
-
-/* A reel that was not shot where the section's stills were says so under its
-   own frame, rather than borrowing the location printed above the row. */
-.player__meta {
-  width: 100%;
-  margin: .75rem auto 0;
-}
-
-/* A caption standing alone under one frame reads as centred only if the label
-   and the value sit either side of the page's middle. Left at the two-column
-   ratio the pair uses, the label started at the block's left edge and the value
-   butted straight up against it, so the whole line drifted left of centre and
-   looked cramped. Mirrored around a real gutter instead: the label ends just
-   before the middle, the value starts just after it. Above 46rem only — the
-   phone stacks these full width and is left exactly as it is. */
-@media (min-width: 46rem) {
-  /* One frame, one caption, laid out on thirds: the labels run out to the
-     first third and stop, the middle third is left empty, and the values pick
-     up again on the second third. Held tight around the centre the line read
-     as one cramped clump under a wide photograph. Above 46rem only — the phone
-     keeps its own stacked measure. */
-  .pair-meta--single .meta,
-  .grade-showcase__meta,
-  .player__meta {
-    width: 100%;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: 33.33%;
-  }
-
-  .pair-meta--single .meta > .meta__k,
-  .grade-showcase__meta > .meta__k,
-  .player__meta > .meta__k { text-align: right; }
-}
-
-/* A lone caption sits in the same two places on screen in both languages.
-   Left to itself the grid lays its columns out along the text direction, so on
-   the Hebrew page the label and the value simply swapped sides of the page:
-   a mirror of the English layout rather than a match for it. Only the column
-   order is forced back — the words keep their own direction, so the Hebrew
-   still reads right to left and the comma in "אולם אגמים, באר שבע" stays put.
-   The year already carries .lat for exactly that reason and is left alone.
-   Above 46rem only: the phone stacks these and is untouched. */
-@media (min-width: 46rem) {
-  [dir="rtl"] .pair-meta--single .meta,
-  [dir="rtl"] .grade-showcase__meta,
-  [dir="rtl"] .player__meta { direction: ltr; }
-
-  [dir="rtl"] .pair-meta--single .meta > .meta__k,
-  [dir="rtl"] .grade-showcase__meta > .meta__k,
-  [dir="rtl"] .player__meta > .meta__k,
-  [dir="rtl"] .pair-meta--single .meta > .meta__v:not(.lat),
-  [dir="rtl"] .grade-showcase__meta > .meta__v:not(.lat),
-  [dir="rtl"] .player__meta > .meta__v:not(.lat) { direction: rtl; }
-}
+/* The buttons are grid items, and a grid lays its columns out in the writing
+   direction — so in Hebrew the markup's first button, "previous", is already
+   placed on the right-hand side, which is where previous belongs when the row
+   runs right to left. That part was never wrong.
+
+   The chevron inside it was. It went on pointing left while sitting on the
+   right, and the next button pointed right from the left-hand side, so both
+   arrows contradicted the side they were on and the direction they took you.
+   The glyph is mirrored with the layout; the comment that used to sit here
+   claimed prev was on the left in both languages, and it simply was not. */
+[dir="rtl"] .lightbox__nav svg { transform: scaleX(-1); }

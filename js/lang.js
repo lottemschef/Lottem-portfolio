@@ -1,10 +1,11 @@
 /* ==========================================================================
    lang.js — the language control
-   ==========================================================================
-   The two languages are separate pages now, so the control is a plain link
-   and works with scripting off. All this adds is the curtain: it closes,
-   then the navigation happens behind it, so the swap reads as a cut rather
-   than a page blink. */
+   --------------------------------------------------------------------------
+   The two languages are separate pages, so the control is a plain link and
+   works with scripting switched off. All this adds is the curtain: it closes,
+   the navigation happens behind it, and the swap reads as a cut rather than a
+   page blink.
+   ========================================================================== */
 
 const COVER_MS = 190;
 

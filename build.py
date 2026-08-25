@@ -7,7 +7,7 @@ Version 2 build. One template in, two language pages out.
     index.html             generated — English
     he/index.html          generated — Hebrew, RTL
 
-    python3 v2/build.py
+    python3 build.py
 
 Three things separate this from the version 1 build:
 
@@ -33,9 +33,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(HERE)
 
-# How to reach the shared assets/ directory from v2/index.html. '../' while v2
-# lives inside the v1 repository; './' once this folder becomes the site root.
-ASSET_ROOT = '../'
+# How to reach assets/ from the page being written. Empty because the pages sit
+# at the site root and assets/ is a sibling; it was '../' while this lived in a
+# v2/ subfolder alongside version 1. set_paths() adds the extra step up that the
+# Hebrew page needs on top of this.
+ASSET_ROOT = ''
 
 STRINGS = json.load(open('content/strings.json', encoding='utf-8'))
 MANIFEST = json.load(open(f'{ASSET_ROOT}assets/img/manifest.json', encoding='utf-8'))
@@ -155,8 +157,8 @@ def set_paths(html, lang):
     Two different rules, because css/ and js/ live inside v2 while assets/ is
     shared with version 1 and sits above it:
 
-        index.html      css/…       {ASSET_ROOT}assets/…
-        he/index.html   ../css/…    ../{ASSET_ROOT}assets/…
+        index.html      css/…       assets/…
+        he/index.html   ../css/…    ../assets/…
     """
     up = '../' if lang == 'he' else ''
     asset = up + ASSET_ROOT
@@ -265,5 +267,5 @@ if __name__ == '__main__':
     for lang in ('en', 'he'):
         path = build(lang)
         size = len(open(path, encoding='utf-8').read()) // 1024
-        print(f'  v2/{path:16} {size:>3} KB   ({len(STRINGS[lang])} strings)')
+        print(f'  {path:16} {size:>3} KB   ({len(STRINGS[lang])} strings)')
     print('\nBoth pages regenerated from template.html + content/strings.json.')

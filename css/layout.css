@@ -1,396 +1,402 @@
 /* ==========================================================================
-   layout.css — page shell, section grounds, image-slot skeleton
+   layout.css — the shell, the twelve-column grid, and the picture grids
+   --------------------------------------------------------------------------
+   Two rules govern everything below.
+
+   1. Margins are generous and they are declared once, in --pad-x. Nothing here
+      sets its own side padding; a block that needs to sit inside the margins
+      goes in a .wrap and a block that needs to ignore them takes .bleed.
+
+   2. A photograph is never cropped. Version 1 laid its tiles on a fixed-height
+      row grid with object-fit: cover, which on a photographer's page is the one
+      thing a layout must not do. Here every picture keeps its own proportions
+      and the columns close the ragged edge instead.
    ========================================================================== */
 
 .page { display: flow-root; }
 
-/* Every section paints its own ground; .on-dark / .on-light / .on-mute
-   supply --bg and the matching foreground tokens (see base.css). */
-.section {
-  background: var(--bg);
-  color: var(--fg);
-  padding-block: var(--section-y);
-  container-type: inline-size;
-}
-
-/* Sections whose content runs edge to edge (mosaics, full-bleed images) */
-.section--flush { padding-block: 0; }
-
-/* The opening used to be a 3.9:1 photographic strip, capped at 40vh so it
-   could not swallow the screen. It is a full-viewport film now, so both the
-   ratio override and that cap are gone — they were the two rules holding the
-   hero down to a band, and being doubled selectors they outranked the height
-   set in components.css. The hero's sizing lives entirely in .slot--hero
-   there now; nothing about it belongs here any more. */
-
+/* ---------- the shell ----------
+   One centred column with a large side margin. .wrap is a container as well,
+   so nested components can size against the column rather than the window. */
 .wrap {
-  max-width: 96rem;
+  width: 100%;
+  max-width: var(--shell);
   margin-inline: auto;
   padding-inline: var(--pad-x);
   container-type: inline-size;
 }
 
-/* Full-bleed strip, still inside the section ground */
-.bleed {
-  width: 100%;
-  margin-inline: 0;
-}
+/* Edge to edge, still inside the section's ground.
 
-/* ---------- top band: name · language · year ---------- */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-block: clamp(1rem, 2.5vw, 1.75rem) clamp(.5rem, 1.2vw, .9rem);
-}
+   A bleed element is a direct child of its .section, never of a .wrap. The
+   usual 100vw-and-pull-back trick measures the viewport including the
+   scrollbar, so it overflows by exactly the scrollbar's width on every desktop
+   browser; keeping the element out of the padded column means plain 100% is
+   already the full width and there is nothing to correct. */
+.bleed { width: 100%; margin-inline: 0; }
 
-.topbar__name,
-.topbar__year {
-  font-family: var(--f-display);
-  font-weight: 500;
-  font-size: var(--t-small);
-  letter-spacing: .06em;
-  text-transform: uppercase;
+/* ---------- sections ----------
+   Every section paints its own ground and owns the air around itself. Nothing
+   inside a section adds top margin to its first child or bottom margin to its
+   last: the section's padding is the whole of the space between one and the
+   next, which is why the rhythm stays even as blocks are added and removed. */
+.section {
+  background: var(--bg);
   color: var(--fg);
+  padding-block: var(--section-y);
+  position: relative;
 }
 
-.topbar__end {
-  display: flex;
-  align-items: center;
-  gap: clamp(.75rem, 2vw, 1.5rem);
-}
+.section--flush { padding-block: 0; }
 
-/* ---------- hero ----------
-   The reference keeps the title band tight: the name/year row sits just above
-   the word and the photograph starts just below it. */
-.hero { padding-block: 0 clamp(.9rem, 2vw, 1.6rem); }
-.hero .topbar { padding-block: clamp(.6rem, 1.4vw, 1rem) clamp(.1rem, .4vw, .35rem); }
-
-/* The bio is justified in the reference, both edges flush.
-   Only in English, though: no browser ships a Hebrew hyphenation dictionary,
-   so justified Hebrew can only stretch word spaces — which opens rivers in a
-   narrow column. Hebrew gets a ragged edge instead. */
-.profile__bio { max-width: 68ch; }
-
-:root[lang="en"] .profile__bio,
-:root[lang="en"] .story--justify {
-  text-align: justify;
-  hyphens: auto;
-}
-
-/* ---------- works header: "My Works." + "PHOTOGRAPHY" ---------- */
-.works-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-/* The heading starts where every other line on the page starts. It used to sit
-   flush against the far edge of the row, which paired it with the "My Works."
-   mark opposite — but that mark now appears once at the top rather than above
-   every section, so the heading was left alone against the wrong margin. `end`
-   also flips with the text direction, so on the Hebrew page it was landing on
-   the left while the subheads beneath it stayed right. */
-.works-head__mega { flex: 1 1 20rem; min-width: 0; text-align: start; order: -1; }
-
-/* The mark keeps the far edge it always had; only the order is swapped, so the
-   heading can begin on the same margin as every other line while the two still
-   sit at opposite ends of the row. */
-.works-head .works-mark { margin-inline-start: auto; }
-
-/* ---------- split slide ----------
-   The reference uses this construction twice: for the profile and again for
-   the contact slide. The ground splits horizontally — cream above, black
-   below — and a portrait straddles the seam, tying the two halves together.
-   That straddle is what stops the page reading as a stack of stripes.
-
-   Two full-width bands paint the grounds; the portrait is lifted out of the
-   flow and placed across both. --split-side says which edge it hangs on.
-   Below 52rem it all returns to normal flow and stacks. */
-/* The two slides give the portrait different weight: about 30% of the page on
-   the profile, about 40% on the closing slide. */
-.split { position: relative; --portrait-col: clamp(13rem, 30%, 25rem); }
-.split--end { --portrait-col: clamp(14rem, 40%, 32rem); }
-
-.split__band { background: var(--bg); color: var(--fg); }
-.split__band--top    { padding-block: clamp(2.5rem, 5vw, 5rem) clamp(1.5rem, 3vw, 2.5rem); }
-.split__band--bottom { padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2.5rem, 5vw, 5rem); }
-
-.split__row { display: grid; gap: clamp(1.5rem, 4vw, 3.5rem); }
-
-.split__portrait { position: relative; margin: 0; }
-
-/* Reserves the portrait's column so the copy never runs underneath it */
-.split__gap { display: none; }
-
-/* Stacked, the portrait cannot straddle anything — so instead of leading the
-   section (marooned on the body's black, ahead of the copy it belongs to) it
-   sits between the two bands, keeping the reference's reading order: profile
-   text then portrait, contact table then portrait then the closing headline.
-   It carries the cream of the band above so the seam still reads as one slide. */
-@media (max-width: 52rem) {
-  .split { display: flex; flex-direction: column; }
-  .split__band--top    { order: 1; }
-  .split__portrait     { order: 2; background: var(--bg-light); }
-  .split__band--bottom { order: 3; }
-
-  /* while the frame is still empty, its placeholder should read as part of
-     the cream band above rather than as a black hole between the two */
-  .split__portrait .slot { --slot-bg: #E7E0CE; }
-  .split__portrait .slot:not(:has(img))::before {
-    background: repeating-linear-gradient(135deg,
-      rgba(10, 10, 10, .05) 0 10px, transparent 10px 20px);
-    border-color: rgba(10, 10, 10, .22);
-  }
-  .split__portrait .slot__tag { color: rgba(10, 10, 10, .55); }
-}
-
-@media (min-width: 52rem) {
-  .split__gap { display: block; }
-
-  .split__portrait {
-    position: absolute;
-    inset-block: clamp(2.5rem, 5vw, 5rem);
-    width: var(--portrait-col);
-    z-index: 2;
-  }
-  .split__portrait .slot { height: 100%; aspect-ratio: auto; }
-
-  /* portrait on the reading-start edge — the profile slide */
-  .split--start .split__row       { grid-template-columns: var(--portrait-col) minmax(0, 1fr); }
-  .split--start .split__portrait  { inset-inline-start: var(--pad-x); }
-
-  /* portrait on the far edge — the contact slide */
-  .split--end .split__row         { grid-template-columns: minmax(0, 1fr) var(--portrait-col); }
-  .split--end .split__portrait    { inset-inline-end: var(--pad-x); }
-
-  /* The portrait column is pinned top and bottom, so it inherits whatever
-     height the contact text happens to need — which was 335px against a
-     512px width, i.e. a landscape letterbox showing 49% of a 3:4 photograph.
-     Giving the slide a floor equal to the column's own 3:4 height makes the
-     frame match the picture exactly: the whole portrait, uncropped, at full
-     column width.
-
-     --portrait-col cannot be reused here: it carries a percentage, and a
-     percentage inside min-height resolves against the containing block's
-     *height*, not its width, so the calc silently evaluates to nothing. This
-     mirrors the same clamp in vw, which is width-relative and therefore valid
-     in a height context. The slide is full width, so 40vw tracks the 40%. */
-  .split--end {
-    --portrait-col-h: clamp(14rem, 40vw, 32rem);
-    min-height: calc(var(--portrait-col-h) * 4 / 3 + 2 * clamp(2.5rem, 5vw, 5rem));
-  }
-
-  /* Both the reserved column and that min-height exist only to hold the
-     portrait. With no portrait in the slide they were reserving a column and
-     roughly 350px of height for nothing, so the contact block sat above a
-     large empty field. Keyed off the portrait's presence rather than deleted,
-     so dropping a portrait back in restores the original layout by itself. */
-  .split:not(:has(.split__portrait)) .split__row { grid-template-columns: minmax(0, 1fr); }
-  .split:not(:has(.split__portrait)) .split__gap { display: none; }
-  .split--end:not(:has(.split__portrait)) { min-height: 0; }
-}
-
-/* The contact table and the closing headline share one measure so their edges
-   line up, as they do in the reference — where the table runs to about 44% of
-   the page. A percentage here would resolve against the grid track rather than
-   the page, so the measure is set in rem: 36rem lands on ~45% at 1280px. */
-.contact-col { max-width: 36rem; }
-@media (max-width: 52rem) { .contact-col { max-width: none; } }
-
-/* Résumé columns — licence / skills / expertise.
-   Two columns as in the reference; the third group sits under the first. */
-.cred {
+/* A section is a sequence of blocks — heading, then work, then more work.
+   The gap between them is one step down from the gap between sections. */
+.section__body {
   display: grid;
-  gap: clamp(1.25rem, 3vw, 2.25rem) clamp(1.5rem, 4vw, 3.5rem);
-}
-@media (min-width: 40rem) {
-  .cred { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--block-y);
 }
 
-/* ---------- image mosaics ----------
-   The grids keep LTR order in both languages: the composition of a mosaic
-   is a visual decision, not a reading direction. See PLAN.md §4.
+/* The heading group: eyebrow, the large word, the opening line. */
+.section__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-4);
+  margin-block-end: var(--block-y);
+}
 
-   Each mosaic row shares one height and the tiles crop to their own width,
-   which is what makes the reference read as a mosaic rather than a set of
-   loose cards. Tiles therefore drop their own aspect ratio and fill the row. */
-/* Photographs are shown whole. The twelve-column grid this used to be sized
-   every tile to a fixed row height and let object-fit: cover crop whatever did
-   not fit, which on a photographer's page is the one thing the layout must not
-   do. Columns instead: each frame keeps its own proportions, and the column
-   flow closes the gaps that equal-height rows would leave under the shorter
-   ones. Reading order still runs down a column, so two frames that follow each
-   other in the sequence stay next to each other. */
-.mosaic,
-.grid-3 {
-  columns: 3;
+.section__head .lede { margin-block-start: var(--sp-2); }
+
+/* A named block of work inside a section */
+.block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-6);
+}
+
+.block__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-4);
+}
+
+/* On a wide screen the category heading and its paragraph sit side by side,
+   the heading on the reading margin and the text in the column beside it.
+   Below that they stack, in that order. */
+@media (min-width: 60rem) {
+  .block__head {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--gutter);
+    align-items: start;
+  }
+}
+
+
+/* A second paragraph following the opening line gets a full step, not the
+   tighter gap two body paragraphs share. */
+.lede + .prose { margin-block-start: var(--sp-4); }
+
+/* The closing headline stands clear of the contact block above it */
+.contact__cta { margin-block-start: var(--block-y); }
+
+
+/* ==========================================================================
+   the twelve-column grid
+   --------------------------------------------------------------------------
+   Used where a layout needs real columns rather than a picture grid. Cells
+   span with .c-N. Below 60rem every cell takes the full width, because a
+   half-column on a phone is not a column.
+   ========================================================================== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--gutter);
+  row-gap: var(--block-y);
+  align-items: start;
+}
+
+.c-3  { grid-column: span 12; }
+.c-4  { grid-column: span 12; }
+.c-5  { grid-column: span 12; }
+.c-6  { grid-column: span 12; }
+.c-7  { grid-column: span 12; }
+.c-8  { grid-column: span 12; }
+.c-12 { grid-column: span 12; }
+
+@media (min-width: 60rem) {
+  .c-3 { grid-column: span 3; }
+  .c-4 { grid-column: span 4; }
+  .c-5 { grid-column: span 5; }
+  .c-6 { grid-column: span 6; }
+  .c-7 { grid-column: span 7; }
+  .c-8 { grid-column: span 8; }
+  .grid { row-gap: var(--gutter); }
+}
+
+
+/* ==========================================================================
+   picture grids: nothing cropped, and nothing left empty
+   --------------------------------------------------------------------------
+   Two constraints that pull against each other. Every photograph keeps its own
+   proportions, which rules out a fixed row grid: that gives each cell in a row
+   one height, and the only ways to honour it are to crop or to letterbox. But
+   the wall must also close up, with no hole in it.
+
+   A column layout cannot do both, and not for want of a better algorithm. Fill
+   eight frames of two different shapes into three columns and one column ends
+   short; an exhaustive search over every possible assignment of these eight
+   puts the best achievable difference at 213px. CSS multi-column left 181px of
+   it, and grid-auto-flow: dense left 212px — dense back-fills a hole that has
+   something after it, and the short column here is simply where the pictures
+   ran out. There was nothing left to pull up into it.
+
+   So the wall is built in rows instead. Each row takes as many frames as sit
+   comfortably at a target height, then every frame in it is scaled to the one
+   height that makes the row exactly fill the width. Ratios are preserved to
+   the last decimal, because the height is derived from them rather than
+   imposed on them, and the result is flush on all four edges. This is how a
+   picture library lays out a contact sheet, and for the same reason.
+
+   js/ui.js does the grouping and writes each frame's width as a percentage of
+   the row, so a resize keeps every row justified even between recalculations.
+   Without the script the multi-column rule below is what applies: ragged along
+   the bottom, as it was, but never broken.
+   ========================================================================== */
+.gallery {
+  --cols: 3;
+  columns: var(--cols);
+  column-gap: var(--gutter);
+  /* The composition of a wall is a visual decision, not a reading direction,
+     so it keeps its order in both languages. */
   direction: ltr;
 }
 
-.mosaic > .slot,
-.grid-3 > .slot {
-  aspect-ratio: auto;
-  height: auto;
-  break-inside: avoid;      /* a frame is never split across two columns */
-  margin-bottom: var(--gutter);
+.gallery > * {
+  break-inside: avoid;        /* a frame is never split across two columns */
+  margin: 0 0 var(--gutter);
+  display: block;
 }
 
-.mosaic > .slot img,
-.grid-3 > .slot img {
-  position: static;
+.gallery--2 { --cols: 2; }
+.gallery--4 { --cols: 4; }
+
+@media (max-width: 62rem) { .gallery { --cols: 2; } }
+@media (max-width: 40rem) { .gallery { --cols: 1; } }
+
+/* Every frame in this wall is landscape, so two across on a phone still gives
+   each one a usable width where a single portrait would not. Declared after
+   the rule above and at the same weight, so it is the one that lands. Rows of
+   two of the same shape close exactly, which is why there is nothing left over
+   to show as a gap. */
+@media (max-width: 48rem) {
+  .gallery--landscape { --cols: 2; }
+}
+
+/* ---------- a fixed contact sheet: three across, two down ----------
+   The artist portraits are six frames of one shape, and justified rows sized
+   them to the full width of the column: 322px across, 483px tall, a thousand
+   pixels of page for six pictures. This is the other way round. The grid is
+   what is fixed here — three columns, and with six frames that is two rows —
+   and the picture is capped by height inside its cell.
+
+   Capping the height rather than the width is what keeps the whole frame
+   visible. The cell stays a third of the row; the portrait sits centred in it
+   at whatever width its own proportions ask for, so it is smaller without a
+   millimetre of it being cut off. The air either side is the point, not a
+   defect: it is what a contact sheet looks like.
+   ========================================================================== */
+.gallery--tiles {
+  --tile-h: clamp(8.5rem, 20vw, 16rem);
+
+  columns: auto;              /* cancel the multi-column fallback */
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gutter);
+  justify-items: center;
+  align-items: center;
+}
+
+.gallery--tiles > * {
+  margin: 0;
+  width: auto;
+  max-width: 100%;
+}
+
+.gallery--tiles img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: var(--tile-h);
+  object-fit: contain;        /* belt and braces: nothing is ever cropped */
+}
+
+
+/* ---------- the script is running: justified rows ---------- */
+.gallery.is-justified {
+  columns: auto;              /* cancel the fallback outright */
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gutter);
+}
+
+.gallery.is-justified > * {
+  /* width is written per frame by js/ui.js, as a share of the row */
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   frames
+   --------------------------------------------------------------------------
+   .frame is the wrapper around every photograph on the page. It sets no height
+   and no aspect ratio: the <img> carries its own intrinsic width and height,
+   the browser reserves exactly that box while the file downloads, and the
+   picture is shown whole.
+   ========================================================================== */
+.frame {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: rgba(247, 242, 230, .04);
+  border-radius: 2px;
+}
+
+.on-light .frame { background: rgba(10, 10, 10, .05); }
+
+.frame img,
+.frame video {
   width: 100%;
   height: auto;
+  /* Belt and braces. Nothing here constrains the height, so there is no crop
+     for the browser to make — but if a future rule ever does set one, contain
+     is what keeps the whole frame visible rather than filling the box. */
   object-fit: contain;
 }
 
-@media (max-width: 62rem) {
-  .mosaic, .grid-3 { columns: 2; }
+/* The slow push in, clipped by the frame. Purely a hover affordance: it says
+   the picture opens. */
+@media (hover: hover) {
+  .frame--zoomable img {
+    transition: transform var(--dur-slow) var(--ease);
+    will-change: transform;
+  }
+  .frame--zoomable:hover img,
+  .frame--zoomable:focus-visible img { transform: scale(1.035); }
 }
 
-@media (max-width: 40rem) {
-  .mosaic, .grid-3 { columns: 1; }
+.frame--zoomable { cursor: zoom-in; }
+
+/* Photographs fade up as they decode rather than snapping in half-drawn. */
+.js-imgfade .frame img {
+  opacity: 0;
+  transition: opacity .55s var(--ease-out);
+}
+.js-imgfade .frame img.is-loaded { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-imgfade .frame img { opacity: 1; transition: none; }
 }
 
-/* ---------- featured pairs ----------
-   Two treatments in the reference, and they differ on purpose: the landscape
-   pair sits inside the page margins, the event pair runs edge to edge. The
-   captions stay within the margins either way. */
+/* ==========================================================================
+   featured pairs
+   ========================================================================== */
 .pair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1rem, 4.4vw, 3.9rem);
-}
-.pair--bleed { gap: var(--gutter); }
-
-.pair-meta {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1rem, 4.4vw, 3.9rem);
+  gap: var(--gutter);
   align-items: start;
 }
 
-/* A pair holding one frame takes the whole row rather than stranding it at
-   half width. This is a plain modifier rather than :has(> :only-child) on
-   purpose: :has() needs Chrome 105 / Safari 15.4 / Firefox 121, and a
-   selector-support fallback would have to stack *every* pair to catch the one
-   that needs it. A class costs nothing and works everywhere.
-
-   It has to sit below both base rules: all three selectors are one class deep,
-   so source order is what decides, and declared above .pair-meta it lost. */
-.pair--single,
-.pair-meta--single { grid-template-columns: minmax(0, 1fr); }
-
-/* A two-up row labels each frame under the frame it belongs to, even when both
-   were shot in the same place: one caption under the left photograph and a bare
-   column under the right one read as a mistake rather than as shared detail. */
-.pair-meta__second { display: block; }
+.pair--single { grid-template-columns: minmax(0, 1fr); }
 
 @media (max-width: 46rem) {
-  .pair, .pair-meta { grid-template-columns: minmax(0, 1fr); }
-  .pair { gap: var(--gutter); }
-
-  /* Stacked, the pair is one frame after another and the caption already sits
-     directly under the first: repeating it here would only be the same lines
-     twice in a row. The phone layout is left exactly as it was. */
-  .pair-meta__second { display: none; }
+  .pair { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* ---------- portrait section ----------
-   Three columns in the reference: the red subhead alone on the outside, the
-   large frame, then a smaller frame with its paragraph beneath. */
-.portrait-lead {
+
+/* ==========================================================================
+   the split slide — profile and contact
+   --------------------------------------------------------------------------
+   A portrait alongside a column of text, with the portrait held to a share of
+   the width rather than a fixed height. Version 1 pinned the portrait top and
+   bottom across two bands and then had to add a min-height calc to stop the
+   frame letterboxing the photograph. Here the picture sets its own height and
+   nothing has to be computed.
+   ========================================================================== */
+.split {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(1.25rem, 3vw, 2.25rem);
+  gap: var(--block-y);
   align-items: start;
 }
-@media (min-width: 52rem) {
-  .portrait-lead { grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr) minmax(0, 1.41fr); }
+
+@media (min-width: 60rem) {
+  .split      { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: var(--sp-8); }
+  .split--end { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); }
+  /* On the closing slide the portrait sits on the far edge, so it is second in
+     the source and second in the grid. Nothing to reorder. */
 }
 
-/* The three-up portrait row is inset further than the rest of the page */
-.portrait-row {
-  display: grid;
-  direction: ltr;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(.6rem, 1.2vw, 1.1rem);
-  padding-inline: clamp(0rem, 4.2vw, 5rem);
-}
-@media (max-width: 40rem) {
-  .portrait-row { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-inline: 0; }
-}
-
-/* Span helpers used by the mosaic rows */
-.sp-2  { grid-column: span 2; }
-.sp-3  { grid-column: span 3; }
-.sp-4  { grid-column: span 4; }
-.sp-5  { grid-column: span 5; }
-.sp-8  { grid-column: span 8; }
-.row-2 { grid-row: span 2; }
-
-
-
-/* ---------- banner: mega heading laid over a still ---------- */
-.banner { position: relative; }
-
-/* A scrim top and bottom. The reference lays its heading over a dark frame,
-   but the photograph here is whatever gets dropped in — this keeps the type
-   legible over a bright sky as well as a night shot. */
-.banner__overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-block: clamp(1rem, 3vw, 2.75rem);
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, .55) 0%,
-    rgba(0, 0, 0, .12) 32%,
-    rgba(0, 0, 0, .12) 62%,
-    rgba(0, 0, 0, .60) 100%);
-}
-
-.banner__mark { align-self: flex-end; }
-
-/* ---------- video players ---------- */
-.players {
-  display: grid;
-  gap: clamp(2rem, 5vw, 3.5rem);
-  justify-items: center;
-  /* The first film sat directly against the paragraph above it, with nothing
-     to say the text had ended and the work had begun. Same measure as the
-     space above a grid of photographs. */
-  margin-top: clamp(2.5rem, 6vw, 4.5rem);
-}
-
-/* ---------- contact ---------- */
-/* The explicit minmax(0, …) matters: an implicit auto track would size to the
-   heading's min-content, and .mega is nowrap — the track would grow past the
-   viewport and take the fitting script's target width with it. */
-.contact-foot {
+.split__text {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 3.5rem);
-  align-items: end;
-}
-@media (min-width: 52rem) {
-  .contact-foot { grid-template-columns: minmax(0, 1fr) minmax(0, 18rem); }
+  gap: var(--sp-5);
+  align-content: start;
 }
 
-/* ---------- spacing helpers ---------- */
-.stack     { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1rem, 2.5vw, 1.75rem); }
-.mt-sub    { margin-top: clamp(1.25rem, 3vw, 2.25rem); }
+/* The portrait leads on a phone but should not tower over the screen */
+@media (max-width: 60rem) {
+  .split__portrait { max-width: 26rem; }
+  .split--end .split__portrait { margin-inline-start: auto; }
+}
 
-/* A grid of photographs needs more air above it than a line of type does.
-   At .mt-sub the first row sat almost against the paragraph that introduces
-   it, so the set read as a continuation of the sentence rather than as the
-   work itself. */
-.mosaic.mt-sub,
-.grid-3.mt-sub { margin-top: clamp(2.5rem, 6vw, 4.5rem); }
-.mb-sub    { margin-bottom: clamp(1.25rem, 3vw, 2.25rem); }
+
+/* ==========================================================================
+   credentials — licence, tools, what I do
+   ========================================================================== */
+.cred {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+}
+
+@media (min-width: 40rem) {
+  .cred { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-5) var(--sp-6); }
+}
+
+.cred__group {
+  border-inline-start: 2px solid var(--accent-ground);
+  padding-inline-start: var(--sp-4);
+}
+
+.cred__title {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-small);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-block-end: var(--sp-2);
+}
+
+.cred__lede { font-weight: 600; color: var(--fg); }
+.cred__note { font-size: var(--t-small); color: var(--fg-dim); margin-block-start: var(--sp-1); }
+.cred__list { list-style: none; display: grid; gap: var(--sp-1); }
+
+
+/* ==========================================================================
+   spacing helpers
+   --------------------------------------------------------------------------
+   A very short list on purpose. If a block needs air, it should get it from
+   the layout it sits in, not from a utility bolted onto it.
+   ========================================================================== */
+.stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-content: start;
+}
+
+.stack--tight { gap: var(--sp-3); }
+.stack--loose { gap: var(--sp-7); }

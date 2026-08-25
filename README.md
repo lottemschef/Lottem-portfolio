@@ -1,182 +1,201 @@
-# אתר תיק העבודות של לוטם שיפנבאור
+# Lottem Schefenbauer — portfolio
 
-אתר סטטי — HTML5 סמנטי ו-CSS3 טהור, בלי פריימוורקים ובלי שלב build.
-דו-לשוני (עברית RTL / אנגלית LTR) עם מתג החלפה.
+A one-page site with a side navigation that arrives on scroll. Static HTML and
+CSS, no framework, no bundler: the files in this repository are the files that
+are served.
 
-- **[PLAN.md](PLAN.md)** — תוכנית הבנייה, הפלטה, הטיפוגרפיה ומפת הדף
-- **[PHOTOS.md](PHOTOS.md)** — מה לשים בתיקיית התמונות
+Bilingual, as two real pages rather than a swap in the browser — a crawler
+asking for the Hebrew page has to receive Hebrew HTML.
 
-## מבנה
-
-```
-index.html          כל הדף
-css/
-  fonts.css         @font-face — נוצר אוטומטית, אין לערוך ידנית
-  base.css          reset, משתני עיצוב, טיפוגרפיה
-  layout.css        מקטעים, גרידים, מוזאיקה
-  components.css    מתג שפה, משבצות תמונה, נגנים, טבלת קשר
-js/
-  lang.js           וילון המעבר בין השפות
-  ui.js             רצף פתיחה, התאמת כותרות, לייטבוקס, נגנים, dock, סרגל
-content/
-  strings.json      כל הטקסטים, שתי השפות — המקור היחיד
-he/index.html       נוצר אוטומטית
-404.html            נוצר אוטומטית מ-404.src.html
-assets/
-  fonts/            4 פונטים משתנים, מתארחים מקומית (80KB)
-  photos/           תמונות המאסטר — לא מוגשות
-  img/              הגרסאות הרספונסיביות שנוצרות — אלו שמוגשות
-  video/            הסרטונים
-build-images.py     מייצר את assets/img מתוך assets/photos
-old/                פרויקט React הקודם — גיבוי בלבד, לא חלק באתר
-```
-
-## הרצה מקומית
-
-אין תלויות ואין התקנה. צריך רק שרת סטטי כלשהו כדי שהדפדפן יטען את
-קבצי ה-CSS וה-JS (פתיחה ישירה של `index.html` מהדיסק תחסום אותם):
-
-```bash
-python3 -m http.server 5173
-```
-
-ואז לפתוח `http://localhost:5173`.
-
-## פריסה ל-AWS S3
-
-### פעם ראשונה
-
-```bash
-aws s3 mb s3://lotem-portfolio-site --region il-central-1
-```
-
-```bash
-aws s3 website s3://lotem-portfolio-site --index-document index.html --error-document index.html
-```
-
-### כל העלאה
-
-בלי שלב build — הקבצים באתר הם הקבצים שעולים:
-
-```bash
-aws s3 sync . s3://lotem-portfolio-site --delete --exclude "old/*" --exclude "*.md" --exclude ".claude/*" --exclude ".git/*" --exclude "assets/video/source/*" --exclude "assets/photos/*" --exclude "*.py"
-```
-
-> שני ה-`--exclude` הראשונים **קריטיים**:
-> `assets/video/source` מחזיק 3.2GB של קבצי מצלמה, ו-`assets/photos` מחזיק את
-> תמונות המאסטר. שניהם לא מוגשים לאתר — האתר מגיש רק את `assets/img/`.
-> בלי ההחרגות הם יעלו ל-S3 ויעלו לך כסף בלי שאף אחד יראה אותם.
-
-אם מוגדר CloudFront, לרוקן את המטמון אחרי כל העלאה:
-
-```bash
-aws cloudfront create-invalidation --distribution-id <DISTRIBUTION_ID> --paths "/*"
-```
-
-### CloudFront (מומלץ — HTTPS, מהירות, דומיין אישי)
-
-1. מסוף AWS → **CloudFront** → **Create Distribution**
-2. Origin: ה-bucket, דרך **Origin Access Control** — כך הבאקט נשאר פרטי ורק
-   CloudFront ניגש אליו
-3. Default root object: `index.html`
-4. Viewer protocol policy: **Redirect HTTP to HTTPS**
-
-לדומיין אישי: תעודה ב-**Certificate Manager** (חובה ב-`us-east-1` עבור CloudFront),
-חיבור התעודה ל-Distribution תחת Alternate domain names, ורשומת ALIAS ב-Route 53.
-
-## עדכון תוכן
-
-כל הטקסטים באתר יושבים ב-[js/i18n.js](js/i18n.js), בשני מילונים — `he` ו-`en`.
-שינוי טקסט נעשה שם, במקום אחד, ולא ב-HTML.
-
-## לפני העלייה לאוויר — שני דברים שדורשים דומיין
-
-בראש `index.html` יש הערת `TODO`. ברגע שיש דומיין:
-
-1. להפוך את `og:image` לכתובת מוחלטת (`https://הדומיין/assets/og-image.jpg`).
-   רוב מציגי הקישורים לא פותרים נתיב יחסי, ובלי זה שיתוף בוואטסאפ יופיע בלי תמונה.
-2. להוסיף `<link rel="canonical">` ו-`<meta property="og:url">`.
-
-באותו מקום כבר מוגדרים: תיאור, Open Graph, Twitter card, `hreflang` לשתי השפות,
-אייקון, ו-JSON-LD מסוג `ProfessionalService` הכולל את רישיון הרחפן — זה מה
-שעוזר בחיפוש מקומי.
-
-## שתי שפות, שתי כתובות
-
-| כתובת | שפה |
+| address | page |
 |---|---|
-| `/` | אנגלית |
-| `/he/` | עברית |
+| `/` | English |
+| `/he/` | Hebrew |
 
-**שני עמודי HTML נפרדים, לא החלפה בדפדפן.** זחלן שמבקש את העמוד העברי מקבל
-HTML עברי — קודם שתי הכתובות החזירו אנגלית והחצי העברי של האתר היה בלתי נראה
-לחיפוש. מתג השפה הוא קישור אמיתי ועובד גם בלי JavaScript; הסקריפט רק מוסיף
-את הווילון לפני המעבר.
+## The previous version
 
-### עריכת טקסטים
-
-כל הטקסטים יושבים ב-**[content/strings.json](content/strings.json)** — מילון
-אחד לשתי השפות. אחרי כל עריכה:
+There was an earlier design at this address. It was retired when this one took
+its place, and it is kept whole in git under the tag `v1-final` rather than in
+the working tree. To read it:
 
 ```bash
-python3 build-pages.py
+git show v1-final:index.html
 ```
 
-זה מייצר מחדש את `index.html`, `he/index.html` ו-`404.html`. **אל תערוך את
-קבצי ה-HTML ישירות** — הם נדרסים בכל בנייה. שינויים במבנה כן נעשים ב-`index.html`,
-שהוא גם התבנית וגם העמוד האנגלי.
-
-## הפונטים
-
-`css/fonts.css` ו-`assets/fonts/` נוצרים אוטומטית ואין לערוך אותם ידנית.
-שתי משפחות משתנות — **Rubik** לכל הכותרות ו-**Assistant** לטקסט — בתת-קבוצות
-עברית ולטינית בלבד. 80KB סה"כ.
-
-## לפני כל העלאה
+To bring any of it back:
 
 ```bash
-python3 preflight.py
+git checkout v1-final -- index.html he css js content build-pages.py
 ```
 
-בודק מבנה, קבצים חסרים, משתני CSS, נגישות, כפילות מזהים, קישורי ניווט,
-סנכרון בין שתי השפות, ואיות השם. **וגם שכבות צפות שמכסות את המסך בלי להיחסם**
-— באג כזה שיתק פעם את כל הלחיצות באתר.
+Nothing in `assets/` was touched by the change — both versions always shared it.
 
-## תמונות — יש שלב בנייה
-
-זה השתנה. יש עכשיו שתי תיקיות:
-
-| תיקייה | מה יש בה | מוגש לאתר? |
-|---|---|---|
-| `assets/photos/` | תמונות המאסטר שאתה מפיל | **לא** |
-| `assets/img/` | הגרסאות שנוצרות — 6 רוחבים × WebP ו-JPG | כן |
-
-אחרי כל הוספה או החלפה של תמונה ב-`assets/photos/`:
+## Running it
 
 ```bash
-python3 build-images.py
+python3 -m http.server 5175
 ```
 
-הדפדפן בוחר לבד את הרוחב והפורמט המתאימים. **התוצאה: טלפון מוריד 1.9MB במקום 12MB.**
+Then open `http://localhost:5175/` — Hebrew is at `/he/`.
 
-אם הוספת משבצת חדשה (ולא רק החלפת קיימת), צריך גם להוסיף לה בלוק `<picture>`
-ב-`index.html`. תגיד לי ואני אעשה.
+## Editing
 
-## סרטונים
+```
+template.html          the markup — the only file you edit
+content/strings.json   every string, both languages
+css/                   base (tokens) · layout (grid) · components
+js/                    ui.js · lang.js
+index.html             generated — do not edit
+he/index.html          generated — do not edit
+```
 
-קבצי המקור מהמצלמה יושבים ב-`assets/video/source/` ו**לא עולים לאתר**.
-מה שהאתר מגיש הוא `assets/video/*.mp4` — גרסאות 1080p בערך 5 Mbps,
-עם `+faststart` כדי שההשמעה תתחיל לפני שהקובץ ירד במלואו.
-
-להוספת סרטון חדש: לשים את המקור ב-`source/` ולהריץ המרה. שים לב לשתי מלכודות
-שנתקלנו בהן:
-
-1. **דגל סיבוב.** ה-DJI Mavic 4 Pro כותב `rotation of -90` לקבצים אנכיים.
-   חובה `-map 0:v:0` מפורש, אחרת ffmpeg לוקח את יחס הממדים מתמונת הכריכה
-   המוטמעת ומייצר וידאו מעוות.
-2. **קבצי DJI מכילים זרמי מידע נוספים** (`djmd`, `dbgi`). `-map 0:v:0 -map "0:a?"`
-   מוריד אותם.
+After changing either the template or the strings:
 
 ```bash
-ffmpeg -i "source/CLIP.MP4" -map 0:v:0 -map "0:a?" -vf "scale=w=1920:h=1080:force_original_aspect_ratio=decrease,setsar=1" -c:v libx264 -crf 21 -preset slow -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart out.mp4
+python3 build.py
 ```
+
+The build fills both languages from one template, expands each `x-photo` tag
+into a full responsive `<picture>` using `assets/img/manifest.json`, and stamps
+every stylesheet and script with a hash of its own contents so a deploy is not
+invisible behind a stale cache. It refuses to write a page if the two
+dictionaries have drifted apart or the template asks for a string that does not
+exist — the two ways a bilingual page silently loses a line.
+
+## The four things this version was built to fix
+
+**The navigation is not on the first screen.** The rail is `visibility:
+hidden` until you scroll, so it is out of the tab order and out of the
+accessibility tree as well as out of sight — not merely transparent. It appears
+at a fifth of the first screen and hides again at a lower mark, so a scroll that
+stops on the boundary cannot flicker it. Below 60rem it becomes a menu button
+that follows exactly the same rule. The language switch is the exception that
+proves it: the hero carries its own copy, so language is reachable at the top
+even though navigation is not.
+
+**The margins are generous, and the rail can never reach the text.** That is
+arithmetic, not judgement: `--pad-x` is written as the rail's own footprint
+plus a gutter (`css/base.css`, the 60rem and 82rem queries). Widen the rail and
+the margin widens with it. Measured, the clearance is 21.6px with the rail
+collapsed and 32–46px with its labels showing, at every width from 960px up.
+
+**Photographs are shown whole, and the wall has no holes.** The galleries are
+justified rows, not columns: each row takes as many frames as sit comfortably
+at a target height, then every frame in it is scaled to the one height that
+makes the row fill the width exactly. Ratios survive to the last decimal
+because the height is derived from them rather than imposed on them, so every
+row is flush left and right and nothing is cropped. Measured across all six
+breakpoints, the largest difference between a picture's rendered ratio and its
+intrinsic ratio is 0.3%, which is rounding.
+
+Columns were tried first and cannot do this. Fill eight frames of two shapes
+into three columns and one column ends short: CSS multi-column left 181px of
+dead space under the middle one, and `grid-auto-flow: dense` left 212px, since
+dense back-fills a hole that has something after it and the short column is
+simply where the pictures ran out. An exhaustive search over every possible
+assignment of those eight frames puts the best any column packing could manage
+at 213px. The raggedness is the layout model, not the algorithm.
+
+Where the rows break is chosen for the wall as a whole rather than one row at a
+time (`planRows` in `js/ui.js`) — a left-to-right greedy pass spends the good
+frames early and leaves a last row half again as tall as the rest. Row length
+carries a small cost too, so the declared `--cols` and the media queries behind
+it stay in charge and the fit only breaks the tie; without it the arithmetic
+bought a very even wall by going four across at 142px tall.
+
+**Buttons breathe.** One spacing scale is declared in `css/base.css` and
+everything reads from it. `.actions` is the only correct wrapper for a button
+and opens with `--sp-7` — four rem — of space; the button carries `--sp-5`
+across and `--sp-3` down inside a 3.25rem floor. A safety net rule catches a
+button dropped straight after a paragraph without its wrapper. Measured, the
+gap above the contact buttons is 96px.
+
+## Paths
+
+`ASSET_ROOT` at the top of `build.py` is how a generated page reaches
+`assets/`. It is empty, because the pages sit at the site root and `assets/` is
+a sibling; it was `'../'` while this lived in a `v2/` subfolder beside the old
+version. `set_paths()` adds the extra step up that the Hebrew page needs on top
+of it. If these files are ever moved into a subfolder again, that constant and
+the `../assets/fonts/` in `css/fonts.css` are the two things to change.
+
+## No typography on the photographs
+
+Location and year lists, reel labels, film captions and the viewer's caption
+are all gone: a picture on this site carries no text on it, beside it or under
+it. The section headings and the paragraph that introduces each body of work
+stay, because those are the page's writing rather than a label on a frame.
+
+The one thing kept in the markup is the pair of before / after labels on the
+grading wipe. They are clipped out of sight, not deleted, because a screen
+reader cannot infer "this half is ungraded" from a seam and a drag handle. To
+put them back on screen, delete the `.compare__badge` rule in
+`css/components.css`.
+
+## The two galleries
+
+They are laid out differently on purpose, because they hold different pictures.
+
+**Artist portraits** is a fixed contact sheet: `grid-template-columns:
+repeat(3, 1fr)`, which with six frames is three across and two down. The
+picture is capped by *height* (`--tile-h`) and centred in its cell rather than
+being stretched to fill it, so it comes down from 322x483 to 171x256 with
+nothing cropped: the cell stays a third of the row and the portrait simply sits
+smaller inside it. The gallery is 544px tall where it was 1007px. Change
+`--tile-h` in `css/layout.css` to make the sheet larger or smaller; the grid
+does not move.
+
+**Marriage proposals** keeps the justified-row engine, with the row rhythm
+stated in the markup as `data-rows="3 2 3"` — three frames, then the pair
+large, then three. `statedRows` in `js/ui.js` reads it, and the same code still
+justifies each row to the full width, so a hand-written plan can change the
+rhythm but cannot open a gap or crop anything. It applies at the widest layout
+only; below that there are fewer columns and the automatic planner takes over —
+two across down to the smallest phone, because every frame in this wall is
+landscape and two of them still read at 156px wide where one portrait would
+not. Row widths are written in CSS terms rather than pixels, so a row stays
+justified continuously through a resize and the script only has to decide how
+many frames share a line.
+
+A dense span grid was the obvious thing to reach for here and it does not work
+on this set. All eight proposal frames are landscape, in two ratios — three at
+16:9 and five at 3:2 — so there is no portrait for a taller span to key off,
+and integer column spans cannot express both ratios at once: a 16:9 and a 3:2
+sharing a row need widths of 54.2% and 45.8%, which is 6.5 columns of twelve.
+Round it to 7 and 5 and the two heights differ by 18%, which has to come out of
+the pictures as a crop. The justified row gets the same arrangement exactly
+right because it solves for the height instead of rounding to a track.
+
+## Films in the Events section
+
+The four films there are reels: `autoplay loop muted playsinline`, no controls
+and no play button, so each one behaves like a photograph that happens to move.
+`muted` and `playsinline` are the two attributes the autoplay policy actually
+checks, and they are in the markup rather than set by script, so the reels play
+with JavaScript switched off.
+
+What `js/ui.js` adds is restraint. Together the four are about 47MB, which is
+far too much to fetch on first paint, so each carries `preload="none"` and
+`initReels` starts one when it scrolls into view and pauses it when it leaves.
+A visitor downloads the films they actually look at.
+
+The pause is per reel, not one-at-a-time as the old player governor was. These
+sit two abreast, and with a single winner one half of a pair would run while
+the other stood frozen beside it, which reads as a broken video rather than as
+a layout. Reduced motion and Data Saver park every reel on its poster frame.
+
+`event-resort.mp4` is 19MB for 14 seconds, around 10 Mbps, which is generous
+for a clip that renders 500px wide. Re-encoding the Events reels at a lower
+bitrate would cut that section's weight by more than half without a visible
+difference at this size. Nothing depends on it, so it is left as it is.
+
+## Why the grading clip went
+
+The colour-grading section used to close on an aerial of Agamim Hall at dusk.
+The Events section now loops that same venue at the same hour, from a near
+identical altitude — two takes minutes apart, not two pieces of work. The film
+is gone from both language pages and the before/after wipe runs full width in
+its place.
+
+`assets/video/grade-clip.mp4` is still on disk because version 1 still plays
+it. Delete the file only if version 1 goes.

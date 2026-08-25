@@ -1,21 +1,25 @@
 <!doctype html>
+<!--
+  Served for every path that does not exist. GitHub Pages only ever reads the
+  404.html at the site root, so this one page answers for both languages and
+  says its piece in each.
+
+  Hand-written rather than generated. It was built from version 1's template
+  and its own set of strings, and carrying that whole apparatus for four lines
+  of text was the reason a stale copy of it survived the rewrite. It uses the
+  same stylesheet and the same classes as the site, so it inherits the palette
+  and the type without knowing anything about them.
+-->
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>This page does not exist · Lottem Schefenbauer</title>
-  <meta name="description" content="This page does not exist.">
+  <meta name="robots" content="noindex">
   <meta name="theme-color" content="#000000">
-  <meta name="author" content="Lottem Schefenbauer">
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-
-  <!-- One page serves both languages; ?lang= pins either one. -->
-
-  <!-- TODO once the domain is live: make og:image absolute and add
-       <link rel="canonical"> and . Most link
-       previewers will not resolve a relative image path. See README. -->
 
   <link rel="preload" href="assets/fonts/rubik-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/assistant-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -25,15 +29,34 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
 
+  <style>
+    .notfound {
+      min-height: 100svh;
+      display: grid;
+      align-content: center;
+      gap: var(--sp-4);
+    }
+    .notfound .actions { margin-block-start: var(--sp-6); }
+    .notfound__he { color: var(--fg-dim); }
+  </style>
 </head>
 
 <body>
-  <main class="notfound on-dark">
-    <p class="notfound__code">404</p>
-    <h1 class="notfound__title" data-i18n="nf.title">This page does not exist</h1>
-    <p class="notfound__body" data-i18n="nf.body">The link may be old, or the address slightly off.</p>
-    <a class="notfound__back" href="/" data-i18n="nf.back">Back to the portfolio</a>
-  </main>
+  <main class="section on-dark notfound">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow__num num lat">404</span></p>
+      <h1 class="mega">Not found</h1>
 
+      <p class="lede">This page does not exist. The link may be old, or the address
+        slightly off.</p>
+      <p class="lede notfound__he" lang="he" dir="rtl">הדף הזה לא קיים. ייתכן שהקישור ישן,
+        או שהכתובת קצת שונה ממה שהוקלד.</p>
+
+      <div class="actions">
+        <a class="btn btn--solid" href="/Lottem-portfolio/">Back to the portfolio</a>
+        <a class="btn btn--ghost" href="/Lottem-portfolio/he/" lang="he">חזרה לתיק העבודות</a>
+      </div>
+    </div>
+  </main>
 </body>
 </html>
