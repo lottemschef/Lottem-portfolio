@@ -14,7 +14,9 @@
 # means the browser must fetch almost the whole file before it can paint.
 #
 # avconvert ships with macOS, so there is no Homebrew and no ffmpeg here. Its
-# presets emit H.264 in an MP4 with fast-start on by default.
+# presets emit H.264 in an MP4 with fast-start on by default. They have no rate
+# control, though, so tools/encode.swift covers the jobs that need a bitrate:
+# the same system encoder, driven directly. See RATED at the bottom.
 #
 # Posters are pulled at a chosen second rather than frame zero, because a first
 # frame is usually a fade-in and because a poster that repeats a photograph
@@ -32,6 +34,7 @@ SRC=assets/video/source
 OUT=assets/video
 POSTERS=$OUT/posters
 GRAB=tools/.grabframe
+ENCODE=tools/.encode
 
 mkdir -p "$POSTERS"
 command -v avconvert >/dev/null || { echo "avconvert not found (macOS only)"; exit 1; }
@@ -40,6 +43,12 @@ command -v avconvert >/dev/null || { echo "avconvert not found (macOS only)"; ex
 if [ ! -x "$GRAB" ] || [ tools/grabframe.swift -nt "$GRAB" ]; then
   echo "==> building tools/grabframe"
   swiftc -O -o "$GRAB" tools/grabframe.swift 2>/dev/null
+fi
+
+# and its sibling: H.264 at a chosen bitrate, for the jobs at the bottom
+if [ ! -x "$ENCODE" ] || [ tools/encode.swift -nt "$ENCODE" ]; then
+  echo "==> building tools/encode"
+  swiftc -O -o "$ENCODE" tools/encode.swift 2>/dev/null
 fi
 
 # name | master | preset | start | duration ("" = to end) | poster second
@@ -58,6 +67,20 @@ JOBS=(
   # The Videography banner. 1080p, unlike the two-up reels: this one runs the
   # full width of the page, so it is the one clip that is actually seen at size.
   "video-banner|promotion 4.mp4|Preset1920x1080|0||4"
+  # Two finished films rather than loops cut for texture: the beach proposal
+  # opens on a title card and the Beit Halochem piece closes on the client's
+  # logo, so neither is trimmed. 720p because avconvert has no rate control --
+  # its presets are fixed quality, so resolution is the only lever here, and
+  # these still land near 6.6 Mbps. With ffmpeg available, -crf 26 would halve
+  # them again at the same size on screen.
+  "proposal-beach|Proposal video beach NOSOUND.mp4|Preset1280x720|0||38"
+  "beit-halochem|Beit Halohem Drone video.mp4|Preset1280x720|0||45"
+  # The desert proposal film. 1080p rather than the 720p the looping reels get:
+  # this one is played on purpose, with controls, so it is watched at size and
+  # only fetched when someone presses play. Poster taken from the closing
+  # silhouette rather than the opening title card -- nothing on this site puts
+  # type on a photograph.
+  "desert-proposal-film|Maor & Adi FINAL v4.mp4|Preset1920x1080|0||45"
 )
 
 for job in "${JOBS[@]}"; do
@@ -76,6 +99,30 @@ for job in "${JOBS[@]}"; do
   "$GRAB" "$OUT/$name.mp4" "$pt" "$POSTERS/$name.jpg" | sed "s|^|    poster @${pt}s  |"
 done
 
+# Encoded at a bitrate rather than through a preset, because a preset could not
+# get these to a sensible size at full resolution.
+#
+# name | master | width x height | video kbps | poster second
+RATED=(
+  # The ABBA Hotel reel: vertical, 4K HEVC, 56 seconds, with a soundtrack.
+  # Preset1920x1080 handles the portrait frame correctly but lands at 9.9 Mbps,
+  # about 69MB; at 5 Mbps it is 35MB and, compared crop for crop at full size,
+  # hard to tell from the master. Poster from the rooftop at dusk -- the reel
+  # opens and closes on title cards, and nothing here puts type on a picture.
+  "abba-hotel-reel|ABBA Hotel reel.mp4|1080x1920|5000|44"
+)
+
+for job in "${RATED[@]}"; do
+  IFS='|' read -r name master size kbps pt <<<"$job"
+  [ -f "$SRC/$master" ] || { echo "SKIP $name - no master at $SRC/$master"; continue; }
+
+  echo "==> $name  <- $master"
+  "$ENCODE" "$SRC/$master" "$OUT/$name.mp4" "${size%x*}" "${size#*x}" "$kbps" | sed 's|^|    |'
+
+  rm -f "$POSTERS/$name.jpg"
+  "$GRAB" "$OUT/$name.mp4" "$pt" "$POSTERS/$name.jpg" | sed "s|^|    poster @${pt}s  |"
+done
+
 echo
-echo "Done. Now run: python3 build-images.py && python3 build-pages.py"
+echo "Done. Now run: python3 build-images.py && python3 build.py"
 echo "(build-images.py turns assets/video/posters/*.jpg into the poster-* ladder)"

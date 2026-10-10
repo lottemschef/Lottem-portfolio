@@ -183,13 +183,14 @@
 @media (max-width: 62rem) { .gallery { --cols: 2; } }
 @media (max-width: 40rem) { .gallery { --cols: 1; } }
 
-/* Every frame in this wall is landscape, so two across on a phone still gives
-   each one a usable width where a single portrait would not. Declared after
-   the rule above and at the same weight, so it is the one that lands. Rows of
-   two of the same shape close exactly, which is why there is nothing left over
-   to show as a gap. */
+/* Seventeen frames is a long way to scroll one at a time, so this wall keeps
+   two across down to the smallest phone. It held only landscapes when the rule
+   was written and now holds five uprights too, which is fine: the planner
+   scales whatever shares a row to one height, so a row of two uprights is
+   simply taller than a row of two landscapes. Declared after the rule above and
+   at the same weight, so it is the one that lands. */
 @media (max-width: 48rem) {
-  .gallery--landscape { --cols: 2; }
+  .gallery--mixed { --cols: 2; }
 }
 
 /* ---------- a fixed contact sheet: three across, two down ----------

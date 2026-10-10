@@ -225,252 +225,638 @@ function initMenu() {
 
 
 /* ==========================================================================
-   HERO FILM
+   VIDEO — one rule for every <video> on the page
    --------------------------------------------------------------------------
-   Autoplay is refused more often than it looks. A muted inline video is
-   normally allowed, but Low Power Mode on iOS blocks it and a tab restored in
-   the background starts paused — so the attempt is retried on the events that
-   mean the browser has changed its mind.
+   Each one plays while it is on screen, pauses once it has left, and starts
+   muted. A visitor downloads the films they scroll to and no others, and a
+   section left behind is not still decoding video into a tab nobody is on.
+
+   That last part did not hold before. preload="none" does not survive an
+   autoplay attribute: the browser starts the file the moment the tag is
+   parsed, and a pause() sent before playback has begun is a no-op, so every
+   reel below the fold was downloading and running from the first paint.
+   Measured with the page left at the top: 79MB in the first ten seconds, the
+   long films still going. Only the hero keeps
+   the attribute now, because it is on screen when the page opens; this
+   function takes it off again before it can start anywhere else.
+
+   Two kinds, and the markup says which is which:
+
+   Ambient -- the hero, the reels, the banner, the promo loop. No controls,
+   muted for good, looped: a photograph that happens to move. Every one of
+   these files is digitally silent anyway; decoded, not one sample is above
+   zero.
+
+   Films -- anything written as <video controls>. Each of these carries a
+   real soundtrack, so it starts muted like everything else but keeps the
+   native controls, and the volume button on them is the visitor's to press.
+   What they choose then sticks: sound they turned on is still on when the
+   film resumes after a scroll away and back, and a film they paused by hand,
+   or watched to the end, is not restarted behind their back.
+
+   Ambient video starts once a fifth of it is in view; a film waits for half,
+   so its opening is not spent mostly off screen. Both pause only once they
+   have gone entirely, so a scroll that stops on the threshold cannot flicker
+   one on and off -- the same two-mark rule the rail uses.
+
+   Reduced motion and Data Saver switch off the starting, never the stopping:
+   nothing begins by itself, a film still plays when its button is pressed,
+   and whatever is playing still pauses when it leaves.
    ========================================================================== */
-function initHeroVideo() {
-  const video = document.querySelector("[data-hero-video]");
-  if (!video) return;
+const AMBIENT_IN = 0.2;
+const FILM_IN = 0.5;
 
-  // muted + playsinline are the two attributes the autoplay policy checks, and
-  // a stale cached page could be missing them
-  video.muted = true;
-  video.defaultMuted = true;
+const videoParked = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+  !!navigator.connection?.saveData;
+
+/* A .player is a poster with its <video> built on demand, so not even the
+   file's metadata is fetched until it is wanted. Scrolled to, it is ambient:
+   looped, silent, nothing drawn over it. Reached by its button instead --
+   which only shows when nothing starts by itself -- it is a deliberate request
+   to watch, so it gets controls and plays once. */
+function buildPlayer(player, auto) {
+  const frame = player.querySelector(".player__frame");
+  const src = player.dataset.src;
+  if (!frame || !src || player.classList.contains("is-playing")) return null;
+
+  const video = document.createElement("video");
+  video.src = src;
+  video.controls = !auto;
+  video.loop = !!auto;
   video.playsInline = true;
+  video.preload = "auto";
+  video.muted = true;
 
-  const attempt = () => video.play?.().catch(() => {});
+  /* The frame already shows a poster, but a <video> paints its own black
+     background over it while the file buffers. Handing it the very image the
+     browser already chose keeps the still on screen through the wait.
+     currentSrc is empty until a candidate has actually been picked, which for
+     a lazy image below the fold may not have happened — hence the fallback. */
+  const poster = frame.querySelector(".player__poster");
+  const posterSrc = poster && (poster.currentSrc || poster.getAttribute("src"));
+  if (posterSrc) video.poster = posterSrc;
 
-  attempt();
-  video.addEventListener("canplay", attempt, { once: true });
-  video.addEventListener("loadeddata", attempt, { once: true });
+  video.addEventListener("error", () => {
+    const note = document.createElement("p");
+    note.className = "player__error";
+    note.textContent = document.documentElement.lang === "he"
+      ? "לא הצלחנו לטעון את הסרטון. אפשר לנסות שוב מאוחר יותר."
+      : "This film could not be loaded. Please try again later.";
+    video.remove();
+    frame.append(note);
+    player.classList.remove("is-playing");
+  }, { once: true });
 
-  ["pointerdown", "touchstart", "keydown"].forEach((type) =>
-    document.addEventListener(type, attempt, { once: true, passive: true }));
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && video.paused) attempt();
-  });
-
-  /* Someone who asked for less motion should not be handed a moving picture.
-     Pausing rather than removing keeps the poster frame on screen, so the
-     opening is still a photograph rather than an empty black window. */
-  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const applyMotion = () => {
-    if (still.matches) {
-      video.pause();
-      video.removeAttribute("autoplay");
-    } else {
-      attempt();
-    }
-  };
-  applyMotion();
-  still.addEventListener?.("change", applyMotion);
+  frame.append(video);
+  player.querySelector(".player__play")?.remove();
+  player.classList.add("is-playing");
+  return video;
 }
 
-
-/* ==========================================================================
-   REELS
-   --------------------------------------------------------------------------
-   Nothing is downloaded until it is wanted: the frame shows a poster and the
-   <video> is built on the first play, or when the reel becomes the thing on
-   screen. Only one plays at a time — a single scroll should not set four
-   files downloading over whatever connection the visitor is on.
-   ========================================================================== */
 function initPlayers() {
-  const players = [...document.querySelectorAll(".player")];
-  if (!players.length) return;
+  /* With the observer running, a player starts itself and the button is only
+     the fallback. Hidden rather than removed: it is what the keyboard reaches
+     for if autoplay is ever refused. */
+  const auto = "IntersectionObserver" in window && !videoParked();
 
-  function start(player, auto) {
-    const frame = player.querySelector(".player__frame");
-    const src = player.dataset.src;
-    if (!frame || !src || player.classList.contains("is-playing")) return null;
+  document.querySelectorAll(".player").forEach((player) => {
+    const button = player.querySelector(".player__play");
+    if (!button) return;
+    if (auto) button.hidden = true;
 
-    const video = document.createElement("video");
-    video.src = src;
-    /* Scrolled to, a reel is a moving photograph: it loops, silently, with no
-       furniture over it. Reached by the button instead — which is what happens
-       when autoplay is off — it is a deliberate request to watch, so it gets
-       its controls and plays once. */
-    video.controls = !auto;
-    video.loop = !!auto;
-    video.autoplay = true;
-    video.playsInline = true;
-    video.preload = "auto";
-    video.muted = true;
-
-    /* The frame already shows a poster, but a <video> paints its own black
-       background over it while the file buffers. Handing it the very image the
-       browser already chose keeps the still on screen through the wait.
-       currentSrc is empty until a candidate has actually been picked, which for
-       a lazy image below the fold may not have happened — hence the fallback. */
-    const poster = frame.querySelector(".player__poster");
-    const posterSrc = poster && (poster.currentSrc || poster.getAttribute("src"));
-    if (posterSrc) video.poster = posterSrc;
-
-    video.addEventListener("error", () => {
-      const note = document.createElement("p");
-      note.className = "player__error";
-      note.textContent = document.documentElement.lang === "he"
-        ? "לא הצלחנו לטעון את הסרטון. אפשר לנסות שוב מאוחר יותר."
-        : "This film could not be loaded. Please try again later.";
-      video.remove();
-      frame.append(note);
-      player.classList.remove("is-playing");
-    }, { once: true });
-
-    frame.append(video);
-    player.querySelector(".player__play")?.remove();
-    player.classList.add("is-playing");
-    video.play?.().catch(() => {});
-    return video;
-  }
-
-  players.forEach((player) => {
-    player.querySelector(".player__play")?.addEventListener("click", () => {
-      const video = start(player, false);
+    button.addEventListener("click", () => {
+      const video = buildPlayer(player, false);
+      video?.play?.().catch(() => {});
       // a click is deliberate, so the keyboard follows it; scrolling into view
       // is not, and stealing focus mid-scroll would yank the page around
       video?.focus({ preventScroll: true });
     }, { once: true });
   });
-
-  watchOnScroll(players, start);
 }
-
-/* A reel begins when it is the thing on screen and stops when it is not, so a
-   visitor scrolling through sees the work move without hunting for play
-   buttons. Reduced motion and Data Saver switch the whole mechanism off; the
-   play buttons then work exactly as they always did.
-
-   The long proposal film is left out on purpose. It runs three quarters of a
-   minute and is the only piece here with a real soundtrack, so it stays a
-   deliberate choice rather than something that ambushes you on the way past. */
-function watchOnScroll(players, start) {
-  if (!("IntersectionObserver" in window)) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (navigator.connection?.saveData) return;
-
-  /* With this running the reels start themselves, so the button is only the
-     fallback for the cases above. Hidden rather than removed: it is what the
-     keyboard reaches for if autoplay is ever refused. */
-  players.forEach((p) => {
-    const button = p.querySelector(".player__play");
-    if (button) button.hidden = true;
-  });
-
-  /* Only .player elements now. The inline-film branch that used to live here
-     drove the colour-grading clip, and that clip has gone: the Events section
-     loops the same venue at the same hour, so keeping it below was a repeat
-     rather than a second piece of work. Reels are handled by initReels(). */
-  const items = players.map((el) => ({ el, kind: "player" }));
-  const videoOf = (item) => item.el.querySelector("video");
-
-  let current = null;
-  const ratios = new Map();
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const item = items.find((i) => i.el === entry.target);
-      if (item) ratios.set(item, entry.isIntersecting ? entry.intersectionRatio : 0);
-    });
-
-    // whichever reel shows the most of itself wins, if it is really on screen
-    let best = null;
-    let bestRatio = 0.55;
-    ratios.forEach((ratio, item) => {
-      if (ratio > bestRatio) { bestRatio = ratio; best = item; }
-    });
-
-    if (best === current) return;
-
-    if (current) {
-      const video = videoOf(current);
-      // never interrupt someone who took over with the controls
-      if (video && !video.paused && video.muted) video.pause();
-    }
-
-    current = best;
-    if (!best) return;
-
-    let video = videoOf(best);
-    if (!video && best.kind === "player") video = start(best.el, true);
-    if (!video) return;
-
-    video.muted = true;
-    video.play?.().catch(() => {});
-  }, { threshold: [0, 0.25, 0.55, 0.75, 1] });
-
-  items.forEach((item) => observer.observe(item.el));
-
-  // a backgrounded tab should not sit there playing to nobody
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden || !current) return;
-    const video = videoOf(current);
-    if (video && video.muted) video.pause();
-  });
-}
-
 
 /* ==========================================================================
-   REELS
+   A REEL'S SOUND BUTTON
    --------------------------------------------------------------------------
-   The markup already says autoplay loop muted playsinline, so these play with
-   no script at all. What this adds is restraint: four reels sit in the Events
-   section and preload="none" keeps them off the wire until one is actually
-   worth watching. A reel starts when it comes into view and pauses when it
-   leaves, so a visitor downloads the films they scroll past and no others, and
-   a section left behind is not still decoding video into a tab nobody is on.
+   A vertical reel loops like one, so it gets what a reel has instead of a
+   player: one button in the corner, sound on and off. The markup carries
+   native controls for the visitor without this script, who would otherwise
+   have a poster and no way to play it; here they are swapped for the button.
 
-   Per reel, deliberately, rather than the one-at-a-time rule the old player
-   governor used. These sit two abreast: with a single winner one half of a
-   pair would run while the other stood frozen beside it, which reads as a
-   broken video rather than as a considered layout.
+   Reduced motion and Data Saver keep the native controls instead. Nothing
+   starts by itself there, so the reel needs a play button, and the sound
+   button alone would be a control for a film that never moves.
    ========================================================================== */
-function initReels() {
-  const reels = [...document.querySelectorAll("[data-reel]")];
-  if (!reels.length) return;
+function initSoundButtons() {
+  if (videoParked()) return;
 
-  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  document.querySelectorAll("video[data-sound]").forEach((video) => {
+    const button = video.parentElement.querySelector("[data-sound-toggle]");
+    if (!button) return;
 
-  /* Asked for less motion, or on a metered connection: leave every reel on its
-     poster frame. Nothing is fetched and nothing moves. */
-  const parked = () => still.matches || navigator.connection?.saveData;
+    video.controls = false;
+    button.hidden = false;
 
-  const settle = (video, visible) => {
-    if (parked() || !visible) {
-      if (!video.paused) video.pause();
+    const labels = {
+      on: button.dataset.labelOn || "Turn the sound on",
+      off: button.dataset.labelOff || "Turn the sound off",
+    };
+
+    /* The label says what pressing will do, rather than aria-pressed on a
+       fixed name: "Turn the sound off" needs no state to be understood. */
+    const paint = () => {
+      const audible = !video.muted;
+      button.classList.toggle("is-on", audible);
+      button.setAttribute("aria-label", audible ? labels.off : labels.on);
+    };
+
+    button.addEventListener("click", () => {
+      video.muted = !video.muted;
+      // a press is a gesture, the one moment sound is always allowed to start
+      if (!video.muted && video.paused) video.play?.().catch(() => {});
+    });
+
+    /* Painted from the video rather than from the click, because the video
+       can change on its own: initVideos() mutes a film again if the browser
+       refuses its sound on the way back into view. */
+    video.addEventListener("volumechange", paint);
+    paint();
+  });
+}
+
+function initVideos() {
+  /* A .player is watched as a figure, because its video does not exist yet. */
+  const targets = [...document.querySelectorAll("video, .player")];
+  if (!targets.length) return;
+
+  const videoIn = (t) => (t.tagName === "VIDEO" ? t : t.querySelector("video"));
+  const targetOf = (v) => v.closest(".player") || v;
+  /* A film is a video the visitor can hear: native controls, or a sound
+     button of its own (data-sound -- the vertical reel, whose controls are
+     swapped for one). Either way it must not be re-muted behind their back. */
+  const isFilm = (v) => v.controls || v.hasAttribute("data-sound");
+
+  const seen = new Map();        // target -> share of it on screen, as last reported
+  const ours = new WeakSet();    // videos this code is in the middle of pausing
+  const stopped = new WeakSet(); // films the visitor paused, or watched to the end
+  const refused = new Set();     // play() turned down by the autoplay policy
+  const ready = new WeakSet();
+
+  function prepare(video) {
+    if (ready.has(video)) return;
+    ready.add(video);
+
+    // the two properties the autoplay policy checks, set whatever the markup says
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.removeAttribute("autoplay");   // see the note at the top: only this starts anything
+
+    video.addEventListener("play", () => stopped.delete(video));
+    video.addEventListener("pause", () => {
+      if (ours.has(video)) { ours.delete(video); return; }
+      /* A page going into the background can have its media paused by the
+         system as well as by this code, in either order. That is not the
+         visitor's doing, and remembering it would leave the film stopped for
+         good when they come back. */
+      if (document.hidden) return;
+      /* Not ours, so the visitor's -- or the end of the film, which fires pause
+         too. An ambient video has no controls to pause it with, so a pause it
+         did not ask for is the browser's and is not remembered. */
+      if (isFilm(video)) stopped.add(video);
+    });
+  }
+
+  function play(video) {
+    refused.delete(video);
+    if (!isFilm(video)) video.muted = true;
+    video.play?.().catch((err) => {
+      if (err?.name !== "NotAllowedError") return;   // AbortError: a pause overtook it
+      /* Sound the visitor turned on can be refused on the way back in when
+         there has been no fresh gesture (Safari). Muted beats not at all, and
+         the volume button is right there. */
+      if (!video.muted) { video.muted = true; play(video); return; }
+      refused.add(video);   // Low Power Mode, mostly: tried again on the next gesture
+    });
+  }
+
+  function pause(video) {
+    if (!video || video.paused) return;
+    ours.add(video);
+    video.pause();
+  }
+
+  function settle(target) {
+    const ratio = seen.get(target) || 0;
+    let video = videoIn(target);
+
+    if (ratio === 0 || document.hidden) { pause(video); return; }
+
+    if (videoParked()) {
+      // motion that was already running stops; a film the visitor started does not
+      if (video && !isFilm(video)) pause(video);
       return;
     }
-    video.muted = true;              // the attribute autoplay policy checks
-    video.play?.().catch(() => {});
-  };
+
+    // between the marks, on the way in or out: leave it as it is
+    if (ratio < (video && isFilm(video) ? FILM_IN : AMBIENT_IN)) return;
+
+    if (!video) video = buildPlayer(target, true);   // a player, first time on screen
+    if (!video) return;
+    prepare(video);
+
+    if (video.paused && !stopped.has(video)) play(video);
+  }
+
+  targets.forEach((t) => { const v = videoIn(t); if (v) prepare(v); });
 
   if (!("IntersectionObserver" in window)) {
-    reels.forEach((v) => settle(v, !parked()));
+    // nothing to measure with, so everything counts as on screen
+    targets.forEach((t) => { seen.set(t, 1); settle(t); });
     return;
   }
 
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => settle(entry.target, entry.isIntersecting));
-  }, { threshold: 0.2 });
+    entries.forEach((entry) => {
+      seen.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0);
+      settle(entry.target);
+    });
+  }, { threshold: [0, AMBIENT_IN, FILM_IN] });
 
-  reels.forEach((video) => {
-    video.muted = true;
-    video.playsInline = true;
-    observer.observe(video);
+  targets.forEach((t) => observer.observe(t));
+
+  // a backgrounded tab should not sit there playing to nobody, and picks up where it was
+  document.addEventListener("visibilitychange", () => targets.forEach(settle));
+  window.matchMedia("(prefers-reduced-motion: reduce)")
+    .addEventListener?.("change", () => targets.forEach(settle));
+
+  /* A refusal is the browser saying "not without a gesture", so the next
+     gesture is when to ask again. */
+  const retry = () => {
+    if (!refused.size) return;
+    [...refused].forEach((v) => { refused.delete(v); settle(targetOf(v)); });
+  };
+  ["touchend", "pointerdown", "keydown"].forEach((type) =>
+    document.addEventListener(type, retry, { passive: true }));
+}
+
+
+/* ==========================================================================
+   CAROUSEL
+   --------------------------------------------------------------------------
+   The track is a real scroll container with scroll-snap, so swiping, flicking
+   and dragging the scrollbar already work before any of this runs. What this
+   adds is the furniture: arrows, dots, a timer that advances on its own, the
+   loop, and a one-off hint that the strip moves sideways at all.
+
+   Everything below drives the carousel by setting scrollLeft and then reading
+   it back, rather than keeping an index of its own. That matters: the visitor
+   can move the track by hand at any moment, and a component that remembers
+   where it thinks it is will disagree with where it actually is the first time
+   they do. The scroll position is the single source of truth.
+
+   THE LOOP. The set of photographs is copied once before itself and once
+   after, and the visitor starts on the middle copy. Wherever they stop, if it
+   is on one of the outer copies the track jumps by exactly one set's width to
+   the same picture in the middle -- instantly, and only once scrolling has
+   come to rest, so the jump lands between two identical frames and is never
+   seen. Moving a scroll position mid-gesture is what makes other infinite
+   carousels stutter on iOS, which is why it waits.
+
+   A whole set on either side is more than it strictly needs, and that is the
+   point: scroll-snap-stop holds a swipe to one frame, so the visitor can never
+   outrun the buffer before the jump, however fast they flick. The copies are
+   aria-hidden and inert, so a screen reader and the Tab key meet each
+   photograph once.
+   ========================================================================== */
+const CAROUSEL_MS = 4000;
+
+/* The hint waits for most of the strip to be on screen, and then a beat
+   more, so the eye has landed on it before it moves. */
+const NUDGE_AT = 0.6;
+const NUDGE_DELAY_MS = 450;
+
+function initCarousels() {
+  document.querySelectorAll("[data-carousel]").forEach(setupCarousel);
+}
+
+function setupCarousel(root) {
+  const track = root.querySelector("[data-carousel-track]");
+  const slides = [...root.querySelectorAll(".carousel__slide")];
+  if (!track || slides.length < 2) return;
+
+  const prev = root.querySelector("[data-carousel-prev]");
+  const next = root.querySelector("[data-carousel-next]");
+  const dotWrap = root.querySelector("[data-carousel-dots]");
+  const count = root.querySelector("[data-carousel-count]");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  const n = slides.length;
+
+  // ---- the loop: a copy of the set either side of it
+  const copies = () => slides.map((slide) => {
+    const copy = slide.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    copy.inert = true;
+    return copy;
+  });
+  track.prepend(...copies());
+  track.append(...copies());
+  const all = [...track.children];          // 3n frames: copy, the real set, copy
+
+  slides.forEach((slide, i) => {
+    slide.setAttribute("role", "group");
+    slide.setAttribute("aria-roledescription", "slide");
+    slide.setAttribute("aria-label", `${i + 1} / ${n}`);
   });
 
-  // a backgrounded tab should not sit there playing to nobody
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) reels.forEach((v) => v.pause());
+  /* Measured from the first frame, so the number is how far the track has to
+     travel. From the bounding box rather than offsetLeft, which rounds to a
+     whole pixel: the frames are fractional widths, so they sit at fractional
+     positions, and a jump to a rounded one lands up to a pixel off the snap
+     line. Both frames carry the same transform during the hint, so it cancels
+     out of the difference. */
+  const leftOf = (k) => all[k].getBoundingClientRect().left - all[0].getBoundingClientRect().left;
+  const setWidth = () => leftOf(n);         // one whole set, its gaps included
+
+  /* Where the track actually is, not where we last told it to go: whichever
+     frame sits nearest the leading edge, which is what scroll-snap aligns to.
+     An index into all 3n, so a step from the last frame goes on to the copy
+     after it rather than back to the start. */
+  const at = () => {
+    const x = track.scrollLeft;
+    let best = 0, bestGap = Infinity;
+    for (let k = 0; k < all.length; k++) {
+      const gap = Math.abs(leftOf(k) - x);
+      if (gap < bestGap) { bestGap = gap; best = k; }
+    }
+    return best;
+  };
+
+  /* Where a smooth scroll is headed until it gets there. Without it, a second
+     press of the arrow mid-glide reads the frame the track is still leaving
+     and asks for the one already on its way, and the press is lost. */
+  let heading = null;
+  const from = () => heading ?? at();
+
+  // the frame at the leading edge when the track last came to rest
+  let showing = n;
+
+  /* "instant", not "auto": auto means "do whatever CSS scroll-behavior says",
+     which here is smooth -- and a jump that animates is a jump you can see. */
+  let ownJump = false;
+  const jump = (left) => { ownJump = true; track.scrollTo({ left, behavior: "instant" }); };
+
+  // back to the middle copy, keeping exactly what is on screen
+  function recentre() {
+    const k = from();
+    const shift = k < n ? 1 : k >= 2 * n ? -1 : 0;
+    if (!shift) return;
+    jump(track.scrollLeft + shift * setWidth());
+    if (heading !== null) heading += shift * n;
+  }
+
+  const goTo = (k, smooth = true) => {
+    heading = k;
+    track.scrollTo({
+      left: leftOf(k),
+      behavior: smooth && !still.matches ? "smooth" : "instant",
+    });
+    /* Repaint against the frame asked for, not the one the track is still on.
+       Waiting for the scroll event leaves the dots a beat behind every press,
+       and a smooth scroll has not arrived yet when the handler returns. */
+    paint(k % n);
+  };
+
+  const step = (dir) => {
+    recentre();                  // so a step never runs off either end
+    goTo(from() + dir);
+  };
+
+  // the copy of picture i nearest to where the track is now, so a dot takes the short way
+  const nearest = (i) => {
+    const k = from();
+    const base = k - (k % n) + i;
+    return [base - n, base, base + n]
+      .filter((c) => c >= 0 && c < all.length)
+      .reduce((a, b) => (Math.abs(b - k) < Math.abs(a - k) ? b : a));
+  };
+
+  // ---- dots, one per photograph, written here so the markup need not track them
+  const label = dotWrap?.dataset.label || "Go to image";
+  const dots = slides.map((_, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "carousel__dot";
+    b.setAttribute("aria-label", `${label} ${i + 1}`);
+    b.addEventListener("click", () => { hold(); goTo(nearest(i)); });
+    dotWrap?.append(b);
+    return b;
   });
 
-  still.addEventListener?.("change", () =>
-    reels.forEach((v) => settle(v, v.getBoundingClientRect().top < innerHeight && v.getBoundingClientRect().bottom > 0)));
+  /* Takes the index when the caller knows it — a button press knows where it is
+     going before the track gets there — and reads the scroll position when it
+     does not, which is the case after a swipe. */
+  function paint(i = at() % n) {
+    dots.forEach((d, j) => {
+      if (j === i) d.setAttribute("aria-current", "true");
+      else d.removeAttribute("aria-current");
+    });
+    /* The phone's stand-in for the bar, and not hidden from assistive tech.
+       The two never speak over each other because each is display:none at the
+       size the other is shown, and display:none takes an element out of the
+       accessibility tree as well as off the screen — so on a phone, where the
+       dots are gone, this is the only thing left saying where you are. */
+    if (count) count.textContent = `${i + 1} / ${n}`;
+  }
+
+  // ---- the timer ----
+  let timer = 0;
+  let paused = false;
+
+  const start = () => {
+    clearInterval(timer);
+    if (paused || still.matches || document.hidden) return;
+    timer = setInterval(() => step(1), CAROUSEL_MS);
+  };
+  const stop = () => clearInterval(timer);
+
+  /* A pause that outlives the pointer. Clicking an arrow and then moving the
+     mouse away should not hand the carousel straight back to the timer while
+     the visitor is still looking at what they chose. */
+  let holdTimer = 0;
+  function hold() {
+    stop();
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(start, CAROUSEL_MS * 2);
+  }
+
+  // ---- the hint ----
+  /* Once, the first time the strip is properly on screen: every frame slides a
+     little way towards the next photograph and settles back. It is drawn by
+     the .is-nudging rule in components.css as a transform on the frames, not a
+     scroll -- snapping is mandatory here, so a scroll that stopped short of a
+     frame would be pulled straight back before the gesture could show.
+
+     Anyone who has already moved the strip themselves has nothing to learn
+     from it, so touching the carousel first cancels it for good. */
+  let nudged = false;
+  let nudgeTimer = 0;
+
+  const learned = () => { nudged = true; clearTimeout(nudgeTimer); };
+
+  /* The visitor has hold of the strip. Any glide this code had under way is
+     theirs now, so stop waiting for it to arrive. */
+  const takeOver = () => { learned(); heading = null; };
+
+  const nudge = () => {
+    if (nudged || still.matches || document.hidden) return;
+    nudged = true;
+    root.classList.add("is-nudging");
+    start();        // a fresh interval, so the first advance does not land on the hint
+  };
+
+  // every frame finishes at once; the first to say so is enough
+  track.addEventListener("animationend", (e) => {
+    if (e.animationName === "carousel-nudge" && root.classList.contains("is-nudging")) {
+      root.classList.remove("is-nudging");
+    }
+  });
+
+  /* Both wrap, because the timer does -- and with the loop there is no end
+     for either of them to stop at. */
+  prev?.addEventListener("click", () => { learned(); hold(); step(-1); });
+  next?.addEventListener("click", () => { learned(); hold(); step(1); });
+  dotWrap?.addEventListener("click", learned);
+
+  // pause while it is being looked at or touched, and resume when it is not
+  root.addEventListener("pointerenter", () => { paused = true; stop(); });
+  root.addEventListener("pointerleave", () => { paused = false; start(); });
+  root.addEventListener("focusin", () => { paused = true; stop(); });
+  root.addEventListener("focusout", (e) => {
+    if (!root.contains(e.relatedTarget)) { paused = false; start(); }
+  });
+  track.addEventListener("pointerdown", () => { takeOver(); hold(); });
+  track.addEventListener("wheel", (e) => {
+    hold();
+    // a sideways flick is someone using the strip; scrolling the page past it is not
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) takeOver();
+  }, { passive: true });
+
+  track.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    learned();
+    hold();
+    step(e.key === "ArrowRight" ? 1 : -1);
+  });
+
+  // ---- settling: the one moment the loop is allowed to move the track
+  const hasScrollEnd = "onscrollend" in window;
+
+  /* A finger on the glass is never at rest, however still it is, so the
+     fallback timer below must not recentre under it. scrollend already knows
+     this, and waits for the snap after the finger lifts as well -- so where it
+     exists, lifting the finger schedules nothing. Scheduling there anyway was
+     a bug: the timer beat the snap animation and recentred a frame that was
+     still 65px from home, and it stayed there. */
+  let touching = false;
+  track.addEventListener("touchstart", () => { takeOver(); touching = true; }, { passive: true });
+  const lift = () => { touching = false; if (!hasScrollEnd) schedule(); };
+  track.addEventListener("touchend", lift, { passive: true });
+  track.addEventListener("touchcancel", lift, { passive: true });
+
+  /* Exactly on a frame's edge, not merely near it. See the frame observer
+     below for how the two come apart. */
+  const align = (k) => {
+    if (Math.abs(track.scrollLeft - leftOf(k)) > 0.5) jump(leftOf(k));
+  };
+
+  function settled() {
+    if (touching) return;
+    /* A scrollend can arrive for a scroll this code has already replaced --
+       the instant jump in recentre(), typically, fired just before the glide
+       that follows it. Acting on that one recentred the track out from under
+       the glide: twenty-five quick presses of next landed two frames too far.
+       It is told apart by distance: it comes while the glide has a frame or
+       more still to go. */
+    if (heading !== null && Math.abs(track.scrollLeft - leftOf(heading)) > 16) return;
+    align(heading ?? at());
+    heading = null;
+    recentre();
+    showing = at();
+    paint();
+  }
+
+  let settle = 0;
+  function schedule() {
+    clearTimeout(settle);
+    settle = setTimeout(settled, 120);
+  }
+
+  if (hasScrollEnd) {
+    track.addEventListener("scrollend", settled);
+    // the dots still follow a swipe while it is moving, not only when it stops
+    track.addEventListener("scroll", () => { if (heading === null) paint(); }, { passive: true });
+  } else {
+    track.addEventListener("scroll", () => {
+      if (heading === null) paint();
+      schedule();
+    }, { passive: true });
+  }
+
+  /* A resize changes the ribbon's height and so every frame's width, which
+     leaves scrollLeft pointing somewhere in the middle of a different
+     picture. Put the one that was showing back at the leading edge. */
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => { jump(leftOf(heading ?? showing)); }).observe(track);
+
+    /* Frames also change width under a strip that is standing still. A
+       photograph arrives a fraction wider or narrower than its width and
+       height attributes promised -- the file that loads is a resized copy
+       rounded to whole pixels, so a 3:2 comes in at 1.5015 -- and every frame
+       after it moves along. Measured, 19 of the 21 shift as they load, by up
+       to 0.6px each; across a quick run of presses that left the strip 3px off
+       its frame, and the browser does not re-snap for it.
+
+       So when a frame changes size and nothing is moving the strip, the one
+       that was showing goes back on the edge. If something is moving it,
+       settled() lines it up on arrival instead. */
+    /* Only the visitor's scrolling counts as moving here: this code's own
+       glides are covered by heading, and its jumps by ownJump. Counting those
+       too skipped the photograph that loaded just after a glide arrived. */
+    let lastScroll = 0;
+    track.addEventListener("scroll", () => {
+      if (ownJump) ownJump = false;
+      else if (heading === null) lastScroll = performance.now();
+    }, { passive: true });
+    const drift = new ResizeObserver(() => {
+      if (heading !== null || touching || performance.now() - lastScroll < 150) return;
+      align(showing);
+    });
+    all.forEach((frame) => drift.observe(frame));
+  }
+
+  document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+  still.addEventListener?.("change", start);
+
+  /* Only runs while it is on screen. A slideshow ticking away three sections
+     above the fold is work nobody asked for, and on a phone it is battery. */
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      const ratio = entry.isIntersecting ? entry.intersectionRatio : 0;
+      if (ratio >= 0.25) start(); else stop();
+
+      clearTimeout(nudgeTimer);
+      if (ratio >= NUDGE_AT && !nudged) nudgeTimer = setTimeout(nudge, NUDGE_DELAY_MS);
+    }, { threshold: [0, 0.25, NUDGE_AT] }).observe(root);
+  } else {
+    start();
+  }
+
+  // open on the first real photograph, with a whole set to spare either side
+  jump(leftOf(n));
+  paint(0);
 }
 
 
@@ -912,10 +1298,29 @@ function initDock() {
     }, { threshold: 0 }).observe(contact);
   }
 
+  /* A film's control bar is the one thing here the dock must not sit on. The
+     volume button on it is how a visitor hears the film, and the dock floats
+     at the bottom right -- exactly where the bar is drawn. With a film scrolled
+     to the middle of a laptop screen, "Let's talk" covered the right end of
+     the bar. So each button stands aside while it overlaps one, and comes back
+     as soon as it does not. Queried each time rather than once, because a
+     player's video is built later and gets controls when it is clicked. A
+     vertical reel's sound button sits in the same band, so it counts too. */
+  const CONTROL_BAR = 72;   // Chrome draws its bar about 60px up from the bottom edge
+  const overFilm = (el) => {
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    return [...document.querySelectorAll("video[controls], video[data-sound]")].some((video) => {
+      const f = video.getBoundingClientRect();
+      return r.right > f.left && r.left < f.right &&
+             r.bottom > f.bottom - CONTROL_BAR && r.top < f.bottom;
+    });
+  };
+
   function update() {
     const y = window.scrollY;
-    wa?.classList.toggle("is-shown", y > window.innerHeight * 0.6 && !contactVisible);
-    top?.classList.toggle("is-shown", y > window.innerHeight * 1.8);
+    wa?.classList.toggle("is-shown", y > window.innerHeight * 0.6 && !contactVisible && !overFilm(wa));
+    top?.classList.toggle("is-shown", y > window.innerHeight * 1.8 && !overFilm(top));
   }
 
   onScrollFrame(update);
@@ -1020,13 +1425,14 @@ if (!location.hash) {
 
 function init() {
   initImageFade();
-  initHeroVideo();
   initRail();
   initMenu();
   initCompare();
+  initCarousels();
   initGalleries();
   initPlayers();
-  initReels();
+  initSoundButtons();
+  initVideos();
   initReveal();
   initDock();
   initLightbox();

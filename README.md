@@ -166,28 +166,73 @@ Round it to 7 and 5 and the two heights differ by 18%, which has to come out of
 the pictures as a crop. The justified row gets the same arrangement exactly
 right because it solves for the height instead of rounding to a track.
 
-## Films in the Events section
+## Video: play in view, pause out of it
 
-The four films there are reels: `autoplay loop muted playsinline`, no controls
-and no play button, so each one behaves like a photograph that happens to move.
-`muted` and `playsinline` are the two attributes the autoplay policy actually
-checks, and they are in the markup rather than set by script, so the reels play
-with JavaScript switched off.
+Every `<video>` on the page follows one rule, set by `initVideos` in
+`js/ui.js`: it plays while it is on screen, pauses once it has left, and starts
+muted. There are two kinds, and the markup decides which:
 
-What `js/ui.js` adds is restraint. Together the four are about 47MB, which is
-far too much to fetch on first paint, so each carries `preload="none"` and
-`initReels` starts one when it scrolls into view and pauses it when it leaves.
-A visitor downloads the films they actually look at.
+| kind | markup | behaviour |
+|---|---|---|
+| ambient | `loop muted playsinline`, no `controls` | the hero, the Events reels, the banner, the promo loop — silent for good, no furniture |
+| film | `controls muted playsinline` | the three proposal films and Beit Halochem — start muted, the visitor can turn the sound on |
+| vertical reel | `controls loop muted playsinline data-sound` | the ABBA Hotel reel — loops like a reel; the script swaps the native controls for one sound button in the corner |
 
-The pause is per reel, not one-at-a-time as the old player governor was. These
-sit two abreast, and with a single winner one half of a pair would run while
-the other stood frozen beside it, which reads as a broken video rather than as
-a layout. Reduced motion and Data Saver park every reel on its poster frame.
+Write `controls` on a new video and it is a film; leave it off and it is
+ambient. Every ambient file is digitally silent anyway (decoded, not one sample
+is above zero), and every film has a soundtrack. Once a visitor has turned a
+film's sound on, or paused it, that choice is kept: scrolling away and back
+resumes it as they left it.
+
+Only the hero carries `autoplay`, because it is on screen when the page opens.
+The attribute was on the Events reels too and it was costing a great deal:
+`autoplay` overrides `preload="none"`, so every reel below the fold started
+downloading at first paint — 79MB in the first ten seconds with the page left
+at the top. Without it, a reel is fetched when it is scrolled to. The trade is
+that with JavaScript switched off a reel shows its poster rather than playing,
+and a film shows its poster with a play button.
+
+Playback is per video, not one-at-a-time. The reels sit two abreast, and with a
+single winner one half of a pair would run while the other stood frozen beside
+it, which reads as a broken video rather than as a layout. Reduced motion and
+Data Saver stop anything starting by itself, but never stop anything pausing.
 
 `event-resort.mp4` is 19MB for 14 seconds, around 10 Mbps, which is generous
 for a clip that renders 500px wide. Re-encoding the Events reels at a lower
 bitrate would cut that section's weight by more than half without a visible
 difference at this size. Nothing depends on it, so it is left as it is.
+
+A vertical reel (`.vreel` in `css/components.css`) is held to 70vh on a
+desktop and sits beside its text; on a phone it is the width of the column with
+its text below. Its `controls` are only for a visitor without JavaScript, and
+with reduced motion or Data Saver on they stay, because nothing starts by itself
+there and the reel needs a play button.
+
+## Adding new footage
+
+`New Footage/` is the drop folder, and it is gitignored. Nothing in it is
+served, and it should be empty once a batch has been filed:
+
+1. **Masters go where the build scripts read them.** Video goes to
+   `assets/video/source/` and photographs to `assets/photos/originals/`. Both
+   are gitignored, because camera originals are gigabytes; keep your own backup.
+   On this disk a copy can be an APFS clone (`cp -c`), which takes no extra
+   space.
+2. **Check before removing anything.** Compare each copy's `shasum -a 256` with
+   its original. The last batch also held three films that were already in
+   `source/`, byte for byte.
+3. **Encode for the web.** Add a line to `build-videos.sh`. A preset job uses
+   `avconvert`; a `RATED` job uses `tools/encode.swift`, which takes an
+   explicit bitrate. There is no ffmpeg on this machine. Then build the poster
+   ladder and the pages: `python3 build-images.py && python3 build.py`.
+4. **Link it in `template.html`**, with its strings in `content/strings.json`
+   in both languages.
+5. **Empty the drop folder.** The last batch went to the Trash rather than
+   being erased; empty the Trash to get the space back.
+
+`build-images.py` rebuilds every image on the site and rewrites `index.html`.
+For a single new poster it is enough to call its `build()` for that one file
+and add the entry to `assets/img/manifest.json`.
 
 ## Why the grading clip went
 

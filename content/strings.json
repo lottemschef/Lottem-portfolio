@@ -43,6 +43,9 @@
     "story.grading": "Grading is where footage turns into a scene. I set the colour, the contrast and the sound to the feeling of the place I was standing in, not to a preset.",
     "cat.promo": "Promotional films",
     "story.promo": "Short films for businesses and venues. One idea, told properly, in under a minute.",
+    "cat.abba": "ABBA Hotel, Tel Aviv-Yafo",
+    "cat.abba.sub": "Instagram Reel Production",
+    "story.abba": "Dynamic social media production for ABBA Hotel. This project combines precise ground videography with aerial drone footage, executed alongside strict risk management and complex flight authorizations in the Tel Aviv-Yafo airspace. The result is tailored, high-impact content designed for vertical viewing.",
     "grade.before": "Before grading",
     "grade.after": "After grading",
     "contact.heading": "Contact",
@@ -79,7 +82,11 @@
     "alt.artists": "A portrait of a performing artist",
     "alt.gradeBefore": "A frame straight out of the camera, before grading",
     "alt.gradeAfter": "The same frame after colour grading",
-    "alt.portrait": "Lottem Schefenbauer"
+    "alt.portrait": "Lottem Schefenbauer",
+    "a11y.carousel": "Photographs, as a slideshow",
+    "a11y.goToImage": "Go to image",
+    "a11y.soundOn": "Turn the sound on",
+    "a11y.soundOff": "Turn the sound off"
   },
   "he": {
     "meta.title": "לוטם שיפנבאור · צלם, עורך ומפעיל רחפן",
@@ -125,6 +132,9 @@
     "story.grading": "הקולור הוא המקום שבו החומר הופך לסצנה. אני מכוון את הצבע, את הניגודיות ואת הסאונד לתחושה של המקום שבו עמדתי, לא לפריסט מוכן.",
     "cat.promo": "סרטי תדמית",
     "story.promo": "סרטונים קצרים לעסקים ולמקומות. רעיון אחד, מסופר כמו שצריך, בפחות מדקה.",
+    "cat.abba": "מלון ABBA, תל אביב-יפו",
+    "cat.abba.sub": "הפקת רילס לאינסטגרם",
+    "story.abba": "הפקת תוכן דינמית לרשתות החברתיות עבור מלון ABBA. הפרויקט משלב צילום וידאו קרקעי מדויק עם צילומי אוויר מרחפן, ובוצע תוך ניהול סיכונים קפדני והשגת אישורי טיסה מורכבים במרחב האווירי של תל אביב-יפו. התוצאה: תוכן עוצמתי ומותאם אישית, שנבנה לצפייה אנכית.",
     "grade.before": "לפני קולור",
     "grade.after": "אחרי קולור",
     "contact.heading": "יצירת קשר",
@@ -161,6 +171,10 @@
     "alt.artists": "פורטרט של אמן מבצע",
     "alt.gradeBefore": "הפריים ישירות מהמצלמה, לפני הקולור",
     "alt.gradeAfter": "אותו פריים אחרי הקולור",
-    "alt.portrait": "לוטם שיפנבאור"
+    "alt.portrait": "לוטם שיפנבאור",
+    "a11y.carousel": "תמונות, כמצגת",
+    "a11y.goToImage": "מעבר לתמונה",
+    "a11y.soundOn": "הפעלת הסאונד",
+    "a11y.soundOff": "השתקת הסאונד"
   }
 }

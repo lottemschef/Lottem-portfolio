@@ -639,6 +639,233 @@
 /* Someone who asked for less motion keeps the poster frame instead: js/ui.js
    pauses rather than removes, so the reel is still a photograph. */
 
+/* ==========================================================================
+   CAROUSEL — a variable-width ribbon
+   --------------------------------------------------------------------------
+   A scroll container first and a component second. The track really is
+   overflow-x: auto with scroll-snap, so a swipe, a trackpad flick, shift-wheel
+   and the keyboard all work before a line of script runs; js/ui.js only ever
+   sets scrollLeft, draws the indicator and runs the timer. With the script
+   blocked this is still a strip of photographs you can scroll by hand.
+
+   The height is fixed and the width is not. That one decision is the whole
+   component: a frame is as wide as its own proportions make it at this height,
+   so an upright is simply a narrower card than a landscape and both are shown
+   whole. Nothing is cropped and nothing is padded out.
+
+   It replaces slides that were each the full width of the track. Those did not
+   crop either — the picture was contained inside them — but a 2:3 upright in a
+   909px slide is 400px of photograph between two 250px bands of black, and on
+   a page about photographs that reads as a fault whatever the mechanism. The
+   ribbon has no such space to fill because no frame is ever wider than its own
+   picture.
+   ========================================================================== */
+.carousel {
+  position: relative;
+
+  /* Fixed height, dynamic width — but the height has a second job: it decides
+     how wide the widest frame comes out, and a frame wider than the track can
+     never be seen whole. Scroll-snap is mandatory, so you cannot pan within one
+     either; a swipe jumps to the next picture instead.
+
+     56.25cqw is the height at which a 16:9 frame — the widest shape in this set
+     — is exactly the width of the column. (100 / 1.778 = 56.25. cqw is a share
+     of .wrap, which declares container-type: inline-size.) Taking the smaller of
+     that and 70svh means the ribbon is as tall as the window allows right up to
+     the point where the landscapes would start running off the edge.
+
+     Left at a plain 70svh the landscapes came out 1120px wide in a 909px track
+     and 722px wide on a 375px phone. */
+  --ribbon-h: min(70svh, 56.25cqw);
+}
+
+.carousel__viewport {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+
+  /* Frames align to the leading edge rather than the centre. It was chosen
+     when the strip had ends, since centring cannot bring the first or last
+     frame to the middle. The loop in js/ui.js has removed the ends, but the
+     leading edge is still what the script measures from, so the two agree on
+     which frame is current. */
+  scroll-padding-inline-start: 0;
+
+  /* The order of a set of photographs is a composition, not a reading
+     direction -- the galleries take the same line. It also keeps scrollLeft
+     meaning one thing in both languages, which is worth a great deal here. */
+  direction: ltr;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel__viewport::-webkit-scrollbar { display: none; }
+
+.carousel__slide {
+  flex: 0 0 auto;              /* never stretched, never squashed */
+  inline-size: auto;           /* as wide as the picture turns out to be */
+  block-size: var(--ribbon-h);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  margin: 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* <picture> is a wrapper, not a box. Left to generate one it becomes the img's
+   containing block, and that box is auto height — so block-size: 100% below has
+   nothing to resolve against, silently falls back to the intrinsic size, and
+   every frame renders at whatever width the sizes attribute implied instead of
+   at the ribbon's height. An upright came out 945x1418 inside a 630px row.
+   display: contents takes the wrapper out of the box tree and leaves the figure
+   as the containing block, which is what the percentage is written against. */
+.carousel__slide picture { display: contents; }
+
+/* No object-fit here on purpose. The picture is not being fitted into a box —
+   it is the box: full height, and whatever width that height implies. There is
+   nothing for a crop or a letterbox to happen in. */
+.carousel__slide img {
+  block-size: 100%;
+  inline-size: auto;
+  max-inline-size: none;       /* the global img rule caps at 100%; not here */
+  display: block;
+}
+
+/* ---------- the controls ----------
+   These sit on the photographs, and a pale desert or a bright beach is most of
+   what they sit on. At 55% black with a 22% rim they all but vanished into
+   exactly those frames, which is the one place a visitor needs to find them.
+   So the disc is nearly opaque, the rim is half strength, a soft shadow lifts
+   it off whatever is behind, and it is a size a cursor finds without looking. */
+.carousel__nav {
+  position: absolute;
+  inset-block-start: calc(var(--ribbon-h) / 2);
+  transform: translateY(-50%);
+  z-index: 2;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .5);
+  background: rgba(10, 10, 10, .78);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, .35);
+  color: #F7F2E6;
+  transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease),
+              background-color var(--dur-xs) var(--ease), opacity var(--dur-xs) var(--ease);
+}
+
+.carousel__nav:hover {
+  border-color: var(--accent-lift);
+  color: var(--accent-lift);
+  background: rgba(10, 10, 10, .9);
+}
+.carousel__nav svg { inline-size: 1.35rem; block-size: 1.35rem; }
+
+/* Physical, not mirrored: the track scrolls left to right in both languages,
+   so each arrow points the way the photographs actually travel. */
+.carousel__nav--prev { left: var(--sp-3); }
+.carousel__nav--next { right: var(--sp-3); }
+
+/* ---------- the position indicator ----------
+   Twenty-one dots is not a usable control. At a legal 44px target they are
+   924px of dots under a 909px carousel, so they wrap to two rows and read as
+   clutter under the very section that was asked to stop being cluttered; shrunk
+   to fit one row they were 26px, under the minimum target and too small to aim
+   at anyway.
+
+   So the dots are a segmented bar instead: one row, one segment per frame, each
+   a full-height button that is easy to hit while drawing only a hairline. It
+   shows position the way dots do and still jumps straight to a frame.
+
+   On a phone even a segment is only 15px wide, which is not a target. There the
+   bar gives way to a plain counter and navigation is the swipe and the arrows —
+   which is what a thumb reaches for regardless.
+   ========================================================================== */
+.carousel__dots {
+  display: flex;
+  gap: 2px;
+  margin-block-start: var(--sp-4);
+}
+
+.carousel__dot {
+  flex: 1 1 0;
+  block-size: 2.75rem;          /* the target */
+  display: grid;
+  align-items: center;
+  padding: 0;
+}
+
+.carousel__dot::before {
+  content: "";
+  block-size: 2px;              /* the mark */
+  inline-size: 100%;
+  background: var(--rule);
+  transition: background-color var(--dur-xs) var(--ease), block-size var(--dur-xs) var(--ease);
+}
+
+.carousel__dot:hover::before { background: var(--fg-dim); }
+
+.carousel__dot[aria-current="true"]::before {
+  background: var(--accent-lift);
+  block-size: 4px;
+}
+
+.carousel__count {
+  display: none;
+  margin-block-start: var(--sp-4);
+  text-align: center;
+  font-family: var(--f-display);
+  font-size: var(--t-micro);
+  letter-spacing: .18em;
+  color: var(--fg-dim);
+}
+
+@media (max-width: 46rem) {
+  .carousel__dots { display: none; }
+  .carousel__count { display: block; }
+}
+
+/* A shorter ribbon on a phone, and no arrows: at this size they sit on top of
+   the photographs rather than beside them, and a thumb swipes anyway. */
+@media (max-width: 46rem) {
+  .carousel { --ribbon-h: min(50svh, 56.25cqw); }
+  .carousel__nav { display: none; }
+}
+
+/* ---------- the hint ----------
+   Played once by js/ui.js, the first time the strip is properly on screen:
+   every frame slides a little way towards the next photograph and settles
+   back, which says "this moves sideways" before anyone has to wonder. It is a
+   transform rather than a scroll because snapping is mandatory, and a scroll
+   that stopped short of a frame would be pulled back before it could show.
+
+   Out quickly, back slowly, and no further than a hand would push it to see
+   whether it gives. */
+.carousel { --nudge: clamp(2.5rem, 9cqw, 7rem); }
+
+.carousel.is-nudging .carousel__slide {
+  animation: carousel-nudge 1.15s both;
+}
+
+@keyframes carousel-nudge {
+  0%   { transform: translateX(0); animation-timing-function: cubic-bezier(.3, 0, .2, 1); }
+  36%  { transform: translateX(calc(-1 * var(--nudge))); animation-timing-function: cubic-bezier(.45, 0, .25, 1); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel__viewport { scroll-behavior: auto; }
+  .carousel.is-nudging .carousel__slide { animation: none; }
+}
+
+
 /* ---------- the Videography banner ----------
    A full-bleed film where a full-bleed photograph used to be. It keeps the
    picture's styling exactly: the width of the page, its own proportions, and
@@ -761,6 +988,136 @@
   background: #000;
   border-radius: 2px;
 }
+
+
+/* ==========================================================================
+   VERTICAL REEL — a 9:16 film, and the case study around it
+   --------------------------------------------------------------------------
+   An Instagram Reel is made for a phone held upright, and every other frame
+   on this page is wider than it is tall. Given the full column like the films
+   above it, it would be as tall as two screens; given a cell in a pair, a
+   narrow strip between two wide black fields. So it has a layout of its own.
+
+   On a desktop it is held to 70vh and sits beside its text, the way the
+   category headings sit beside theirs (the same 5:7 split as .block__head). On
+   a phone it is what the phone would show anyway: the width of the column,
+   upright, rounded, with the sound button in the corner, and the text below.
+   ========================================================================== */
+.vreel-case {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  /* a piece of its own, not a third cell of the pair above it */
+  margin-block-start: var(--sp-6);
+}
+
+@media (min-width: 60rem) {
+  .vreel-case {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--gutter);
+    align-items: center;
+  }
+}
+
+/* The figure is the reel's box, so the sound button can be placed against the
+   picture's own corner rather than the column's. Its width is the width a
+   70vh-tall 9:16 frame has, or the column if that is narrower. */
+.vreel {
+  --reel-h: 70vh;
+  position: relative;
+  margin: 0 auto;
+  inline-size: min(100%, calc(var(--reel-h) * 9 / 16));
+}
+
+/* The brief's own terms -- max-height 70vh, rounded 12px, centred -- with one
+   change: the width is 100% of the figure above rather than auto. A
+   <video preload="none"> has no size of its own until its file arrives, so
+   width: auto lays it out at the browser's 300x150 default and then jumps;
+   sized from the figure, it is the right shape from the first paint. */
+.vreel__video {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 9 / 16;
+  max-block-size: var(--reel-h);
+  margin: 0 auto;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #000;
+}
+
+/* On a phone the reel is the width of the column, the way it would be in the
+   app. The cap only bites on a short screen, where it keeps the whole frame in
+   view with room above it; svh, so the browser's collapsing toolbar does not
+   resize it mid-scroll. */
+@media (max-width: 46rem) {
+  .vreel { --reel-h: 85svh; }
+}
+
+/* ---------- the sound button ----------
+   What a reel has in place of a player: one round button in the corner, sound
+   on or off. Dark and blurred so it reads on a bright frame, a full 44px target
+   though it draws smaller, and placed on the inline end so it mirrors with the
+   page, as the dock does. */
+.vreel__sound {
+  position: absolute;
+  inset-block-end: var(--sp-3);
+  inset-inline-end: var(--sp-3);
+  z-index: 1;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 242, 230, .32);
+  background: rgba(10, 10, 10, .62);
+  backdrop-filter: blur(8px);
+  color: #F7F2E6;
+  transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease),
+              background-color var(--dur-xs) var(--ease);
+}
+
+/* the class sets display, which would otherwise beat the attribute */
+.vreel__sound[hidden] { display: none; }
+
+.vreel__sound:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
+.vreel__icon { inline-size: 1.2rem; block-size: 1.2rem; }
+.vreel__icon--audible,
+.vreel__sound.is-on .vreel__icon--muted { display: none; }
+.vreel__sound.is-on .vreel__icon--audible { display: block; }
+
+/* ---------- the text beside it ---------- */
+.vreel-case__text {
+  display: grid;
+  gap: var(--sp-3);
+  align-content: center;
+}
+
+/* A step below the category heading it sits under: this names one piece of
+   work inside "Promotional films", not a category of its own. */
+.vreel-case__title {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 1.05rem + .9vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -.015em;
+  color: var(--accent-ground);
+  text-wrap: balance;
+}
+
+/* the subtitle, set like the eyebrows: small, spaced, upper case */
+.vreel-case__sub {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-micro);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+:root[lang="he"] .vreel-case__sub { letter-spacing: .06em; }
+
+.vreel-case__text .prose { margin-block-start: var(--sp-2); }
 
 
 /* ==========================================================================
