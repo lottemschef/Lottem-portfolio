@@ -172,6 +172,17 @@
   }
 }
 
+/* ---------- 82rem and up: labels on, wrapping where they must ----------
+   The label shares its row with the marker, so it can never be wider than
+   --rail-w less the marker and the gap: a name too long for that wraps onto a
+   second line inside the rail instead of running out towards the photographs.
+   Two lines are 1.9rem, inside the link's 2.75rem floor, so the rail's rhythm
+   does not change. The chip below 82rem stays on one line; it is transient,
+   and allowed to overlap. */
+@media (min-width: 82rem) {
+  .rail__label { white-space: normal; }
+}
+
 /* Below 60rem the rail gives way to the menu button and its overlay. */
 @media (max-width: 59.999rem) {
   .rail { display: none; }
@@ -998,20 +1009,26 @@
    above it, it would be as tall as two screens; given a cell in a pair, a
    narrow strip between two wide black fields. So it has a layout of its own.
 
-   On a desktop it is held to 70vh and sits beside its text, the way the
-   category headings sit beside theirs (the same 5:7 split as .block__head). On
-   a phone it is what the phone would show anyway: the width of the column,
-   upright, rounded, with the sound button in the corner, and the text below.
+   From 40rem up it sits beside its text, the way the category headings sit
+   beside theirs (the same 5:7 split as .block__head), held to 70vh on a
+   desktop. Mirrored in Hebrew without being told: it is the first column of
+   a grid, and a right-to-left grid starts on the right. Below 40rem -- a phone
+   -- it stacks: the width of the column, upright, rounded, and the text below.
+
+   The split starts well below the 60rem the headings use. Narrower than that,
+   a 9:16 frame stacked above its text left a screen of black either side of
+   it in a laptop window or a tablet, where there is room for both side by
+   side; a 40rem column still gives the text a comfortable 300px measure.
    ========================================================================== */
+/* Always a row of its own project's block now, under that project's film or
+   photograph, so the block's gap is the whole of the space above it. */
 .vreel-case {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--sp-5);
-  /* a piece of its own, not a third cell of the pair above it */
-  margin-block-start: var(--sp-6);
 }
 
-@media (min-width: 60rem) {
+@media (min-width: 40rem) {
   .vreel-case {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     gap: var(--gutter);
@@ -1052,6 +1069,16 @@
    resize it mid-scroll. */
 @media (max-width: 46rem) {
   .vreel { --reel-h: 85svh; }
+}
+
+/* A reel that comes after a full-width film of the same project. Stacked, it
+   is held to half a screen -- the width that height gives a 9:16 frame -- so
+   the film, the reel and the text all fit in a scroll or two instead of the
+   reel taking a whole phone on its own. It keeps its native controls, so the
+   full-screen button is still there for anyone who wants it large. After the
+   rule above and at the same weight, so it is the one that lands. */
+@media (max-width: 39.999rem) {
+  .vreel--compact { --reel-h: 50svh; }
 }
 
 /* ---------- the sound button ----------

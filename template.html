@@ -121,9 +121,17 @@
           <span class="rail__mark" aria-hidden="true"></span>
           <span class="rail__label" data-i18n="nav.profile">Profile</span>
         </a>
+        <a class="rail__link" href="#architecture" data-spy>
+          <span class="rail__mark" aria-hidden="true"></span>
+          <span class="rail__label" data-i18n="nav.arch">Architecture &amp; Real Estate</span>
+        </a>
+        <a class="rail__link" href="#proposals" data-spy>
+          <span class="rail__mark" aria-hidden="true"></span>
+          <span class="rail__label" data-i18n="nav.proposals">Marriage Proposals</span>
+        </a>
         <a class="rail__link" href="#events" data-spy>
           <span class="rail__mark" aria-hidden="true"></span>
-          <span class="rail__label" data-i18n="nav.events">Events</span>
+          <span class="rail__label" data-i18n="nav.events">Productions &amp; Events</span>
         </a>
         <a class="rail__link" href="#live-music" data-spy>
           <span class="rail__mark" aria-hidden="true"></span>
@@ -165,20 +173,28 @@
         <span class="menu__num num lat" aria-hidden="true">02</span>
         <span data-i18n="nav.profile">Profile</span>
       </a>
-      <a class="menu__link" href="#events" data-spy>
+      <a class="menu__link" href="#architecture" data-spy>
         <span class="menu__num num lat" aria-hidden="true">03</span>
-        <span data-i18n="nav.events">Events</span>
+        <span data-i18n="nav.arch">Architecture &amp; Real Estate</span>
+      </a>
+      <a class="menu__link" href="#proposals" data-spy>
+        <span class="menu__num num lat" aria-hidden="true">04</span>
+        <span data-i18n="nav.proposals">Marriage Proposals</span>
+      </a>
+      <a class="menu__link" href="#events" data-spy>
+        <span class="menu__num num lat" aria-hidden="true">05</span>
+        <span data-i18n="nav.events">Productions &amp; Events</span>
       </a>
       <a class="menu__link" href="#live-music" data-spy>
-        <span class="menu__num num lat" aria-hidden="true">04</span>
+        <span class="menu__num num lat" aria-hidden="true">06</span>
         <span data-i18n="nav.music">Live Music</span>
       </a>
       <a class="menu__link" href="#videography" data-spy>
-        <span class="menu__num num lat" aria-hidden="true">05</span>
+        <span class="menu__num num lat" aria-hidden="true">07</span>
         <span data-i18n="nav.video">Videography</span>
       </a>
       <a class="menu__link" href="#contact" data-spy>
-        <span class="menu__num num lat" aria-hidden="true">06</span>
+        <span class="menu__num num lat" aria-hidden="true">08</span>
         <span data-i18n="nav.contact">Contact</span>
       </a>
     </nav>
@@ -245,7 +261,7 @@
             <div class="split__text">
               <div class="stack stack--tight reveal">
                 <p class="eyebrow">
-                <span class="eyebrow__count num lat"><span class="eyebrow__num">02</span>/ 06</span>
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">02</span>/ 08</span>
               </p>
                 <h2 id="profile-h" class="subhead" data-i18n="profile.heading">Profile</h2>
               </div>
@@ -294,35 +310,155 @@
 
 
       <!-- ==================================================================
-           03 · EVENTS
+           03 · ARCHITECTURE & REAL ESTATE
            ================================================================== -->
-      <section class="section on-dark" id="events" aria-labelledby="events-h">
+      <section class="section on-dark" id="architecture" aria-labelledby="arch-h">
         <div class="wrap">
           <header class="section__head reveal">
             <p class="eyebrow">
-                <span class="eyebrow__count num lat"><span class="eyebrow__num">03</span>/ 06</span>
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">03</span>/ 08</span>
               </p>
-            <h2 id="events-h" class="mega" data-i18n="sec.events">Events</h2>
-            <p class="lede" data-i18n="sec.events.lede">Proposals and productions.</p>
+            <h2 id="arch-h" class="mega mega--fit" style="--fit: 7.9" data-i18n="sec.arch">Architecture &amp; Real Estate</h2>
+            <p class="lede" data-i18n="sec.arch.lede">Towers and hotels, from the ground and the air.</p>
           </header>
 
           <div class="section__body">
 
-            <!-- marriage proposals -->
-            <article class="block" aria-labelledby="proposals-h">
-              <div class="block__head reveal">
-                <h3 id="proposals-h" class="subhead" data-i18n="cat.proposals">Marriage proposals</h3>
-                <p class="prose" data-i18n="story.proposals">The one second where everything stops.</p>
+            <!-- The Beyond tower, top to bottom: its name, the promotional film
+                 across the column, the vertical reel beside its text, then the
+                 six stills as a strip of thumbnails.
+
+                 The reel here keeps its native controls rather than the sound
+                 button the ABBA reel has, so a visitor on a phone can take it to
+                 full screen. Stacked, it is held to half a screen (.vreel--compact)
+                 so it does not fill the phone on its own.
+
+                 The strip is a justified wall like the proposals, not a fixed
+                 grid: the six are four shapes, from 16:9 to 9:16, and justified
+                 rows show each whole at one shared height. Six across on a
+                 desktop, three and three on a phone (.gallery--strip). Each is a
+                 .frame, which is all the viewer looks for -- clicking one opens
+                 it full screen with nothing wired here. -->
+            <article class="block" aria-labelledby="beyond-h">
+              <h3 id="beyond-h" class="subhead reveal" data-i18n="cat.beyond">Beyond Tower – High-Altitude Sign Installation</h3>
+
+              <figure class="filmshow reveal">
+                <video controls muted playsinline preload="none" width="1920" height="1080"
+                       poster="assets/img/poster-beyond-promo-1920.jpg">
+                  <source src="assets/video/beyond-promo.mp4" type="video/mp4">
+                </video>
+              </figure>
+
+              <div class="vreel-case">
+                <figure class="vreel vreel--compact reveal">
+                  <video class="vreel__video" controls loop muted playsinline preload="none"
+                         width="1080" height="1920"
+                         poster="assets/img/poster-beyond-reel-1080.jpg">
+                    <source src="assets/video/beyond-reel.mp4" type="video/mp4">
+                  </video>
+                </figure>
+
+                <div class="vreel-case__text reveal">
+                  <p class="prose" data-i18n="story.beyond">A commercial drone operation at the top of the Beyond building.</p>
+                </div>
               </div>
 
-              <div class="pair reveal">
-                <figure class="frame">
-                  <x-photo name="proposals-featured-01" altkey="alt.proposals"
-                           sizes="(min-width: 46rem) 42vw, 88vw">
+              <div class="gallery gallery--strip">
+                <figure class="frame reveal" style="--i: 0"><x-photo name="beyond-01" altkey="alt.beyond" sizes="(min-width: 60rem) 18vw, 40vw"></figure>
+                <figure class="frame reveal" style="--i: 1"><x-photo name="beyond-02" altkey="alt.beyond" sizes="(min-width: 60rem) 18vw, 40vw"></figure>
+                <figure class="frame reveal" style="--i: 2"><x-photo name="beyond-03" altkey="alt.beyond" sizes="(min-width: 60rem) 18vw, 40vw"></figure>
+                <figure class="frame reveal" style="--i: 3"><x-photo name="beyond-04" altkey="alt.beyond" sizes="(min-width: 60rem) 18vw, 40vw"></figure>
+                <figure class="frame reveal" style="--i: 4"><x-photo name="beyond-05" altkey="alt.beyond" sizes="(min-width: 60rem) 18vw, 40vw"></figure>
+                <figure class="frame reveal" style="--i: 5"><x-photo name="beyond-06" altkey="alt.beyond" sizes="(min-width: 60rem) 18vw, 40vw"></figure>
+              </div>
+            </article>
+
+            <!-- Beit Halochem Ashdod, shot from the air. A film with controls
+                 rather than a loop: it is a minute and forty with a score under
+                 all of it, and closes on the client's logo. -->
+            <article class="block" aria-labelledby="beit-h">
+              <h3 id="beit-h" class="subhead reveal" data-i18n="cat.beit">Beit Halochem, Ashdod</h3>
+
+              <figure class="filmshow reveal">
+                <video controls muted playsinline preload="none" width="1280" height="720"
+                       poster="assets/img/poster-beit-halochem-1280.jpg">
+                  <source src="assets/video/beit-halochem.mp4" type="video/mp4">
+                </video>
+              </figure>
+            </article>
+
+            <!-- ABBA Hotel, Tel Aviv-Yafo: the hotel from the air across the
+                 column, then the Instagram Reel beside its text -- the same rows
+                 as Beyond above, with a photograph where Beyond has its film.
+
+                 The reel is 9:16 and made for a phone held upright: beside its
+                 text on a wide screen, above it on a phone, never taller than
+                 70vh. It loops like a reel and starts muted, and it has a
+                 soundtrack, so it carries one sound button in the corner
+                 (data-sound). `controls` is for the visitor without JavaScript;
+                 js/ui.js swaps it for the button. No autoplay attribute, as
+                 everywhere below the hero: it would fetch all 35MB at first
+                 paint, on screen or not. -->
+            <article class="block" aria-labelledby="abba-h">
+              <h3 id="abba-h" class="subhead reveal" data-i18n="cat.abba">ABBA Hotel, Tel Aviv-Yafo</h3>
+
+              <figure class="frame reveal">
+                <x-photo name="abba-hotel" altkey="alt.abba" sizes="(min-width: 60rem) 76vw, 88vw">
+              </figure>
+
+              <div class="vreel-case">
+                <figure class="vreel reveal">
+                  <video class="vreel__video" controls loop muted playsinline preload="none"
+                         width="1080" height="1920" data-sound
+                         poster="assets/img/poster-abba-hotel-reel-1080.jpg">
+                    <source src="assets/video/abba-hotel-reel.mp4" type="video/mp4">
+                  </video>
+                  <button class="vreel__sound" type="button" hidden data-sound-toggle
+                          aria-label="Turn the sound on"
+                          data-label-on="Turn the sound on" data-label-off="Turn the sound off"
+                          data-i18n-attr="aria-label:a11y.soundOn|data-label-on:a11y.soundOn|data-label-off:a11y.soundOff"><svg class="vreel__icon vreel__icon--muted" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4zM16 9.5l5 5M21 9.5l-5 5"/></svg><svg class="vreel__icon vreel__icon--audible" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4zM15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></button>
                 </figure>
-                <figure class="frame">
+
+                <div class="vreel-case__text reveal">
+                  <p class="vreel-case__sub" data-i18n="cat.abba.sub">Instagram Reel Production</p>
+                  <p class="prose" data-i18n="story.abba">Social media production for ABBA Hotel.</p>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           04 · MARRIAGE PROPOSALS
+           ================================================================== -->
+      <section class="section on-light" id="proposals" aria-labelledby="proposals-h">
+        <div class="wrap">
+          <header class="section__head reveal">
+            <p class="eyebrow">
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">04</span>/ 08</span>
+              </p>
+            <h2 id="proposals-h" class="mega mega--fit" style="--fit: 6.15" data-i18n="sec.proposals">Marriage Proposals</h2>
+            <p class="lede" data-i18n="story.proposals">The one second where everything stops.</p>
+          </header>
+
+          <div class="section__body">
+
+            <div class="block">
+              <!-- A 3:2 and a 16:9 side by side. --r is each frame's width over
+                   its height, and .pair--matched shares the row out in that
+                   proportion, so the two come out the same height with nothing
+                   cropped. -->
+              <div class="pair pair--matched reveal">
+                <figure class="frame" style="--r: 1.5">
+                  <x-photo name="proposals-featured-01" altkey="alt.proposals"
+                           sizes="(min-width: 46rem) 40vw, 88vw">
+                </figure>
+                <figure class="frame" style="--r: 1.7778">
                   <x-photo name="proposals-featured-02" altkey="alt.proposals"
-                           sizes="(min-width: 46rem) 42vw, 88vw">
+                           sizes="(min-width: 46rem) 46vw, 88vw">
                 </figure>
               </div>
 
@@ -347,27 +483,27 @@
                    data-i18n-attr="aria-label:a11y.carousel">
 
                 <div class="carousel__viewport" data-carousel-track tabindex="0">
-                  <figure class="carousel__slide"><x-photo name="proposals-still-01" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-01" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-desert-01" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-02" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-still-02" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-ring-01" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-03" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-desert-02" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-hands" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-still-03" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-04" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-desert-03" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-ring-02" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-05" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-still-04" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-desert-04" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-06" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-desert-05" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-ring-03" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-07" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
-                  <figure class="carousel__slide"><x-photo name="proposals-tile-08" altkey="alt.proposals" sizes="(min-width: 46rem) 125vh, 90vh"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-still-01" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-01" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-desert-01" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-02" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-still-02" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-ring-01" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-03" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-desert-02" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-hands" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-still-03" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-04" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-desert-03" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-ring-02" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-05" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-still-04" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-desert-04" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-06" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-desert-05" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-ring-03" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-07" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
+                  <figure class="carousel__slide"><x-photo name="proposals-tile-08" altkey="alt.proposals" sizes="(min-width: 46rem) 50vw, 60vw"></figure>
                 </div>
 
                 <button class="carousel__nav carousel__nav--prev" type="button"
@@ -391,35 +527,45 @@
                    volume button and can turn the sound on, and the script leaves
                    that choice alone from then on.
 
-                   The beach proposal is a film, not a loop. The master is named
-                   NOSOUND, but it carries music from first frame to last --
-                   decoded, it runs at about -14 dBFS throughout. -->
-              <figure class="filmshow reveal">
-                <video controls muted playsinline preload="none" width="1280" height="720"
-                       poster="assets/img/poster-proposal-beach-1280.jpg">
-                  <source src="assets/video/proposal-beach.mp4" type="video/mp4">
-                </video>
-              </figure>
-
-              <!-- The desert film. A showcase piece with a soundtrack: it starts
-                   muted once half of it is on screen, and its controls are where
-                   the sound is turned on. preload="none" still keeps its 55MB off
-                   the wire until it is scrolled to. -->
+                   Two desert proposals, one after the other. The first is a
+                   showcase piece: preload="none" keeps its 55MB off the wire until
+                   it is scrolled to. The second, Roee & Niv, is the full film. -->
               <figure class="filmshow reveal">
                 <video controls muted playsinline preload="none" width="1920" height="1080"
                        poster="assets/img/poster-desert-proposal-film-1920.jpg">
                   <source src="assets/video/desert-proposal-film.mp4" type="video/mp4">
                 </video>
               </figure>
-            </article>
 
-            <!-- productions and events -->
-            <article class="block" aria-labelledby="productions-h">
-              <div class="block__head reveal">
-                <h3 id="productions-h" class="subhead" data-i18n="cat.productions">Productions &amp; events</h3>
-                <p class="prose" data-i18n="story.productions">Dozens of small moments at once.</p>
-              </div>
+              <figure class="filmshow reveal">
+                <video controls muted playsinline preload="none" width="1280" height="720"
+                       poster="assets/img/poster-proposal-film-1280.jpg">
+                  <source src="assets/video/proposal-film.mp4" type="video/mp4">
+                </video>
+              </figure>
+            </div>
 
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           05 · PRODUCTIONS & EVENTS
+           ================================================================== -->
+      <section class="section on-dark" id="events" aria-labelledby="events-h">
+        <div class="wrap">
+          <header class="section__head reveal">
+            <p class="eyebrow">
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">05</span>/ 08</span>
+              </p>
+            <h2 id="events-h" class="mega mega--fit" style="--fit: 7.3" data-i18n="sec.events">Productions &amp; Events</h2>
+            <p class="lede" data-i18n="story.productions">Dozens of small moments at once.</p>
+          </header>
+
+          <div class="section__body">
+
+            <div class="block">
               <div class="pair reveal">
                 <figure class="frame reel">
                   <video class="reel__video" loop muted playsinline
@@ -453,24 +599,7 @@
                   </video>
                 </figure>
               </div>
-            </article>
-
-            <!-- the full film -->
-            <article class="block" aria-labelledby="proposalfilm-h">
-              <div class="block__head reveal">
-                <h3 id="proposalfilm-h" class="subhead" data-i18n="cat.proposalfilm">Full film</h3>
-              </div>
-
-              <!-- A film with a real soundtrack, so it plays like the others on
-                   the way past -- muted, once half of it is in view -- and keeps
-                   its controls for whoever wants to hear it. -->
-              <figure class="filmshow reveal">
-                <video controls muted playsinline preload="none" width="1280" height="720"
-                       poster="assets/img/poster-proposal-film-1280.jpg">
-                  <source src="assets/video/proposal-film.mp4" type="video/mp4">
-                </video>
-              </figure>
-            </article>
+            </div>
 
           </div>
         </div>
@@ -478,13 +607,13 @@
 
 
       <!-- ==================================================================
-           04 · LIVE MUSIC
+           06 · LIVE MUSIC
            ================================================================== -->
       <section class="section on-mute" id="live-music" aria-labelledby="music-h">
         <div class="wrap">
           <header class="section__head reveal">
             <p class="eyebrow">
-                <span class="eyebrow__count num lat"><span class="eyebrow__num">04</span>/ 06</span>
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">06</span>/ 08</span>
               </p>
             <h2 id="music-h" class="mega" data-i18n="sec.music">Live Music</h2>
             <p class="lede" data-i18n="sec.music.lede">Stage light changes every second.</p>
@@ -525,15 +654,15 @@
 
 
       <!-- ==================================================================
-           05 · VIDEOGRAPHY
+           07 · VIDEOGRAPHY
            ================================================================== -->
       <section class="section on-dark" id="videography" aria-labelledby="video-h">
         <div class="wrap">
           <header class="section__head reveal">
             <p class="eyebrow">
-                <span class="eyebrow__count num lat"><span class="eyebrow__num">05</span>/ 06</span>
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">07</span>/ 08</span>
               </p>
-            <h2 id="video-h" class="mega" data-i18n="sec.video">Videography</h2>
+            <h2 id="video-h" class="mega mega--fit" style="--fit: 7.35" data-i18n="sec.video">Videography</h2>
             <p class="lede" data-i18n="sec.video.lede">Editing, colour and the finish.</p>
           </header>
         </div>
@@ -593,7 +722,7 @@
                 <p class="prose" data-i18n="story.promo">One idea, told properly.</p>
               </div>
 
-              <div class="pair reveal">
+              <div class="pair pair--single reveal">
               <figure class="player" data-src="assets/video/promo-film.mp4">
                 <div class="player__frame">
                   <picture>
@@ -604,62 +733,17 @@
                           data-i18n-attr="aria-label:a11y.play"></button>
                 </div>
               </figure>
-
-              <!-- Beit Halochem Ashdod, shot from the air. Commercial work, so it
-                   sits with the promotional films rather than with the events. A
-                   film with controls rather than a loop: it is a minute and forty
-                   with a score under all of it, and closes on the client's logo. -->
-              <figure class="filmshow">
-                <video controls muted playsinline preload="none" width="1280" height="720"
-                       poster="assets/img/poster-beit-halochem-1280.jpg">
-                  <source src="assets/video/beit-halochem.mp4" type="video/mp4">
-                </video>
-              </figure>
               </div>
-
-              <!-- ABBA Hotel, Tel Aviv-Yafo: an Instagram Reel, so 9:16 and made
-                   for a phone held upright. It gets a layout of its own rather than
-                   a cell in the pair above, where it would be a narrow strip between
-                   two wide black fields: beside its text on a wide screen, above it
-                   on a phone, and never taller than 70vh.
-
-                   It loops like a reel and starts muted like everything else, and
-                   it has a soundtrack, so it carries what a reel has instead of a
-                   player: one sound button in the corner (data-sound). `controls`
-                   is here for the visitor without JavaScript, who would otherwise
-                   get a poster and no way to play it; js/ui.js swaps it for the
-                   button. No autoplay attribute, as everywhere below the hero:
-                   it would fetch all 35MB at first paint, on screen or not. -->
-              <article class="vreel-case" aria-labelledby="abba-h">
-                <figure class="vreel reveal">
-                  <video class="vreel__video" controls loop muted playsinline preload="none"
-                         width="1080" height="1920" data-sound
-                         poster="assets/img/poster-abba-hotel-reel-1080.jpg">
-                    <source src="assets/video/abba-hotel-reel.mp4" type="video/mp4">
-                  </video>
-                  <button class="vreel__sound" type="button" hidden data-sound-toggle
-                          aria-label="Turn the sound on"
-                          data-label-on="Turn the sound on" data-label-off="Turn the sound off"
-                          data-i18n-attr="aria-label:a11y.soundOn|data-label-on:a11y.soundOn|data-label-off:a11y.soundOff"><svg class="vreel__icon vreel__icon--muted" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4zM16 9.5l5 5M21 9.5l-5 5"/></svg><svg class="vreel__icon vreel__icon--audible" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4zM15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></button>
-                </figure>
-
-                <div class="vreel-case__text reveal">
-                  <h4 id="abba-h" class="vreel-case__title" data-i18n="cat.abba">ABBA Hotel, Tel Aviv-Yafo</h4>
-                  <p class="vreel-case__sub" data-i18n="cat.abba.sub">Instagram Reel Production</p>
-                  <p class="prose" data-i18n="story.abba">Social media production for ABBA Hotel.</p>
-                </div>
-              </article>
             </article>
 
           </div>
         </div>
       </section>
-
     </main>
 
 
     <!-- ====================================================================
-         06 · CONTACT
+         08 · CONTACT
          ==================================================================== -->
     <footer class="section on-light" id="contact" aria-labelledby="contact-h">
       <div class="wrap">
@@ -667,7 +751,7 @@
           <div class="split__text">
             <div class="stack stack--tight reveal">
               <p class="eyebrow">
-                <span class="eyebrow__count num lat"><span class="eyebrow__num">06</span>/ 06</span>
+                <span class="eyebrow__count num lat"><span class="eyebrow__num">08</span>/ 08</span>
               </p>
               <h2 id="contact-h" class="subhead" data-i18n="contact.heading">Contact</h2>
             </div>
