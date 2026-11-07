@@ -55,7 +55,7 @@ function initRail() {
   const links = [...document.querySelectorAll("[data-spy]")];
 
   /* Deduplicated, and it matters: the rail and the phone menu both link to the
-     same six sections, so the raw list is each section twice over. The walk in
+     same sections, so the raw list is each section twice over. The walk in
      updateCurrent() takes the last section that starts above the midpoint, and
      with the list doubled that was always the menu's copy of the first one —
      the marker sat on "Home" for the whole page. A Set keeps insertion order,
@@ -642,6 +642,54 @@ function setupCarousel(root) {
       .reduce((a, b) => (Math.abs(b - k) < Math.abs(a - k) ? b : a));
   };
 
+  // ---- the files: the right size, and there before they are needed
+
+  /* Every frame is the ribbon's height times its own shape, so an upright is
+     drawn half as wide as a landscape beside it -- and one `sizes` in the
+     markup cannot say that. It said 125vh for all of them, which on a laptop
+     fetched 2560px files for frames drawn 300 to 700px wide. Measured here,
+     each frame asks for the width it is actually drawn at, on the <source>
+     too, since that is the one the browser reads. Again on resize, when the
+     ribbon's height moves. */
+  const fitSizes = () => {
+    all.forEach((frame) => {
+      const w = Math.ceil(frame.getBoundingClientRect().width);
+      if (w) frame.querySelectorAll("img, source").forEach((el) => { el.sizes = `${w}px`; });
+    });
+  };
+  fitSizes();
+
+  /* A lazy photograph is fetched when its frame comes into view, which in a
+     strip that moves by itself is too late: the timer arrives at a frame whose
+     file has not, and the slide stands blank while it loads. So once the strip
+     is within a screen of view, the frame showing, the one before it and the
+     two after it load at once, in all three copies of the set -- one file
+     each, since the copies ask for the same URL. Nothing is fetched while the
+     strip is further away than that. */
+  let near = false;
+  const warm = (i) => {
+    if (!near) return;
+    for (let d = -1; d <= 2; d++) {
+      const j = (((i + d) % n) + n) % n;
+      for (let c = 0; c < 3; c++) {
+        const img = all[c * n + j].querySelector("img");
+        if (img && img.loading !== "eager") img.loading = "eager";
+      }
+    }
+  };
+
+  if ("IntersectionObserver" in window) {
+    const approach = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      near = true;
+      approach.disconnect();
+      warm(at() % n);
+    }, { rootMargin: "100% 0px" });
+    approach.observe(root);
+  } else {
+    near = true;
+  }
+
   // ---- dots, one per photograph, written here so the markup need not track them
   const label = dotWrap?.dataset.label || "Go to image";
   const dots = slides.map((_, i) => {
@@ -668,6 +716,7 @@ function setupCarousel(root) {
        accessibility tree as well as off the screen — so on a phone, where the
        dots are gone, this is the only thing left saying where you are. */
     if (count) count.textContent = `${i + 1} / ${n}`;
+    warm(i);
   }
 
   // ---- the timer ----
@@ -809,7 +858,7 @@ function setupCarousel(root) {
      leaves scrollLeft pointing somewhere in the middle of a different
      picture. Put the one that was showing back at the leading edge. */
   if ("ResizeObserver" in window) {
-    new ResizeObserver(() => { jump(leftOf(heading ?? showing)); }).observe(track);
+    new ResizeObserver(() => { fitSizes(); jump(leftOf(heading ?? showing)); }).observe(track);
 
     /* Frames also change width under a strip that is standing still. A
        photograph arrives a fraction wider or narrower than its width and
@@ -1158,19 +1207,28 @@ function initLightbox() {
   let opener = null;
   let openedByKeyboard = false;
 
-  /* The widest file the browser was offered — not the one it picked, which was
-     chosen for a thumbnail a couple of hundred pixels across. */
-  function widest(el) {
-    const set = el.getAttribute("srcset");
+  /* The file to show full screen: the smallest on offer that still fills this
+     screen at its pixel density. Not the one the thumbnail picked, which was
+     chosen for a frame a couple of hundred pixels across -- and no longer just
+     the widest, which on a phone fetched a 4608px JPEG, several megabytes, to
+     draw it 1100 pixels wide. WebP whenever the browser took WebP for the
+     thumbnail, which is every current one, and a third lighter again. */
+  function fullSize(el) {
+    const webp = /\.webp(\?|$)/.test(el.currentSrc || "")
+      && el.closest("picture")?.querySelector('source[type="image/webp"]');
+    const set = (webp && webp.getAttribute("srcset")) || el.getAttribute("srcset");
     if (!set) return el.src;
-    let best = el.src;
-    let bestWidth = 0;
-    for (const part of set.split(",")) {
-      const [url, w] = part.trim().split(/\s+/);
-      const width = parseInt(w, 10) || 0;
-      if (url && width >= bestWidth) { bestWidth = width; best = url; }
-    }
-    return best;
+
+    const w = Number(el.getAttribute("width"));
+    const h = Number(el.getAttribute("height"));
+    const shown = w && h ? Math.min(window.innerWidth, window.innerHeight * (w / h)) : window.innerWidth;
+    const need = shown * (window.devicePixelRatio || 1);
+
+    const files = set.split(",")
+      .map((part) => { const [url, d] = part.trim().split(/\s+/); return { url, width: parseInt(d, 10) || 0 }; })
+      .filter((f) => f.url)
+      .sort((a, b) => a.width - b.width);
+    return (files.find((f) => f.width >= need) || files[files.length - 1])?.url || el.src;
   }
 
   /* Warm the neighbours. By the time the visitor presses next, the file is
@@ -1178,7 +1236,7 @@ function initLightbox() {
   function preload(i) {
     const source = shots[(i + shots.length) % shots.length];
     if (!source) return;
-    const url = widest(source);
+    const url = fullSize(source);
     if (url) new Image().src = url;
   }
 
@@ -1205,7 +1263,7 @@ function initLightbox() {
     const warm = source.currentSrc || source.src;
     if (opening && warm) img.src = warm;
 
-    const target = widest(source) || warm;
+    const target = fullSize(source) || warm;
     if (target) {
       /* decode() rather than load: load fires when the bytes are in, decode
          when the frame is ready to paint. Swapping on load can still show one

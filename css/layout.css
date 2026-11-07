@@ -193,6 +193,19 @@
   .gallery--mixed { --cols: 2; }
 }
 
+/* ---------- a strip of thumbnails: six across, or three and three ----------
+   The stills that close a case study, small enough to read as a set rather
+   than a wall. --cols 6 leaves the planner only one answer for six frames, a
+   single row; at 3 it settles on three and three, since every other split
+   puts a tall row beside a short one. Clicking any of them opens the viewer.
+   After the rules above and at the same weight, so these are the ones that
+   land. */
+.gallery--strip { --cols: 6; }
+
+@media (max-width: 60rem) {
+  .gallery--strip { --cols: 3; }
+}
+
 /* ---------- a fixed contact sheet: three across, two down ----------
    The artist portraits are six frames of one shape, and justified rows sized
    them to the full width of the column: 322px across, 483px tall, a thousand
@@ -313,6 +326,17 @@
 
 @media (max-width: 46rem) {
   .pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Two photographs of different shapes, one height. Equal columns give a 3:2
+   and a 16:9 the same width and so different heights, which reads as a
+   mistake. Here each frame grows in proportion to its own ratio (--r, width
+   over height, written on the figure), which is exactly the share of the row
+   that puts both at one height -- the same arithmetic as the justified walls,
+   with two frames and no script. Stacked on a phone, as every pair is. */
+@media (min-width: 46.0625rem) {
+  .pair--matched { display: flex; }
+  .pair--matched > * { flex: var(--r, 1) 1 0; min-width: 0; }
 }
 
 

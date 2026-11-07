@@ -33,10 +33,17 @@ Nothing in `assets/` was touched by the change — both versions always shared i
 ## Running it
 
 ```bash
-python3 -m http.server 5175
+python3 tools/serve.py 5175
 ```
 
 Then open `http://localhost:5175/` — Hebrew is at `/he/`.
+
+Not `python3 -m http.server`. That one ignores Range requests and speaks
+HTTP/1.0, so every film that starts playing is sent whole down a connection
+of its own, and a browser opens only six to a host: scroll past six films and
+the photographs below them never arrive. Measured, 12 of the page's 39
+photographs never loaded, the grading wipe among them. `tools/serve.py` is the
+same server with Range and keep-alive added, which is how a real host behaves.
 
 ## Editing
 
@@ -175,8 +182,9 @@ muted. There are two kinds, and the markup decides which:
 | kind | markup | behaviour |
 |---|---|---|
 | ambient | `loop muted playsinline`, no `controls` | the hero, the Events reels, the banner, the promo loop — silent for good, no furniture |
-| film | `controls muted playsinline` | the three proposal films and Beit Halochem — start muted, the visitor can turn the sound on |
+| film | `controls muted playsinline` | the two desert proposal films, Beit Halochem and the Beyond promo — start muted, the visitor can turn the sound on |
 | vertical reel | `controls loop muted playsinline data-sound` | the ABBA Hotel reel — loops like a reel; the script swaps the native controls for one sound button in the corner |
+| vertical film | `controls loop muted playsinline` | the Beyond reel — loops, and keeps its native controls so a phone can take it full screen |
 
 Write `controls` on a new video and it is a film; leave it off and it is
 ambient. Every ambient file is digitally silent anyway (decoded, not one sample
@@ -197,16 +205,22 @@ single winner one half of a pair would run while the other stood frozen beside
 it, which reads as a broken video rather than as a layout. Reduced motion and
 Data Saver stop anything starting by itself, but never stop anything pausing.
 
-`event-resort.mp4` is 19MB for 14 seconds, around 10 Mbps, which is generous
-for a clip that renders 500px wide. Re-encoding the Events reels at a lower
-bitrate would cut that section's weight by more than half without a visible
-difference at this size. Nothing depends on it, so it is left as it is.
+Every clip is encoded for the size it is drawn at (`build-videos.sh`, the
+FFMPEG table): the loops carry no sound track, since all of them are silent,
+and nothing runs above 4.5 Mbps. The served videos came down from 318MB to
+118MB, and one scroll through the page from 188MB of video to about 75MB. Each
+new encode was checked against its camera master (SSIM over the first 30
+seconds) and is as close to it as the encode it replaced, or closer -- Beit
+Halochem went from 0.908 to 0.965 at 30MB instead of 80MB.
 
-A vertical reel (`.vreel` in `css/components.css`) is held to 70vh on a
-desktop and sits beside its text; on a phone it is the width of the column with
+A vertical reel (`.vreel` in `css/components.css`) sits beside its text from
+40rem up -- reel first, so on the left in English and on the right in Hebrew --
+and is held to 70vh on a desktop; on a phone it is the width of the column with
 its text below. Its `controls` are only for a visitor without JavaScript, and
 with reduced motion or Data Saver on they stay, because nothing starts by itself
 there and the reel needs a play button.
+
+`.vreel--compact` holds a reel to half a screen whenever it is stacked under its text (below 40rem, where the reel and its text stop sitting side by side). The Beyond reel uses it: it comes after a full-width film of the same project, and at full height the reel alone would fill the phone.
 
 ## Adding new footage
 
