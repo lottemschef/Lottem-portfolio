@@ -19,3 +19,7 @@ tools/.encode
 # The drop folder for new uploads. Files are filed into assets/ from here and
 # then removed, so nothing in it is ever meant to be committed.
 New Footage/
+
+# What the deploy publishes, collected by tools/collect-site.py. Rebuilt on
+# every deploy; a local run is only for checking.
+_site/

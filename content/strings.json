@@ -90,9 +90,7 @@
     "alt.gradeAfter": "The same frame after colour grading",
     "alt.portrait": "Lottem Schefenbauer",
     "a11y.carousel": "Photographs, as a slideshow",
-    "a11y.goToImage": "Go to image",
-    "a11y.soundOn": "Turn the sound on",
-    "a11y.soundOff": "Turn the sound off"
+    "a11y.goToImage": "Go to image"
   },
   "he": {
     "meta.title": "לוטם שיפנבאור · צלם, עורך ומפעיל רחפן",
@@ -185,8 +183,6 @@
     "alt.gradeAfter": "אותו פריים אחרי הקולור",
     "alt.portrait": "לוטם שיפנבאור",
     "a11y.carousel": "תמונות, כמצגת",
-    "a11y.goToImage": "מעבר לתמונה",
-    "a11y.soundOn": "הפעלת הסאונד",
-    "a11y.soundOff": "השתקת הסאונד"
+    "a11y.goToImage": "מעבר לתמונה"
   }
 }

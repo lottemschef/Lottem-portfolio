@@ -24,10 +24,17 @@ jobs:
       - uses: actions/checkout@v4
 
       # The site is already built in the repo — index.html, he/, assets/img
-      # are committed. This publishes the tree as it stands.
+      # are committed. What is published is only what those pages link to:
+      # the photograph masters in assets/photos, films no longer on the page,
+      # the build scripts and the template stay in the repository and off the
+      # web. tools/collect-site.py reads the pages to decide, and stops the
+      # deploy if one of them links to a file that does not exist.
+      - name: Collect the files the pages use
+        run: python3 tools/collect-site.py _site
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

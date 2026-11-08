@@ -215,7 +215,7 @@
     <header class="hero" id="top">
       <div class="hero__media">
         <video data-hero-video autoplay loop muted playsinline preload="auto"
-               poster="assets/img/poster-hero-loop-1920.jpg">
+               poster="assets/img/poster-hero-loop-1920.webp">
           <source src="assets/video/hero-loop.mp4" type="video/mp4">
         </video>
       </div>
@@ -344,7 +344,7 @@
 
               <figure class="filmshow reveal">
                 <video controls muted playsinline preload="none" width="1920" height="1080"
-                       poster="assets/img/poster-beyond-promo-1920.jpg">
+                       data-poster="poster-beyond-promo">
                   <source src="assets/video/beyond-promo.mp4" type="video/mp4">
                 </video>
               </figure>
@@ -353,7 +353,7 @@
                 <figure class="vreel vreel--compact reveal">
                   <video class="vreel__video" controls loop muted playsinline preload="none"
                          width="1080" height="1920"
-                         poster="assets/img/poster-beyond-reel-1080.jpg">
+                         data-poster="poster-beyond-reel">
                     <source src="assets/video/beyond-reel.mp4" type="video/mp4">
                   </video>
                 </figure>
@@ -381,7 +381,7 @@
 
               <figure class="filmshow reveal">
                 <video controls muted playsinline preload="none" width="1280" height="720"
-                       poster="assets/img/poster-beit-halochem-1280.jpg">
+                       data-poster="poster-beit-halochem">
                   <source src="assets/video/beit-halochem.mp4" type="video/mp4">
                 </video>
               </figure>
@@ -394,11 +394,11 @@
                  The reel is 9:16 and made for a phone held upright: beside its
                  text on a wide screen, above it on a phone, never taller than
                  70vh. It loops like a reel and starts muted, and it has a
-                 soundtrack, so it carries one sound button in the corner
-                 (data-sound). `controls` is for the visitor without JavaScript;
-                 js/ui.js swaps it for the button. No autoplay attribute, as
-                 everywhere below the hero: it would fetch all 35MB at first
-                 paint, on screen or not. -->
+                 soundtrack, so it keeps its native controls -- the same as
+                 Beyond's reel above, so both reels work the same way: volume,
+                 pause and full screen where every visitor expects them. No
+                 autoplay attribute, as everywhere below the hero: it would
+                 fetch the whole file at first paint, on screen or not. -->
             <article class="block" aria-labelledby="abba-h">
               <h3 id="abba-h" class="subhead reveal" data-i18n="cat.abba">ABBA Hotel, Tel Aviv-Yafo</h3>
 
@@ -409,14 +409,10 @@
               <div class="vreel-case">
                 <figure class="vreel reveal">
                   <video class="vreel__video" controls loop muted playsinline preload="none"
-                         width="1080" height="1920" data-sound
-                         poster="assets/img/poster-abba-hotel-reel-1080.jpg">
+                         width="1080" height="1920"
+                         data-poster="poster-abba-hotel-reel">
                     <source src="assets/video/abba-hotel-reel.mp4" type="video/mp4">
                   </video>
-                  <button class="vreel__sound" type="button" hidden data-sound-toggle
-                          aria-label="Turn the sound on"
-                          data-label-on="Turn the sound on" data-label-off="Turn the sound off"
-                          data-i18n-attr="aria-label:a11y.soundOn|data-label-on:a11y.soundOn|data-label-off:a11y.soundOff"><svg class="vreel__icon vreel__icon--muted" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4zM16 9.5l5 5M21 9.5l-5 5"/></svg><svg class="vreel__icon vreel__icon--audible" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4zM15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></button>
                 </figure>
 
                 <div class="vreel-case__text reveal">
@@ -532,14 +528,14 @@
                    it is scrolled to. The second, Roee & Niv, is the full film. -->
               <figure class="filmshow reveal">
                 <video controls muted playsinline preload="none" width="1920" height="1080"
-                       poster="assets/img/poster-desert-proposal-film-1920.jpg">
+                       data-poster="poster-desert-proposal-film">
                   <source src="assets/video/desert-proposal-film.mp4" type="video/mp4">
                 </video>
               </figure>
 
               <figure class="filmshow reveal">
                 <video controls muted playsinline preload="none" width="1280" height="720"
-                       poster="assets/img/poster-proposal-film-1280.jpg">
+                       data-poster="poster-proposal-film">
                   <source src="assets/video/proposal-film.mp4" type="video/mp4">
                 </video>
               </figure>
@@ -570,14 +566,14 @@
                 <figure class="frame reel">
                   <video class="reel__video" loop muted playsinline
                          preload="none" width="1280" height="720"
-                         poster="assets/img/poster-agamim-night-1280.jpg" data-reel>
+                         data-poster="poster-agamim-night" data-reel>
                     <source src="assets/video/agamim-night.mp4" type="video/mp4">
                   </video>
                 </figure>
                 <figure class="frame reel">
                   <video class="reel__video" loop muted playsinline
                          preload="none" width="1280" height="720"
-                         poster="assets/img/poster-agamim-sunset-1280.jpg" data-reel>
+                         data-poster="poster-agamim-sunset" data-reel>
                     <source src="assets/video/agamim-sunset.mp4" type="video/mp4">
                   </video>
                 </figure>
@@ -587,14 +583,14 @@
                 <figure class="frame reel">
                   <video class="reel__video" loop muted playsinline
                          preload="none" width="1280" height="720"
-                         poster="assets/img/poster-event-resort-1280.jpg" data-reel>
+                         data-poster="poster-event-resort" data-reel>
                     <source src="assets/video/event-resort.mp4" type="video/mp4">
                   </video>
                 </figure>
                 <figure class="frame reel">
                   <video class="reel__video" loop muted playsinline
                          preload="none" width="1920" height="1080"
-                         poster="assets/img/poster-event-market-1920.jpg" data-reel>
+                         data-poster="poster-event-market" data-reel>
                     <source src="assets/video/event-market.mp4" type="video/mp4">
                   </video>
                 </figure>
@@ -681,7 +677,7 @@
         <figure class="frame bleed banner reveal">
           <video class="reel__video" muted loop playsinline preload="none"
                  width="1920" height="1080"
-                 poster="assets/img/poster-video-banner-1920.jpg" data-reel>
+                 data-poster="poster-video-banner" data-reel>
             <source src="assets/video/video-banner.mp4" type="video/mp4">
           </video>
         </figure>

@@ -336,52 +336,46 @@ function initPlayers() {
 }
 
 /* ==========================================================================
-   A REEL'S SOUND BUTTON
+   POSTERS, FETCHED ON APPROACH
    --------------------------------------------------------------------------
-   A vertical reel loops like one, so it gets what a reel has instead of a
-   player: one button in the corner, sound on and off. The markup carries
-   native controls for the visitor without this script, who would otherwise
-   have a poster and no way to play it; here they are swapped for the button.
+   A poster attribute is fetched as soon as the page is parsed, however far
+   down its video sits and whatever preload says. Written into the markup, the
+   eleven below the hero cost 1.3MB of full-size JPEG on a phone in the first
+   ten seconds, and on a slow connection the hero film never started in that
+   time because they were all in the way.
 
-   Reduced motion and Data Saver keep the native controls instead. Nothing
-   starts by itself there, so the reel needs a play button, and the sound
-   button alone would be a control for a film that never moves.
+   So below the hero each video carries its poster's sizes instead, as
+   data-poster-set (written by build.py from the image manifest, WebP only),
+   and is given a real poster a screen before it comes into view: the
+   smallest file that covers the width it is drawn at, at this screen's pixel
+   density. The hero keeps an ordinary poster -- it is on screen at first
+   paint, and waiting for this would show it black.
    ========================================================================== */
-function initSoundButtons() {
-  if (videoParked()) return;
+function initPosters() {
+  const videos = [...document.querySelectorAll("video[data-poster-set]")];
+  if (!videos.length) return;
 
-  document.querySelectorAll("video[data-sound]").forEach((video) => {
-    const button = video.parentElement.querySelector("[data-sound-toggle]");
-    if (!button) return;
+  function give(video) {
+    const files = video.dataset.posterSet.split(",")
+      .map((part) => { const [url, w] = part.trim().split(/\s+/); return { url, width: parseInt(w, 10) || 0 }; })
+      .filter((f) => f.url)
+      .sort((a, b) => a.width - b.width);
+    if (!files.length) return;
+    const drawn = video.getBoundingClientRect().width || Number(video.getAttribute("width")) || 0;
+    const need = drawn * (window.devicePixelRatio || 1);
+    video.poster = (files.find((f) => f.width >= need) || files[files.length - 1]).url;
+  }
 
-    video.controls = false;
-    button.hidden = false;
+  if (!("IntersectionObserver" in window)) { videos.forEach(give); return; }
 
-    const labels = {
-      on: button.dataset.labelOn || "Turn the sound on",
-      off: button.dataset.labelOff || "Turn the sound off",
-    };
-
-    /* The label says what pressing will do, rather than aria-pressed on a
-       fixed name: "Turn the sound off" needs no state to be understood. */
-    const paint = () => {
-      const audible = !video.muted;
-      button.classList.toggle("is-on", audible);
-      button.setAttribute("aria-label", audible ? labels.off : labels.on);
-    };
-
-    button.addEventListener("click", () => {
-      video.muted = !video.muted;
-      // a press is a gesture, the one moment sound is always allowed to start
-      if (!video.muted && video.paused) video.play?.().catch(() => {});
+  const approach = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      approach.unobserve(entry.target);
+      give(entry.target);
     });
-
-    /* Painted from the video rather than from the click, because the video
-       can change on its own: initVideos() mutes a film again if the browser
-       refuses its sound on the way back into view. */
-    video.addEventListener("volumechange", paint);
-    paint();
-  });
+  }, { rootMargin: "100% 0px" });
+  videos.forEach((video) => approach.observe(video));
 }
 
 function initVideos() {
@@ -391,10 +385,10 @@ function initVideos() {
 
   const videoIn = (t) => (t.tagName === "VIDEO" ? t : t.querySelector("video"));
   const targetOf = (v) => v.closest(".player") || v;
-  /* A film is a video the visitor can hear: native controls, or a sound
-     button of its own (data-sound -- the vertical reel, whose controls are
-     swapped for one). Either way it must not be re-muted behind their back. */
-  const isFilm = (v) => v.controls || v.hasAttribute("data-sound");
+  /* A film is a video the visitor can hear, which here means one with native
+     controls: the films and both vertical reels. It must not be re-muted
+     behind their back. */
+  const isFilm = (v) => v.controls;
 
   const seen = new Map();        // target -> share of it on screen, as last reported
   const ours = new WeakSet();    // videos this code is in the middle of pausing
@@ -726,7 +720,8 @@ function setupCarousel(root) {
   const start = () => {
     clearInterval(timer);
     if (paused || still.matches || document.hidden) return;
-    timer = setInterval(() => step(1), CAROUSEL_MS);
+    // held while the viewer is open, so the strip is where it was left when it closes
+    timer = setInterval(() => { if (!document.querySelector("dialog[open]")) step(1); }, CAROUSEL_MS);
   };
   const stop = () => clearInterval(timer);
 
@@ -1200,9 +1195,34 @@ function initLightbox() {
   const shots = [...document.querySelectorAll(".frame img")].filter(
     (img) => !img.closest(".compare") && !img.closest(".player")
   );
-  if (!shots.length) return;
+
+  /* The slideshow's photographs open here too -- the real set, not the copies
+     either side of it that make the loop. They are not .frame, so they get no
+     hover zoom and no tab stop each; the strip handles both below. */
+  const strips = [...document.querySelectorAll("[data-carousel-track]")];
+  const slideShots = strips.flatMap((track) =>
+    [...track.querySelectorAll(".carousel__slide:not([aria-hidden]) img")]);
+
+  if (!shots.length && !slideShots.length) return;
+
+  /* Next and previous stay inside the piece of work the photograph belongs
+     to -- its .block, or the section if it has none -- in page order. Without
+     this the viewer ran on from Beyond into ABBA, the proposals and the
+     concerts, one client's pictures straight into another's. */
+  const groupOf = (el) => el.closest(".block, section, footer") || document.body;
+  const allShots = [...shots, ...slideShots].sort((a, b) =>
+    a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+  const groups = new Map();
+  allShots.forEach((shot) => {
+    const key = groupOf(shot);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(shot);
+  });
 
   const img = box.querySelector(".lightbox__img");
+  const prevBtn = box.querySelector("[data-lb-prev]");
+  const nextBtn = box.querySelector("[data-lb-next]");
+  let group = [];
   let index = 0;
   let opener = null;
   let openedByKeyboard = false;
@@ -1234,7 +1254,7 @@ function initLightbox() {
   /* Warm the neighbours. By the time the visitor presses next, the file is
      usually already decoded and the change is instant. */
   function preload(i) {
-    const source = shots[(i + shots.length) % shots.length];
+    const source = group[(i + group.length) % group.length];
     if (!source) return;
     const url = fullSize(source);
     if (url) new Image().src = url;
@@ -1246,8 +1266,9 @@ function initLightbox() {
   let token = 0;
 
   async function show(i, opening) {
-    index = (i + shots.length) % shots.length;
-    const source = shots[index];
+    if (!group.length) return;
+    index = (i + group.length) % group.length;
+    const source = group[index];
     const mine = ++token;
 
     /* alt only. It describes the picture for someone who cannot see it, and it
@@ -1291,30 +1312,76 @@ function initLightbox() {
     preload(index - 1);
   }
 
-  shots.forEach((shot, i) => {
+  /* Opens on one photograph, with next and previous running through the rest
+     of its group. A group of one has nowhere to go, so it has no arrows. */
+  function open(shot, from, byKeyboard) {
+    group = groups.get(groupOf(shot)) || [shot];
+    const alone = group.length < 2;
+    prevBtn.hidden = alone;
+    nextBtn.hidden = alone;
+    opener = from;
+    openedByKeyboard = byKeyboard;
+    show(group.indexOf(shot), true);
+    box.showModal();
+  }
+
+  shots.forEach((shot) => {
     const frame = shot.closest(".frame");
     frame.classList.add("frame--zoomable");
     frame.tabIndex = 0;
     frame.setAttribute("role", "button");
 
-    frame.addEventListener("click", () => {
-      opener = frame; openedByKeyboard = false; show(i, true); box.showModal();
-    });
+    frame.addEventListener("click", () => open(shot, frame, false));
 
     frame.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault();
-      opener = frame; openedByKeyboard = true; show(i, true); box.showModal();
+      open(shot, frame, true);
     });
   });
 
-  box.querySelector("[data-lb-prev]").addEventListener("click", () => show(index - 1));
-  box.querySelector("[data-lb-next]").addEventListener("click", () => show(index + 1));
+  /* The slideshow. Its frames are listened to through the strip, not one by
+     one: the copies that make the loop are inert, so a click on one never
+     reaches it -- it lands on the strip, and is placed by where it fell. Copy
+     or original, frame k is photograph k mod n. From the keyboard the strip is
+     already one tab stop with the arrow keys on it, so Enter opens the
+     photograph showing at its leading edge rather than adding 21 more. */
+  strips.forEach((track) => {
+    const real = [...track.querySelectorAll(".carousel__slide:not([aria-hidden])")];
+    const frames = [...track.children];
+    const n = real.length;
+    if (!n) return;
+    const photo = (k) => real[k % n].querySelector("img");
+
+    track.addEventListener("click", (e) => {
+      const k = frames.findIndex((f) => {
+        const r = f.getBoundingClientRect();
+        return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      });
+      if (k >= 0) open(photo(k), track, false);
+    });
+
+    track.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      const edge = track.getBoundingClientRect().left;   // the strip runs left to right in both languages
+      let k = 0, best = Infinity;
+      frames.forEach((f, j) => {
+        const gap = Math.abs(f.getBoundingClientRect().left - edge);
+        if (gap < best) { best = gap; k = j; }
+      });
+      open(photo(k), track, true);
+    });
+  });
+
+  prevBtn.addEventListener("click", () => show(index - 1));
+  nextBtn.addEventListener("click", () => show(index + 1));
   box.querySelector("[data-lb-close]").addEventListener("click", () => box.close());
 
   box.addEventListener("keydown", (e) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
+    if (group.length < 2) return;
     /* The arrows follow the pictures, not the keyboard. The row runs right to
        left in Hebrew and the grid puts the next button on the left, so Left is
        what has to advance there — otherwise the key and the button sitting
@@ -1356,6 +1423,24 @@ function initDock() {
     }, { threshold: 0 }).observe(contact);
   }
 
+  /* The slideshow and the grading wipe are both driven from their edges --
+     arrows at the sides, a handle dragged across -- and the dock floats over
+     the bottom corner of whatever is under it. Measured, it covered the
+     slideshow's next arrow on a laptop and the wipe on a phone. So while
+     either is on screen at all, the dock stands aside entirely, by the same
+     fade it uses everywhere else. */
+  const inView = new Set();
+  if ("IntersectionObserver" in window) {
+    const watch = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) inView.add(entry.target);
+        else inView.delete(entry.target);
+      });
+      update();
+    }, { threshold: 0 });
+    document.querySelectorAll(".carousel, .compare").forEach((el) => watch.observe(el));
+  }
+
   /* A film's control bar is the one thing here the dock must not sit on. The
      volume button on it is how a visitor hears the film, and the dock floats
      at the bottom right -- exactly where the bar is drawn. With a film scrolled
@@ -1368,7 +1453,7 @@ function initDock() {
   const overFilm = (el) => {
     if (!el) return false;
     const r = el.getBoundingClientRect();
-    return [...document.querySelectorAll("video[controls], video[data-sound]")].some((video) => {
+    return [...document.querySelectorAll("video[controls]")].some((video) => {
       const f = video.getBoundingClientRect();
       return r.right > f.left && r.left < f.right &&
              r.bottom > f.bottom - CONTROL_BAR && r.top < f.bottom;
@@ -1377,8 +1462,9 @@ function initDock() {
 
   function update() {
     const y = window.scrollY;
-    wa?.classList.toggle("is-shown", y > window.innerHeight * 0.6 && !contactVisible && !overFilm(wa));
-    top?.classList.toggle("is-shown", y > window.innerHeight * 1.8 && !overFilm(top));
+    const clear = inView.size === 0;
+    wa?.classList.toggle("is-shown", clear && y > window.innerHeight * 0.6 && !contactVisible && !overFilm(wa));
+    top?.classList.toggle("is-shown", clear && y > window.innerHeight * 1.8 && !overFilm(top));
   }
 
   onScrollFrame(update);
@@ -1489,7 +1575,7 @@ function init() {
   initCarousels();
   initGalleries();
   initPlayers();
-  initSoundButtons();
+  initPosters();
   initVideos();
   initReveal();
   initDock();

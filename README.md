@@ -117,6 +117,20 @@ across and `--sp-3` down inside a 3.25rem floor. A safety net rule catches a
 button dropped straight after a paragraph without its wrapper. Measured, the
 gap above the contact buttons is 96px.
 
+## What is published
+
+Not the repository. The deploy (`.github/workflows/deploy.yml`) runs
+`tools/collect-site.py`, which reads both pages, the 404 page and the
+stylesheets for every file they link to, and publishes only those: 273MB of
+the repository's 518MB. The photograph masters in `assets/photos/`, films the
+page no longer plays, image sizes nothing points at, the template and the build
+scripts all stay off the web. A page linking to a file that does not exist
+stops the deploy. To see what would go out:
+
+```bash
+python3 tools/collect-site.py _site
+```
+
 ## Paths
 
 `ASSET_ROOT` at the top of `build.py` is how a generated page reaches
@@ -183,14 +197,15 @@ muted. There are two kinds, and the markup decides which:
 |---|---|---|
 | ambient | `loop muted playsinline`, no `controls` | the hero, the Events reels, the banner, the promo loop — silent for good, no furniture |
 | film | `controls muted playsinline` | the two desert proposal films, Beit Halochem and the Beyond promo — start muted, the visitor can turn the sound on |
-| vertical reel | `controls loop muted playsinline data-sound` | the ABBA Hotel reel — loops like a reel; the script swaps the native controls for one sound button in the corner |
-| vertical film | `controls loop muted playsinline` | the Beyond reel — loops, and keeps its native controls so a phone can take it full screen |
+| vertical reel | `controls loop muted playsinline` | the ABBA Hotel and Beyond reels — loop like a reel, with the same native controls as the films, so a phone can take either full screen |
 
 Write `controls` on a new video and it is a film; leave it off and it is
 ambient. Every ambient file is digitally silent anyway (decoded, not one sample
 is above zero), and every film has a soundtrack. Once a visitor has turned a
 film's sound on, or paused it, that choice is kept: scrolling away and back
 resumes it as they left it.
+
+Posters load the same way. A `poster` attribute is fetched as the page is parsed, however far down its video is, so below the hero each video names its poster with `data-poster="poster-name"` in the template; `build.py` expands that into the WebP sizes, and `initPosters` in `js/ui.js` sets the smallest one that covers the video a screen before it arrives. On a phone that took the first ten seconds from 1.3MB of images to 370KB, and on slow 4G the hero film now starts at 5.4s where it had not started at all.
 
 Only the hero carries `autoplay`, because it is on screen when the page opens.
 The attribute was on the Events reels too and it was costing a great deal:
@@ -216,9 +231,10 @@ Halochem went from 0.908 to 0.965 at 30MB instead of 80MB.
 A vertical reel (`.vreel` in `css/components.css`) sits beside its text from
 40rem up -- reel first, so on the left in English and on the right in Hebrew --
 and is held to 70vh on a desktop; on a phone it is the width of the column with
-its text below. Its `controls` are only for a visitor without JavaScript, and
-with reduced motion or Data Saver on they stay, because nothing starts by itself
-there and the reel needs a play button.
+its text below. Both reels keep their native controls -- volume, pause, full
+screen -- so they work the same way as each other and as every film on the
+page. (The ABBA reel used to swap them for a round sound button of its own;
+two reels a scroll apart behaving differently was the inconsistency.)
 
 `.vreel--compact` holds a reel to half a screen whenever it is stacked under its text (below 40rem, where the reel and its text stop sitting side by side). The Beyond reel uses it: it comes after a full-width film of the same project, and at full height the reel alone would fill the phone.
 

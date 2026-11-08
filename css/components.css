@@ -728,6 +728,9 @@
   overflow: hidden;
 }
 
+/* a slide opens the viewer, and says so the way a framed photograph does */
+.carousel__slide { cursor: zoom-in; }
+
 /* <picture> is a wrapper, not a box. Left to generate one it becomes the img's
    containing block, and that box is auto height — so block-size: 100% below has
    nothing to resolve against, silently falls back to the intrinsic size, and
@@ -1081,38 +1084,6 @@
   .vreel--compact { --reel-h: 50svh; }
 }
 
-/* ---------- the sound button ----------
-   What a reel has in place of a player: one round button in the corner, sound
-   on or off. Dark and blurred so it reads on a bright frame, a full 44px target
-   though it draws smaller, and placed on the inline end so it mirrors with the
-   page, as the dock does. */
-.vreel__sound {
-  position: absolute;
-  inset-block-end: var(--sp-3);
-  inset-inline-end: var(--sp-3);
-  z-index: 1;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  border: 1px solid rgba(247, 242, 230, .32);
-  background: rgba(10, 10, 10, .62);
-  backdrop-filter: blur(8px);
-  color: #F7F2E6;
-  transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease),
-              background-color var(--dur-xs) var(--ease);
-}
-
-/* the class sets display, which would otherwise beat the attribute */
-.vreel__sound[hidden] { display: none; }
-
-.vreel__sound:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
-.vreel__icon { inline-size: 1.2rem; block-size: 1.2rem; }
-.vreel__icon--audible,
-.vreel__sound.is-on .vreel__icon--muted { display: none; }
-.vreel__sound.is-on .vreel__icon--audible { display: block; }
-
 /* ---------- the text beside it ---------- */
 .vreel-case__text {
   display: grid;
@@ -1399,6 +1370,12 @@
 
 .lightbox::backdrop { background: rgba(0, 0, 0, .9); }
 
+/* A modal dialog does not stop the page behind it scrolling: a wheel or a
+   swipe over the viewer moved the page, and closing it left the visitor
+   somewhere else. Nothing behind can be seen at .96 black, so taking the
+   scrollbar away while it is open moves nothing anyone can see. */
+html:has(dialog[open]) { overflow: hidden; }
+
 .lightbox[open] {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1452,6 +1429,10 @@
   color: #F7F2E6;
   transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease);
 }
+
+/* a photograph alone in its group has nowhere to step to; the class sets
+   display, which would otherwise beat the attribute */
+.lightbox__nav[hidden] { display: none; }
 
 .lightbox__close:hover,
 .lightbox__nav:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
