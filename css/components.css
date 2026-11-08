@@ -1399,6 +1399,12 @@
 
 .lightbox::backdrop { background: rgba(0, 0, 0, .9); }
 
+/* A modal dialog does not stop the page behind it scrolling: a wheel or a
+   swipe over the viewer moved the page, and closing it left the visitor
+   somewhere else. Nothing behind can be seen at .96 black, so taking the
+   scrollbar away while it is open moves nothing anyone can see. */
+html:has(dialog[open]) { overflow: hidden; }
+
 .lightbox[open] {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
