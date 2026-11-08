@@ -117,6 +117,20 @@ across and `--sp-3` down inside a 3.25rem floor. A safety net rule catches a
 button dropped straight after a paragraph without its wrapper. Measured, the
 gap above the contact buttons is 96px.
 
+## What is published
+
+Not the repository. The deploy (`.github/workflows/deploy.yml`) runs
+`tools/collect-site.py`, which reads both pages, the 404 page and the
+stylesheets for every file they link to, and publishes only those: 273MB of
+the repository's 518MB. The photograph masters in `assets/photos/`, films the
+page no longer plays, image sizes nothing points at, the template and the build
+scripts all stay off the web. A page linking to a file that does not exist
+stops the deploy. To see what would go out:
+
+```bash
+python3 tools/collect-site.py _site
+```
+
 ## Paths
 
 `ASSET_ROOT` at the top of `build.py` is how a generated page reaches
