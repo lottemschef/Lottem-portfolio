@@ -197,8 +197,7 @@ muted. There are two kinds, and the markup decides which:
 |---|---|---|
 | ambient | `loop muted playsinline`, no `controls` | the hero, the Events reels, the banner, the promo loop — silent for good, no furniture |
 | film | `controls muted playsinline` | the two desert proposal films, Beit Halochem and the Beyond promo — start muted, the visitor can turn the sound on |
-| vertical reel | `controls loop muted playsinline data-sound` | the ABBA Hotel reel — loops like a reel; the script swaps the native controls for one sound button in the corner |
-| vertical film | `controls loop muted playsinline` | the Beyond reel — loops, and keeps its native controls so a phone can take it full screen |
+| vertical reel | `controls loop muted playsinline` | the ABBA Hotel and Beyond reels — loop like a reel, with the same native controls as the films, so a phone can take either full screen |
 
 Write `controls` on a new video and it is a film; leave it off and it is
 ambient. Every ambient file is digitally silent anyway (decoded, not one sample
@@ -232,9 +231,10 @@ Halochem went from 0.908 to 0.965 at 30MB instead of 80MB.
 A vertical reel (`.vreel` in `css/components.css`) sits beside its text from
 40rem up -- reel first, so on the left in English and on the right in Hebrew --
 and is held to 70vh on a desktop; on a phone it is the width of the column with
-its text below. Its `controls` are only for a visitor without JavaScript, and
-with reduced motion or Data Saver on they stay, because nothing starts by itself
-there and the reel needs a play button.
+its text below. Both reels keep their native controls -- volume, pause, full
+screen -- so they work the same way as each other and as every film on the
+page. (The ABBA reel used to swap them for a round sound button of its own;
+two reels a scroll apart behaving differently was the inconsistency.)
 
 `.vreel--compact` holds a reel to half a screen whenever it is stacked under its text (below 40rem, where the reel and its text stop sitting side by side). The Beyond reel uses it: it comes after a full-width film of the same project, and at full height the reel alone would fill the phone.
 

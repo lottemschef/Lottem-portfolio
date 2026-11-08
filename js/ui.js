@@ -336,55 +336,6 @@ function initPlayers() {
 }
 
 /* ==========================================================================
-   A REEL'S SOUND BUTTON
-   --------------------------------------------------------------------------
-   A vertical reel loops like one, so it gets what a reel has instead of a
-   player: one button in the corner, sound on and off. The markup carries
-   native controls for the visitor without this script, who would otherwise
-   have a poster and no way to play it; here they are swapped for the button.
-
-   Reduced motion and Data Saver keep the native controls instead. Nothing
-   starts by itself there, so the reel needs a play button, and the sound
-   button alone would be a control for a film that never moves.
-   ========================================================================== */
-function initSoundButtons() {
-  if (videoParked()) return;
-
-  document.querySelectorAll("video[data-sound]").forEach((video) => {
-    const button = video.parentElement.querySelector("[data-sound-toggle]");
-    if (!button) return;
-
-    video.controls = false;
-    button.hidden = false;
-
-    const labels = {
-      on: button.dataset.labelOn || "Turn the sound on",
-      off: button.dataset.labelOff || "Turn the sound off",
-    };
-
-    /* The label says what pressing will do, rather than aria-pressed on a
-       fixed name: "Turn the sound off" needs no state to be understood. */
-    const paint = () => {
-      const audible = !video.muted;
-      button.classList.toggle("is-on", audible);
-      button.setAttribute("aria-label", audible ? labels.off : labels.on);
-    };
-
-    button.addEventListener("click", () => {
-      video.muted = !video.muted;
-      // a press is a gesture, the one moment sound is always allowed to start
-      if (!video.muted && video.paused) video.play?.().catch(() => {});
-    });
-
-    /* Painted from the video rather than from the click, because the video
-       can change on its own: initVideos() mutes a film again if the browser
-       refuses its sound on the way back into view. */
-    video.addEventListener("volumechange", paint);
-    paint();
-  });
-}
-
-/* ==========================================================================
    POSTERS, FETCHED ON APPROACH
    --------------------------------------------------------------------------
    A poster attribute is fetched as soon as the page is parsed, however far
@@ -434,10 +385,10 @@ function initVideos() {
 
   const videoIn = (t) => (t.tagName === "VIDEO" ? t : t.querySelector("video"));
   const targetOf = (v) => v.closest(".player") || v;
-  /* A film is a video the visitor can hear: native controls, or a sound
-     button of its own (data-sound -- the vertical reel, whose controls are
-     swapped for one). Either way it must not be re-muted behind their back. */
-  const isFilm = (v) => v.controls || v.hasAttribute("data-sound");
+  /* A film is a video the visitor can hear, which here means one with native
+     controls: the films and both vertical reels. It must not be re-muted
+     behind their back. */
+  const isFilm = (v) => v.controls;
 
   const seen = new Map();        // target -> share of it on screen, as last reported
   const ours = new WeakSet();    // videos this code is in the middle of pausing
@@ -1502,7 +1453,7 @@ function initDock() {
   const overFilm = (el) => {
     if (!el) return false;
     const r = el.getBoundingClientRect();
-    return [...document.querySelectorAll("video[controls], video[data-sound]")].some((video) => {
+    return [...document.querySelectorAll("video[controls]")].some((video) => {
       const f = video.getBoundingClientRect();
       return r.right > f.left && r.left < f.right &&
              r.bottom > f.bottom - CONTROL_BAR && r.top < f.bottom;
@@ -1624,7 +1575,6 @@ function init() {
   initCarousels();
   initGalleries();
   initPlayers();
-  initSoundButtons();
   initPosters();
   initVideos();
   initReveal();
