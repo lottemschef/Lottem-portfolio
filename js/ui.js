@@ -769,7 +769,8 @@ function setupCarousel(root) {
   const start = () => {
     clearInterval(timer);
     if (paused || still.matches || document.hidden) return;
-    timer = setInterval(() => step(1), CAROUSEL_MS);
+    // held while the viewer is open, so the strip is where it was left when it closes
+    timer = setInterval(() => { if (!document.querySelector("dialog[open]")) step(1); }, CAROUSEL_MS);
   };
   const stop = () => clearInterval(timer);
 
@@ -1243,9 +1244,34 @@ function initLightbox() {
   const shots = [...document.querySelectorAll(".frame img")].filter(
     (img) => !img.closest(".compare") && !img.closest(".player")
   );
-  if (!shots.length) return;
+
+  /* The slideshow's photographs open here too -- the real set, not the copies
+     either side of it that make the loop. They are not .frame, so they get no
+     hover zoom and no tab stop each; the strip handles both below. */
+  const strips = [...document.querySelectorAll("[data-carousel-track]")];
+  const slideShots = strips.flatMap((track) =>
+    [...track.querySelectorAll(".carousel__slide:not([aria-hidden]) img")]);
+
+  if (!shots.length && !slideShots.length) return;
+
+  /* Next and previous stay inside the piece of work the photograph belongs
+     to -- its .block, or the section if it has none -- in page order. Without
+     this the viewer ran on from Beyond into ABBA, the proposals and the
+     concerts, one client's pictures straight into another's. */
+  const groupOf = (el) => el.closest(".block, section, footer") || document.body;
+  const allShots = [...shots, ...slideShots].sort((a, b) =>
+    a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+  const groups = new Map();
+  allShots.forEach((shot) => {
+    const key = groupOf(shot);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(shot);
+  });
 
   const img = box.querySelector(".lightbox__img");
+  const prevBtn = box.querySelector("[data-lb-prev]");
+  const nextBtn = box.querySelector("[data-lb-next]");
+  let group = [];
   let index = 0;
   let opener = null;
   let openedByKeyboard = false;
@@ -1277,7 +1303,7 @@ function initLightbox() {
   /* Warm the neighbours. By the time the visitor presses next, the file is
      usually already decoded and the change is instant. */
   function preload(i) {
-    const source = shots[(i + shots.length) % shots.length];
+    const source = group[(i + group.length) % group.length];
     if (!source) return;
     const url = fullSize(source);
     if (url) new Image().src = url;
@@ -1289,8 +1315,9 @@ function initLightbox() {
   let token = 0;
 
   async function show(i, opening) {
-    index = (i + shots.length) % shots.length;
-    const source = shots[index];
+    if (!group.length) return;
+    index = (i + group.length) % group.length;
+    const source = group[index];
     const mine = ++token;
 
     /* alt only. It describes the picture for someone who cannot see it, and it
@@ -1334,30 +1361,76 @@ function initLightbox() {
     preload(index - 1);
   }
 
-  shots.forEach((shot, i) => {
+  /* Opens on one photograph, with next and previous running through the rest
+     of its group. A group of one has nowhere to go, so it has no arrows. */
+  function open(shot, from, byKeyboard) {
+    group = groups.get(groupOf(shot)) || [shot];
+    const alone = group.length < 2;
+    prevBtn.hidden = alone;
+    nextBtn.hidden = alone;
+    opener = from;
+    openedByKeyboard = byKeyboard;
+    show(group.indexOf(shot), true);
+    box.showModal();
+  }
+
+  shots.forEach((shot) => {
     const frame = shot.closest(".frame");
     frame.classList.add("frame--zoomable");
     frame.tabIndex = 0;
     frame.setAttribute("role", "button");
 
-    frame.addEventListener("click", () => {
-      opener = frame; openedByKeyboard = false; show(i, true); box.showModal();
-    });
+    frame.addEventListener("click", () => open(shot, frame, false));
 
     frame.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault();
-      opener = frame; openedByKeyboard = true; show(i, true); box.showModal();
+      open(shot, frame, true);
     });
   });
 
-  box.querySelector("[data-lb-prev]").addEventListener("click", () => show(index - 1));
-  box.querySelector("[data-lb-next]").addEventListener("click", () => show(index + 1));
+  /* The slideshow. Its frames are listened to through the strip, not one by
+     one: the copies that make the loop are inert, so a click on one never
+     reaches it -- it lands on the strip, and is placed by where it fell. Copy
+     or original, frame k is photograph k mod n. From the keyboard the strip is
+     already one tab stop with the arrow keys on it, so Enter opens the
+     photograph showing at its leading edge rather than adding 21 more. */
+  strips.forEach((track) => {
+    const real = [...track.querySelectorAll(".carousel__slide:not([aria-hidden])")];
+    const frames = [...track.children];
+    const n = real.length;
+    if (!n) return;
+    const photo = (k) => real[k % n].querySelector("img");
+
+    track.addEventListener("click", (e) => {
+      const k = frames.findIndex((f) => {
+        const r = f.getBoundingClientRect();
+        return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      });
+      if (k >= 0) open(photo(k), track, false);
+    });
+
+    track.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      const edge = track.getBoundingClientRect().left;   // the strip runs left to right in both languages
+      let k = 0, best = Infinity;
+      frames.forEach((f, j) => {
+        const gap = Math.abs(f.getBoundingClientRect().left - edge);
+        if (gap < best) { best = gap; k = j; }
+      });
+      open(photo(k), track, true);
+    });
+  });
+
+  prevBtn.addEventListener("click", () => show(index - 1));
+  nextBtn.addEventListener("click", () => show(index + 1));
   box.querySelector("[data-lb-close]").addEventListener("click", () => box.close());
 
   box.addEventListener("keydown", (e) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
+    if (group.length < 2) return;
     /* The arrows follow the pictures, not the keyboard. The row runs right to
        left in Hebrew and the grid puts the next button on the left, so Left is
        what has to advance there — otherwise the key and the button sitting

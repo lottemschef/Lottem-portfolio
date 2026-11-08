@@ -728,6 +728,9 @@
   overflow: hidden;
 }
 
+/* a slide opens the viewer, and says so the way a framed photograph does */
+.carousel__slide { cursor: zoom-in; }
+
 /* <picture> is a wrapper, not a box. Left to generate one it becomes the img's
    containing block, and that box is auto height — so block-size: 100% below has
    nothing to resolve against, silently falls back to the intrinsic size, and
@@ -1458,6 +1461,10 @@ html:has(dialog[open]) { overflow: hidden; }
   color: #F7F2E6;
   transition: border-color var(--dur-xs) var(--ease), color var(--dur-xs) var(--ease);
 }
+
+/* a photograph alone in its group has nowhere to step to; the class sets
+   display, which would otherwise beat the attribute */
+.lightbox__nav[hidden] { display: none; }
 
 .lightbox__close:hover,
 .lightbox__nav:hover { border-color: var(--accent-lift); color: var(--accent-lift); }
