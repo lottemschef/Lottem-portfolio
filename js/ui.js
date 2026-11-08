@@ -1399,6 +1399,24 @@ function initDock() {
     }, { threshold: 0 }).observe(contact);
   }
 
+  /* The slideshow and the grading wipe are both driven from their edges --
+     arrows at the sides, a handle dragged across -- and the dock floats over
+     the bottom corner of whatever is under it. Measured, it covered the
+     slideshow's next arrow on a laptop and the wipe on a phone. So while
+     either is on screen at all, the dock stands aside entirely, by the same
+     fade it uses everywhere else. */
+  const inView = new Set();
+  if ("IntersectionObserver" in window) {
+    const watch = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) inView.add(entry.target);
+        else inView.delete(entry.target);
+      });
+      update();
+    }, { threshold: 0 });
+    document.querySelectorAll(".carousel, .compare").forEach((el) => watch.observe(el));
+  }
+
   /* A film's control bar is the one thing here the dock must not sit on. The
      volume button on it is how a visitor hears the film, and the dock floats
      at the bottom right -- exactly where the bar is drawn. With a film scrolled
@@ -1420,8 +1438,9 @@ function initDock() {
 
   function update() {
     const y = window.scrollY;
-    wa?.classList.toggle("is-shown", y > window.innerHeight * 0.6 && !contactVisible && !overFilm(wa));
-    top?.classList.toggle("is-shown", y > window.innerHeight * 1.8 && !overFilm(top));
+    const clear = inView.size === 0;
+    wa?.classList.toggle("is-shown", clear && y > window.innerHeight * 0.6 && !contactVisible && !overFilm(wa));
+    top?.classList.toggle("is-shown", clear && y > window.innerHeight * 1.8 && !overFilm(top));
   }
 
   onScrollFrame(update);
