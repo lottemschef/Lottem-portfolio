@@ -206,6 +206,8 @@ is above zero), and every film has a soundtrack. Once a visitor has turned a
 film's sound on, or paused it, that choice is kept: scrolling away and back
 resumes it as they left it.
 
+Posters load the same way. A `poster` attribute is fetched as the page is parsed, however far down its video is, so below the hero each video names its poster with `data-poster="poster-name"` in the template; `build.py` expands that into the WebP sizes, and `initPosters` in `js/ui.js` sets the smallest one that covers the video a screen before it arrives. On a phone that took the first ten seconds from 1.3MB of images to 370KB, and on slow 4G the hero film now starts at 5.4s where it had not started at all.
+
 Only the hero carries `autoplay`, because it is on screen when the page opens.
 The attribute was on the Events reels too and it was costing a great deal:
 `autoplay` overrides `preload="none"`, so every reel below the fold started

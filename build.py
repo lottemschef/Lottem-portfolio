@@ -103,6 +103,27 @@ def expand_photos(html):
     return re.sub(r'<x-photo\s+([^>]*?)\s*/?>', photo, html)
 
 
+def poster_set(m):
+    """data-poster="poster-name" -> data-poster-set="…-320.webp 320w, …"
+
+    A <video poster> is fetched the moment the page is parsed, preload="none"
+    or not, so twelve of them were 1.3MB of full-size JPEG on a phone before
+    the visitor had scrolled at all. The template names the poster's ladder
+    instead; js/ui.js sets the real poster a screen before the video comes into
+    view, choosing the smallest WebP that covers the width it is drawn at.
+    """
+    name = m.group(1)
+    entry = MANIFEST.get(name)
+    if not entry:
+        sys.exit(f'  build error: no poster named "{name}" in the manifest')
+    files = ', '.join(f'assets/img/{name}-{w}.webp {w}w' for w in entry['widths'])
+    return f'data-poster-set="{files}"'
+
+
+def expand_posters(html):
+    return re.sub(r'data-poster="([a-z0-9-]+)"', poster_set, html)
+
+
 # ------------------------------------------------------------------- language
 
 def put_text(html, strings):
@@ -225,7 +246,7 @@ def stamp_assets(html):
 
 def build(lang):
     s = STRINGS[lang]
-    html = expand_photos(TEMPLATE)
+    html = expand_posters(expand_photos(TEMPLATE))
     html = put_text(html, s)
     html = put_attrs(html, s)
     html = head(html, lang, s)

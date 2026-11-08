@@ -384,6 +384,49 @@ function initSoundButtons() {
   });
 }
 
+/* ==========================================================================
+   POSTERS, FETCHED ON APPROACH
+   --------------------------------------------------------------------------
+   A poster attribute is fetched as soon as the page is parsed, however far
+   down its video sits and whatever preload says. Written into the markup, the
+   eleven below the hero cost 1.3MB of full-size JPEG on a phone in the first
+   ten seconds, and on a slow connection the hero film never started in that
+   time because they were all in the way.
+
+   So below the hero each video carries its poster's sizes instead, as
+   data-poster-set (written by build.py from the image manifest, WebP only),
+   and is given a real poster a screen before it comes into view: the
+   smallest file that covers the width it is drawn at, at this screen's pixel
+   density. The hero keeps an ordinary poster -- it is on screen at first
+   paint, and waiting for this would show it black.
+   ========================================================================== */
+function initPosters() {
+  const videos = [...document.querySelectorAll("video[data-poster-set]")];
+  if (!videos.length) return;
+
+  function give(video) {
+    const files = video.dataset.posterSet.split(",")
+      .map((part) => { const [url, w] = part.trim().split(/\s+/); return { url, width: parseInt(w, 10) || 0 }; })
+      .filter((f) => f.url)
+      .sort((a, b) => a.width - b.width);
+    if (!files.length) return;
+    const drawn = video.getBoundingClientRect().width || Number(video.getAttribute("width")) || 0;
+    const need = drawn * (window.devicePixelRatio || 1);
+    video.poster = (files.find((f) => f.width >= need) || files[files.length - 1]).url;
+  }
+
+  if (!("IntersectionObserver" in window)) { videos.forEach(give); return; }
+
+  const approach = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      approach.unobserve(entry.target);
+      give(entry.target);
+    });
+  }, { rootMargin: "100% 0px" });
+  videos.forEach((video) => approach.observe(video));
+}
+
 function initVideos() {
   /* A .player is watched as a figure, because its video does not exist yet. */
   const targets = [...document.querySelectorAll("video, .player")];
@@ -1490,6 +1533,7 @@ function init() {
   initGalleries();
   initPlayers();
   initSoundButtons();
+  initPosters();
   initVideos();
   initReveal();
   initDock();
